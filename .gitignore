@@ -13,3 +13,8 @@ __pycache__/
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Ignore sprint plan
+PS26171_Sprint_Plan.pdf
+
+
