@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "PrivyVision — Privacy-Preserving Browser Agent",
+  "version": "0.1.0",
+  "description": "SIH26171 prototype: local perception and redaction run before any network request leaves the browser.",
+  "permissions": ["activeTab", "storage", "scripting"],
+  "host_permissions": ["http://localhost/*", "http://127.0.0.1/*"],
+  "background": {
+    "service_worker": "dist/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost/*", "http://127.0.0.1/*"],
+      "js": ["dist/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Privacy Canary Test Page — SIH26171</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav><a href="index.html">&larr; Back to mock checkout</a></nav>
+    <h1>Privacy Canary Test Page</h1>
+    <p>Seeded with known fake PII. After a capture-&gt;redact-&gt;send cycle,
+      inspect the server's request log — none of the values below should
+      appear raw. See PS26171_Role3_Privacy.pdf, Day 3.</p>
+
+    <form onsubmit="return false;">
+      <label>
+        Email
+        <input type="email" name="email" autocomplete="email" value="CANARY_EMAIL_12345@example.com" />
+      </label>
+      <label>
+        Phone
+        <input type="tel" name="phone" autocomplete="tel" value="CANARY_PHONE_5550100" />
+      </label>
+      <label>
+        Password
+        <input type="password" name="password" autocomplete="current-password" value="CANARY_PASSWORD_hunter2" />
+      </label>
+      <label>
+        Full Name
+        <input type="text" name="name" autocomplete="name" value="CANARY_NAME_Test Subject" />
+      </label>
+      <label>
+        Card Number
+        <input type="text" name="card_number" autocomplete="cc-number" value="CANARY_CARD_4242424242424242" />
+      </label>
+      <button type="submit">Submit (demo only)</button>
+    </form>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sih26171.local/schemas/sanitized-context.schema.json",
+  "title": "SanitizedContext",
+  "description": "The only payload shape allowed to leave the browser. Built by the extension's Privacy Firewall after redaction (extension/src/privacy/redact.ts), validated again server-side (server/app/validators/context_validator.py) before any reasoning happens.",
+  "type": "object",
+  "required": ["task_id", "page", "url_origin", "elements", "fields"],
+  "additionalProperties": false,
+  "properties": {
+    "task_id": { "type": "string" },
+    "page": {
+      "type": "string",
+      "description": "Semantic page role, e.g. 'login', 'checkout' — not the raw URL path."
+    },
+    "url_origin": {
+      "type": "string",
+      "description": "Origin only (scheme + host). Full URLs with query params may leak PII and must never be sent."
+    },
+    "elements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["element_id", "role"],
+        "additionalProperties": false,
+        "properties": {
+          "element_id": { "type": "integer" },
+          "role": { "type": "string" },
+          "label": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "fields": {
+      "type": "object",
+      "description": "Redacted field map only, e.g. { \"email\": \"[EMAIL_01]\" }. Every value here must be a redaction token, never a raw value — the server rejects anything that doesn't look like one.",
+      "additionalProperties": { "type": "string" }
+    }
+  }
+}

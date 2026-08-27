@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mock Checkout — SIH26171 Test Site</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav><a href="privacy-test.html">Go to privacy canary test page &rarr;</a></nav>
+    <h1>Mock Checkout</h1>
+    <p>This page exists only for the extension to perceive and act on — it is
+      not a real store. Fields below mirror what the official rubric expects
+      to see: name/email/phone/password/address/payment plus a task target.</p>
+
+    <form id="checkout-form" onsubmit="return false;">
+      <label>
+        Full Name
+        <input type="text" name="name" autocomplete="name" placeholder="Aarav Sharma" />
+      </label>
+      <label>
+        Email
+        <input type="email" name="email" autocomplete="email" placeholder="aarav@example.com" />
+      </label>
+      <label>
+        Phone
+        <input type="tel" name="phone" autocomplete="tel" placeholder="+91 98765 43210" />
+      </label>
+      <label>
+        Password
+        <input type="password" name="password" autocomplete="current-password" />
+      </label>
+      <label>
+        Shipping Address
+        <input type="text" name="address" autocomplete="street-address" placeholder="221B Residency Road" />
+      </label>
+      <label>
+        Card Number
+        <input type="text" name="card_number" autocomplete="cc-number" placeholder="4111 1111 1111 1111" />
+      </label>
+      <label>
+        Product
+        <select name="product">
+          <option value="flight-del-bom">Flight — DEL to BOM, tomorrow</option>
+          <option value="flight-del-blr">Flight — DEL to BLR, tomorrow</option>
+        </select>
+      </label>
+      <button id="submit-btn" type="submit">Place Order</button>
+    </form>
+
+    <script>
+      document.getElementById("submit-btn").addEventListener("click", () => {
+        document.getElementById("submit-btn").textContent = "Order placed (demo only)";
+      });
+    </script>
+  </body>
+</html>
