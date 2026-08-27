@@ -1,6 +1,6 @@
 # mock-site/
 
-Static test site — Integration's Day-1 deliverable (`../docs/planning/PS26171_Role6_Integration.pdf`).
+Static test site — Integration's Day-1 deliverable (`../docs/planning/PS26171_Sprint_Plan.pdf`, page 8, Role 6).
 Every other role is blocked until this exists, so it ships first.
 
 - **`index.html`** — a checkout-style page with the fields the official

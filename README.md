@@ -23,8 +23,8 @@ tests/         Cross-cutting integration tests (later)
 ```
 
 Six roles, six folders, one owner each — see `docs/ARCHITECTURE.md`'s
-"Where each role starts" table and the six
-`docs/planning/PS26171_Role*.pdf` files for day-by-day tasks.
+"Where each role starts" table and `docs/planning/PS26171_Sprint_Plan.pdf`
+(one page per role) for day-by-day tasks.
 
 ## Quick start
 
@@ -41,9 +41,12 @@ Then `chrome://extensions` &rarr; Developer mode &rarr; Load unpacked &rarr; sel
 cd server
 python -m venv .venv
 ./.venv/Scripts/python.exe -m pip install -r requirements.txt   # Windows
-./.venv/Scripts/python.exe -m pytest -q                          # should show 3 passed
+./.venv/Scripts/python.exe -m pytest -q                          # should show 6 passed
 ./.venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8787
 ```
+Runs against a stub reasoning backend by default — zero setup, no GPU
+needed. Server AI runs the real thing locally via Ollama; see
+`server/README.md`'s "Reasoning backend" section.
 
 **Mock site:**
 ```bash
@@ -57,8 +60,12 @@ Integration's Day-4 sync is where they get wired together for real.
 ## Status
 
 - Extension: builds and typechecks clean (`npm run build`, `npm run typecheck`).
-- Server: 3/3 tests passing, including the automated privacy-firewall check.
+- Server: 6/6 tests passing — the privacy-firewall check, plus the local
+  Ollama response parser's fallback paths.
 - Mock site: static, no build step.
+- Reasoning runs locally (Ollama, on Server AI's GPU), not via a cloud
+  API — see `docs/ARCHITECTURE.md`'s "Reasoning backend" note for why
+  that's a deliberate choice, not a privacy requirement.
 - Everything past DOM-based perception/redaction (local vision model, PVM
   caching, benchmarks, dashboard) is deferred on purpose — see
   `docs/ARCHITECTURE.md`'s scope table before adding to those areas.

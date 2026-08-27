@@ -15,9 +15,8 @@ has a dedicated folder here that's theirs alone:
 | `src/pvm/` | **Role 5** | Level-1 verification, recovery loop, bounded IndexedDB memory. |
 | `src/messaging/` | shared | The typed message contract every module imports from — change it here, not ad hoc. |
 
-Per-role day-by-day tasks: `../docs/planning/PS26171_Role1_Extension.pdf`,
-`PS26171_Role2_Perception.pdf`, `PS26171_Role3_Privacy.pdf`,
-`PS26171_Role5_Pvm.pdf`.
+Per-role day-by-day tasks: `../docs/planning/PS26171_Sprint_Plan.pdf`
+(one page per role, pages 3&ndash;8).
 
 ## Setup
 
