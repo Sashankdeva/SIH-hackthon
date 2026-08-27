@@ -8,6 +8,10 @@ import { onMessage } from "../messaging/bus";
  * PS26171_Role1_Extension.pdf, Day 2.
  */
 onMessage((message, sender) => {
+  if (!message || typeof message !== "object" || !("type" in message)) {
+    return Promise.resolve({ ack: false, reason: "malformed message" });
+  }
+
   switch (message.type) {
     case "PAGE_STATE":
       console.log("[background] page state from tab", sender.tab?.id, message.payload);
@@ -21,6 +25,9 @@ onMessage((message, sender) => {
     case "ACTION_RESULT":
       console.log("[background] verification result", message.payload);
       return Promise.resolve({ ack: true });
+    case "LIFECYCLE_EVENT":
+      console.log("[background] lifecycle event from tab", sender.tab?.id, message.payload);
+      return Promise.resolve({ ack: true, event: message.payload?.event });
     default:
       return Promise.resolve({ ack: false, reason: "unknown message type" });
   }

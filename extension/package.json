@@ -6,11 +6,14 @@
   "scripts": {
     "build": "node esbuild.config.mjs",
     "dev": "node esbuild.config.mjs --watch",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.270",
     "esbuild": "^0.23.1",
-    "typescript": "^5.5.4"
+    "jsdom": "^29.1.1",
+    "typescript": "^5.5.4",
+    "vitest": "^4.1.11"
   }
 }

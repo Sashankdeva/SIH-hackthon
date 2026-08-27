@@ -4,6 +4,9 @@ export interface CapturedElement {
   label: string | null;
   tag: string;
   inputType: string | null;
+  disabled?: boolean;
+  readonly?: boolean;
+  placeholder?: string | null;
 }
 
 export interface PageState {

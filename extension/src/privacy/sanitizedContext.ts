@@ -49,3 +49,31 @@ export function buildSanitizedContext(
     fields,
   };
 }
+
+/**
+ * Wire format adhering strictly to shared/schemas/sanitized-context.schema.json.
+ */
+export interface WireSanitizedContext {
+  task_id: string;
+  page: string;
+  url_origin: string;
+  elements: Array<{ element_id: number; role: string; label: string | null }>;
+  fields: Record<string, string>;
+}
+
+/**
+ * Converts internal camelCase SanitizedContext to snake_case wire payload.
+ */
+export function toWireSanitizedContext(context: SanitizedContext): WireSanitizedContext {
+  return {
+    task_id: context.taskId,
+    page: context.page,
+    url_origin: context.urlOrigin,
+    elements: context.elements.map((el) => ({
+      element_id: el.elementId,
+      role: el.role,
+      label: el.label,
+    })),
+    fields: context.fields,
+  };
+}
