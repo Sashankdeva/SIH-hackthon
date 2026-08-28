@@ -9,6 +9,15 @@ import type { PrivacyDetection, RedactionRecord } from "../privacy/types";
 import { sendMessage, onMessage } from "../messaging/bus";
 import { runOneStep } from "./pipeline";
 import { cleanupSession } from "../action/session";
+
+/**
+ * Stable identifier for this content-script lifetime — used only for the
+ * page-load privacy scan and PAGE_STATE message. Never sent to the
+ * server as a task identifier. Each user-submitted task gets its own
+ * UUID generated inside runTask() below.
+ */
+const pageSessionId = crypto.randomUUID();
+
 interface VisionResultDetail {
   imageIndex: number;
   faceCount: number;
