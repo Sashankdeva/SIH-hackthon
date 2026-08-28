@@ -9,7 +9,7 @@
   "properties": {
     "action": {
       "type": "string",
-      "enum": ["click", "type", "type_secret", "scroll", "navigate", "keypress", "wait"]
+      "enum": ["click", "type", "type_secret", "scroll", "navigate", "keypress", "wait", "done"]
     },
     "element_id": {
       "type": ["integer", "null"],

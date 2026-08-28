@@ -11,11 +11,33 @@
   "content_scripts": [
     {
       "matches": ["http://localhost/*", "http://127.0.0.1/*"],
+      "js": ["dist/vision-main.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["http://localhost/*", "http://127.0.0.1/*"],
       "js": ["dist/content.js"],
       "run_at": "document_idle"
     }
   ],
   "action": {
     "default_popup": "popup.html"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "dist/ort.all.min.js",
+        "dist/ort-wasm-simd-threaded.jsep.mjs",
+        "dist/ort-wasm-simd-threaded.jsep.wasm",
+        "dist/ort-wasm-simd-threaded.mjs",
+        "dist/ort-wasm-simd-threaded.wasm",
+        "dist/models/face-detector.onnx"
+      ],
+      "matches": ["http://localhost/*", "http://127.0.0.1/*"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   }
 }

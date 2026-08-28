@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-ActionType = Literal["click", "type", "type_secret", "scroll", "navigate", "keypress", "wait"]
+ActionType = Literal["click", "type", "type_secret", "scroll", "navigate", "keypress", "wait", "done"]
 
 
 class ActionResponse(BaseModel):

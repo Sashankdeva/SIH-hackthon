@@ -9,6 +9,7 @@ const ALLOWED_ACTIONS = new Set<ActionRequest["action"]>([
   "navigate",
   "keypress",
   "wait",
+  "done",
 ]);
 
 const MIN_CONFIDENCE = 0.5;

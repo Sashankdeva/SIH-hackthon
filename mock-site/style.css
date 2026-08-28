@@ -50,3 +50,8 @@ nav a {
   font-size: 13px;
   color: #2451b8;
 }
+
+.muted-note {
+  font-size: 11px;
+  color: #5b6472;
+}

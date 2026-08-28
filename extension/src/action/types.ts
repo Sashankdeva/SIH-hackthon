@@ -1,4 +1,5 @@
-export type ActionType = "click" | "type" | "type_secret" | "scroll" | "navigate" | "keypress" | "wait";
+export type ActionType = "click" | "type" | "type_secret" | "scroll" | "navigate" | "keypress" | "wait" | "done";
+
 
 /** Mirrors shared/schemas/action.schema.json — keep both in sync. */
 export interface ActionRequest {

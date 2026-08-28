@@ -1,5 +1,21 @@
 import { resolveElement } from "../perception/domCapture";
+import { resolveSecret } from "../privacy/secretStore";
+import { resolveFromProfile } from "../privacy/profileStore";
 import type { ActionRequest } from "./types";
+
+/**
+ * Two local sources, in priority order, for the real value behind a
+ * redaction token — neither of which the server can see:
+ *  1. secretStore — a value already present on this page (a password
+ *     the user had typed), captured at redaction time.
+ *  2. profileStore — the user's own saved details (name, email, phone,
+ *     address), entered once in the popup.
+ * Chrome exposes no API for reading its own saved autofill data, so 2
+ * is our own store rather than the browser's — see profileStore.ts.
+ */
+async function resolveLocalValue(token: string): Promise<string | null> {
+  return resolveSecret(token) ?? (await resolveFromProfile(token));
+}
 
 /**
  * Maps a validated ActionRequest to real browser interaction. Never call
@@ -23,12 +39,22 @@ export async function executeAction(req: ActionRequest): Promise<void> {
       return;
     }
     case "type_secret": {
-      // The real secret is resolved from local storage via valueRef — it
-      // never travels through the server response or any caller of this
-      // function. See PS26171 Structured Action Protocol: "Secret-safe typing."
+      // The real secret is resolved locally via valueRef (the redaction
+      // token) — it was captured off the DOM at redaction time
+      // (privacy/sanitizedContext.ts:captureSecrets) and never appeared
+      // in the server request or response. See PS26171 Structured
+      // Action Protocol: "Secret-safe typing."
       const el = resolveElement(req.elementId!) as HTMLInputElement | null;
-      const secret = await resolveLocalSecret(req.valueRef ?? "");
-      if (el && secret != null) {
+      const secret = await resolveLocalValue(req.valueRef ?? "");
+      if (!el) {
+        console.warn("[executor] type_secret target element not found:", req.elementId);
+      } else if (secret == null) {
+        console.warn(
+          "[executor] no local value for",
+          req.valueRef,
+          "— add your details in the extension popup to auto-fill this field."
+        );
+      } else {
         el.focus();
         el.value = secret;
         el.dispatchEvent(new Event("input", { bubbles: true }));
@@ -55,10 +81,4 @@ export async function executeAction(req: ActionRequest): Promise<void> {
       return;
     }
   }
-}
-
-async function resolveLocalSecret(_valueRef: string): Promise<string | null> {
-  // Stub for this sprint — real implementation resolves against a
-  // locally-scoped secret store whose contents the server never sees.
-  return null;
 }

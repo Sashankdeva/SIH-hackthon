@@ -6,11 +6,19 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <nav><a href="privacy-test.html">Go to privacy canary test page &rarr;</a></nav>
+    <nav>
+      <a href="privacy-test.html">Go to privacy canary test page &rarr;</a>
+      &nbsp;|&nbsp;
+      <a href="vision-test.html">Go to local vision (face detection) test &rarr;</a>
+    </nav>
     <h1>Mock Checkout</h1>
     <p>This page exists only for the extension to perceive and act on — it is
       not a real store. Fields below mirror what the official rubric expects
       to see: name/email/phone/password/address/payment plus a task target.</p>
+    <p>
+      <img src="assets/demo-face.jpg" alt="Account profile photo" width="120" />
+      <br /><span class="muted-note">Account profile photo — should be redacted locally by the on-device vision model before this page is captured.</span>
+    </p>
 
     <form id="checkout-form" onsubmit="return false;">
       <label>

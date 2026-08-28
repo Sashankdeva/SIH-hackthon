@@ -11,6 +11,7 @@ const LABEL_KEYWORDS: Array<[RegExp, SensitiveCategory]> = [
   [/e-?mail/i, "email"],
   [/phone|mobile/i, "phone"],
   [/full\s*name|your\s*name|first\s*name|last\s*name/i, "person_name"],
+  [/address|street|city|postcode|zip|pin\s*code/i, "address"],
   [/aadhaar|passport|ssn|pan\s*card/i, "government_id"],
   [/card\s*number|cvv|expiry/i, "financial"],
 ];

@@ -13,3 +13,9 @@ __pycache__/
 .DS_Store
 Thumbs.db
 .vscode/
+dist-tests/
+
+# Logs
+server/logs/
+*.jsonl
+

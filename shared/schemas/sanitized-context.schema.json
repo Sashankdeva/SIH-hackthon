@@ -1,13 +1,51 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://sih26171.local/schemas/sanitized-context.schema.json",
+  "$defs": {
+    "StepRecord": {
+      "type": "object",
+      "description": "A sanitized summary of one completed step. Raw values, secrets, value_ref contents, and full URLs must NEVER appear here — only structural metadata.",
+      "required": ["step", "action", "outcome"],
+      "additionalProperties": false,
+      "properties": {
+        "step": {
+          "type": "integer",
+          "description": "Step number, starting from 1.",
+          "minimum": 1
+        },
+        "action": {
+          "type": "string",
+          "description": "The action type that was executed (click, type, scroll, etc.)."
+        },
+        "element_id": {
+          "type": ["integer", "null"],
+          "description": "The element that was targeted, if any. Null for non-element actions."
+        },
+        "element_label": {
+          "type": ["string", "null"],
+          "description": "The sanitized label of the targeted element, as it appeared in the context. Redaction tokens (e.g. [EMAIL_01]) are safe to include here since they carry no real value. Raw field values must never appear here."
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["success", "failure", "ambiguous"],
+          "description": "Verification outcome from the extension's PVM layer."
+        }
+      }
+    }
+  },
   "title": "SanitizedContext",
   "description": "The only payload shape allowed to leave the browser. Built by the extension's Privacy Firewall after redaction (extension/src/privacy/redact.ts), validated again server-side (server/app/validators/context_validator.py) before any reasoning happens.",
   "type": "object",
-  "required": ["task_id", "page", "url_origin", "elements", "fields"],
+  "required": ["task_id", "task", "page", "url_origin", "elements", "fields"],
   "additionalProperties": false,
   "properties": {
     "task_id": { "type": "string" },
+    "task": {
+      "type": "string",
+      "description": "What the user actually asked for, in their own words, e.g. 'log in' or 'pick the cheaper flight'. Typed by the user in the extension popup — the agent does nothing without one. This is user-authored text, not page content, so it is not subject to redaction; the user is deliberately telling the model what they want.",
+      "minLength": 1,
+      "maxLength": 500
+    },
     "page": {
       "type": "string",
       "description": "Semantic page role, e.g. 'login', 'checkout' — not the raw URL path."
@@ -33,6 +71,12 @@
       "type": "object",
       "description": "Redacted field map only, e.g. { \"email\": \"[EMAIL_01]\" }. Every value here must be a redaction token, never a raw value — the server rejects anything that doesn't look like one.",
       "additionalProperties": { "type": "string" }
+    },
+    "history": {
+      "type": "array",
+      "description": "Optional. Sanitized records of steps completed in this task so far. Absent or empty when this is the first step.",
+      "items": { "$ref": "#/$defs/StepRecord" },
+      "default": []
     }
   }
 }
