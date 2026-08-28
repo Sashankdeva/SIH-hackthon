@@ -43,7 +43,7 @@ import type { ActionRequest } from "../src/action/types";
  * production pattern — simulated here because index.ts cannot be imported
  * in Node without a Chrome stub.
  */
-function makeContext(taskId: string, elements: FakeElement[]): { context: SanitizedContext; ids: number[] } {
+function makeContext(taskId: string, _elements?: FakeElement[]): { context: SanitizedContext; ids: number[] } {
   const pageState = captureDomState(taskId);
   const ids = pageState.elements.map((el) => el.elementId);
   return {

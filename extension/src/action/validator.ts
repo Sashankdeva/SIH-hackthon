@@ -47,13 +47,15 @@ export function isSafeNavigationUrl(rawUrl: string): boolean {
  * Checks if a target DOM element is an editable text control.
  */
 function isEditableTarget(el: Element): boolean {
-  if (el instanceof HTMLTextAreaElement) return true;
-  if (el instanceof HTMLInputElement) {
+  const tag = el.tagName.toLowerCase();
+  if (tag === "textarea") return true;
+  if (tag === "input") {
     const nonTextTypes = new Set(["button", "submit", "reset", "image", "hidden", "checkbox", "radio", "file"]);
-    return !nonTextTypes.has(el.type.toLowerCase());
+    const inputType = ((el as HTMLInputElement).type || "text").toLowerCase();
+    return !nonTextTypes.has(inputType);
   }
   if ((el as HTMLElement).isContentEditable === true) return true;
-  const contentEditableAttr = el.getAttribute("contenteditable");
+  const contentEditableAttr = el.getAttribute?.("contenteditable");
   return contentEditableAttr === "true" || contentEditableAttr === "";
 }
 
@@ -61,23 +63,32 @@ function isEditableTarget(el: Element): boolean {
  * Checks if a target DOM element or its enclosing fieldset is disabled.
  */
 function isElementDisabled(el: Element): boolean {
-  if ((el as HTMLInputElement | HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement).disabled) {
+  if ((el as HTMLInputElement).disabled === true) {
     return true;
   }
-  if (el.getAttribute("aria-disabled") === "true") {
+  if (el.getAttribute?.("aria-disabled") === "true") {
     return true;
   }
-  return el.closest("fieldset[disabled]") != null;
+  if (el.hasAttribute?.("disabled")) {
+    return true;
+  }
+  return el.closest?.("fieldset[disabled]") != null;
 }
 
 /**
  * Checks if a target DOM element is readonly.
  */
 function isElementReadonly(el: Element): boolean {
-  if ((el as HTMLInputElement | HTMLTextAreaElement).readOnly) {
+  if ((el as HTMLInputElement).readOnly === true) {
     return true;
   }
-  return el.getAttribute("aria-readonly") === "true";
+  if (el.getAttribute?.("aria-readonly") === "true") {
+    return true;
+  }
+  if (el.hasAttribute?.("readonly")) {
+    return true;
+  }
+  return false;
 }
 
 /**

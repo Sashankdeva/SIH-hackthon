@@ -83,12 +83,14 @@ describe("Role 2 Phase 4 — Controlled Full-Pipeline Integration", () => {
     // -------------------------------------------------------------
     // STAGE 4: Role 3 Privacy Firewall & SanitizedContext (REAL)
     // -------------------------------------------------------------
-    const sanitizedContext = buildSanitizedContext(pageState, detections, redactions);
+    const firewall = buildSanitizedContext(pageState, detections, redactions, "submit checkout");
+    expect(firewall.ok).toBe(true);
+    const sanitizedContext = firewall.ok ? firewall.context : null;
     expect(sanitizedContext).not.toBeNull();
     expect(sanitizedContext!.taskId).toBe(taskId);
 
-    // Verify Privacy Invariant: Sensitive elements removed from public elements array
-    const publicElementIds = sanitizedContext!.elements.map((e) => e.elementId);
+    // Verify Privacy Invariant: Sensitive elements have tokens in public elements array
+    const publicElementIds = sanitizedContext!.elements.map((e: { elementId: number }) => e.elementId);
     expect(publicElementIds).toContain(targetElementId); // Submit button is safe
     expect(sanitizedContext!.fields).toBeDefined();
 
@@ -164,8 +166,8 @@ describe("Role 2 Phase 4 — Controlled Full-Pipeline Integration", () => {
     // Privacy Stage (Role 3)
     const detections = detectTier1(pageState.elements);
     const redactions = redact(detections);
-    const sanitized = buildSanitizedContext(pageState, detections, redactions);
-    const sanitizedJson = JSON.stringify(sanitized);
+    const firewall = buildSanitizedContext(pageState, detections, redactions, "canary test");
+    const sanitizedJson = JSON.stringify(firewall.ok ? firewall.context : null);
 
     // Sanitized context only contains tokens, never raw canary values
     expect(sanitizedJson).not.toContain("CANARY_EMAIL_12345@example.com");
@@ -190,8 +192,8 @@ describe("Role 2 Phase 4 — Controlled Full-Pipeline Integration", () => {
     // Case A: Privacy Failure (Incomplete redaction -> Privacy Firewall fails closed)
     const detections = detectTier1(pageState.elements);
     const incompleteRedactions: RedactionRecord[] = []; // Redaction dropped
-    const blockedContext = buildSanitizedContext(pageState, detections, incompleteRedactions);
-    expect(blockedContext).toBeNull(); // Privacy firewall refuses to emit payload
+    const blockedFirewall = buildSanitizedContext(pageState, detections, incompleteRedactions, "fail paths");
+    expect(blockedFirewall.ok).toBe(false); // Privacy firewall refuses to emit payload
 
     // Case B: Action with Non-Existent Element ID
     const invalidIdAction: ActionRequest = {
@@ -273,11 +275,11 @@ describe("Role 2 Phase 4 — Controlled Full-Pipeline Integration", () => {
     const pageState = captureDomState("task-wire-adapter");
     const detections = detectTier1(pageState.elements);
     const redactions = redact(detections);
-    const sanitized = buildSanitizedContext(pageState, detections, redactions);
-    expect(sanitized).not.toBeNull();
+    const firewall = buildSanitizedContext(pageState, detections, redactions, "wire adapter task");
+    expect(firewall.ok).toBe(true);
 
     // Outbound wire serialization
-    const wirePayload = toWireSanitizedContext(sanitized!);
+    const wirePayload = toWireSanitizedContext(firewall.ok ? firewall.context : ({} as any));
     expect(wirePayload.task_id).toBe("task-wire-adapter");
     expect(wirePayload.url_origin).toBe(location.origin);
     expect(Array.isArray(wirePayload.elements)).toBe(true);

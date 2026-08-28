@@ -55,9 +55,7 @@ test("2. Context is re-captured between steps", async () => {
   const env = installFakeDom([btn1]);
 
   try {
-    const ids = captureDomState("init").elements.map((el) => el.elementId);
-
-    env.respondWith((bodyStr, callIndex) => {
+    env.respondWith((_bodyStr, callIndex) => {
       if (callIndex === 0) {
         // Step 1: dynamically add a second element to DOM during step 1 execution
         env.elements.push(new FakeElement("button", {}, "Dynamically Added Button"));
@@ -86,8 +84,6 @@ test("3. History contains the previous sanitized steps", async () => {
   const env = installFakeDom([btn]);
 
   try {
-    const ids = captureDomState("init").elements.map((el) => el.elementId);
-
     env.respondWith(
       serverAction({ action: "scroll", direction: "down" }),
       serverAction({ action: "done" })
@@ -245,7 +241,6 @@ test("10. Existing one-shot behavior (runOneStep) remains unchanged", async () =
 
   try {
     const pageState = captureDomState("task-one-shot");
-    const ids = pageState.elements.map((el) => el.elementId);
 
     const context: SanitizedContext = {
       taskId: "task-one-shot",

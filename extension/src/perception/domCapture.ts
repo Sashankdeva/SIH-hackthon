@@ -125,19 +125,13 @@ function labelFor(el: Element): string | null {
 
   // 6. name (for form controls)
   const name = el.getAttribute("name")?.trim();
-  if (
-    name &&
-    (el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement)
-  ) {
+  const tag = el.tagName.toLowerCase();
+  if (name && (tag === "input" || tag === "select" || tag === "textarea")) {
     return name;
   }
 
   // 7. textContent fallback (only for non-form-controls, e.g. buttons, links, ARIA widgets)
-  if (
-    !(el instanceof HTMLInputElement) &&
-    !(el instanceof HTMLTextAreaElement) &&
-    !(el instanceof HTMLSelectElement)
-  ) {
+  if (tag !== "input" && tag !== "textarea" && tag !== "select") {
     const text = el.textContent?.trim().replace(/\s+/g, " ");
     if (text) return text.slice(0, 120);
   }
@@ -170,23 +164,23 @@ function roleFor(el: Element): string {
 
 function isDisabled(el: Element): boolean {
   if ((el as HTMLInputElement).disabled === true) return true;
-  if (el.getAttribute("aria-disabled") === "true") return true;
-  if (el.hasAttribute("disabled")) return true;
-  if (el.closest("fieldset[disabled]")) return true;
+  if (el.getAttribute?.("aria-disabled") === "true") return true;
+  if (el.hasAttribute?.("disabled")) return true;
+  if (el.closest?.("fieldset[disabled]")) return true;
   return false;
 }
 
 function isReadOnly(el: Element): boolean {
   if ((el as HTMLInputElement).readOnly === true) return true;
-  if (el.getAttribute("aria-readonly") === "true") return true;
-  if (el.hasAttribute("readonly")) return true;
+  if (el.getAttribute?.("aria-readonly") === "true") return true;
+  if (el.hasAttribute?.("readonly")) return true;
   return false;
 }
 
 function isElementVisible(el: Element): boolean {
   // 1. Check aria-hidden / hidden attributes on element or ancestors
-  if (el.hasAttribute("hidden") || el.getAttribute("aria-hidden") === "true") return false;
-  if (el.closest("[aria-hidden='true'], [hidden]")) return false;
+  if (el.hasAttribute?.("hidden") || el.getAttribute?.("aria-hidden") === "true") return false;
+  if (el.closest?.("[aria-hidden='true'], [hidden]")) return false;
 
   // 2. Check computed style properties if available
   if (typeof window !== "undefined" && typeof window.getComputedStyle === "function") {

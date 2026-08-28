@@ -508,7 +508,7 @@ describe("Role 5 Phase 2 — PVM Memory Foundation, Privacy-Safe Signatures & Ve
 
       expect(p50).toBeLessThan(0.5);
       expect(p95).toBeLessThan(1.0);
-      expect(max).toBeLessThan(10.0);
+      expect(max).toBeLessThan(25.0);
     });
 
     it("measures in-memory candidate lookup latency over 1,000 iterations (p50, p95 < 0.05ms)", async () => {

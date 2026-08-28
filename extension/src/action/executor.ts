@@ -34,12 +34,15 @@ function injectTextIntoElement(el: Element, text: string): void {
 
 /**
  * Resolves local secret values in priority order:
- *  1. action/secretStore or privacy/secretStore (captured from page session at redaction time)
- *  2. profileStore (user's saved details from extension popup)
+ *  1. privacy/secretStore (sync, captured from page session at redaction time)
+ *  2. action/secretStore (async session registry)
+ *  3. profileStore (user's saved details from extension popup)
  */
 async function resolveLocalValue(token: string): Promise<string | null> {
-  const secret = resolveLocalSecret(token) || resolveSecret(token);
-  if (secret != null) return secret;
+  const syncSecret = resolveSecret(token);
+  if (syncSecret != null) return syncSecret;
+  const asyncSecret = await resolveLocalSecret(token);
+  if (asyncSecret != null) return asyncSecret;
   return await resolveFromProfile(token);
 }
 
@@ -82,7 +85,6 @@ export async function executeAction(req: ActionRequest): Promise<void> {
     }
     case "done": {
       return;
-    }
     }
     case "scroll": {
       const delta = req.amount ?? 400;

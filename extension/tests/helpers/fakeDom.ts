@@ -39,6 +39,22 @@ export class FakeElement {
     return this.attributes[name] ?? null;
   }
 
+  hasAttribute(name: string): boolean {
+    return name in this.attributes;
+  }
+
+  setAttribute(name: string, value: string): void {
+    this.attributes[name] = value;
+  }
+
+  removeAttribute(name: string): void {
+    delete this.attributes[name];
+  }
+
+  closest(_selector: string): FakeElement | null {
+    return null;
+  }
+
   /** Non-zero so captureDomState doesn't skip it as hidden. */
   getBoundingClientRect(): { width: number; height: number } {
     return { width: 120, height: 24 };
@@ -54,6 +70,10 @@ export class FakeElement {
 
   focus(): void {
     this.focusCount++;
+  }
+
+  blur(): void {
+    // no-op for fake DOM
   }
 
   dispatchEvent(event: { type: string }): boolean {
@@ -121,7 +141,6 @@ export function installFakeDom(elements: FakeElement[]): FakeEnv {
   const timeouts: number[] = [];
   const fetchCalls: Array<{ url: string; body: string }> = [];
   const sentMessages: object[] = [];
-  let responses: object[] = [];
   let currentHref = "http://localhost:8000/start";
   let currentScrollY = 0;
 
