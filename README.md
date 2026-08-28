@@ -41,7 +41,7 @@ Then `chrome://extensions` &rarr; Developer mode &rarr; Load unpacked &rarr; sel
 cd server
 python -m venv .venv
 ./.venv/Scripts/python.exe -m pip install -r requirements.txt   # Windows
-./.venv/Scripts/python.exe -m pytest -q                          # should show 6 passed
+./.venv/Scripts/python.exe -m pytest -q                          # should show 18 passed
 ./.venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8787
 ```
 Runs against a stub reasoning backend by default — zero setup, no GPU
@@ -60,12 +60,32 @@ Integration's Day-4 sync is where they get wired together for real.
 ## Status
 
 - Extension: builds and typechecks clean (`npm run build`, `npm run typecheck`).
-- Server: 6/6 tests passing — the privacy-firewall check, plus the local
-  Ollama response parser's fallback paths.
-- Mock site: static, no build step.
+- Server: 18/18 tests passing — the privacy-firewall check, the
+  required-task check, the local Ollama response parser's fallback
+  paths, the `type_secret` field-binding checks, and the
+  scroll/navigate parameter and same-origin guards.
+- **The agent takes a task.** Type what you want done in the extension
+  popup and press Run. Redaction still happens automatically on page
+  load (privacy shouldn't wait to be asked), but reasoning and any
+  action on the page only happen for a task you gave it. Verified live:
+  the same page with three different tasks produced three different,
+  correct actions — see `docs/ARCHITECTURE.md`, "Two triggers".
+- **Local vision (face detection) is implemented and confirmed working
+  in a real loaded Chrome extension** — not deferred, not just
+  simulated. A 1.2MB ONNX model runs client-side (WebGPU with a
+  verified WASM fallback), redacts faces directly on the page, and
+  reports through the same privacy inspector as text-field redaction.
+  This is PS26171's highest-weighted requirement (25%); see
+  `docs/ARCHITECTURE.md`'s "Local vision processing" section — it runs
+  as a second, main-world content script (a real Chrome
+  isolated/main-world bug had to be found and fixed to get here, not
+  just an ONNX quirk).
+- Mock site: static, no build step. `vision-test.html` is a dedicated
+  stress test (a ~48-face group photo); the main checkout page also
+  carries a profile photo so the golden-path demo exercises both
+  detection surfaces.
 - Reasoning runs locally (Ollama, on Server AI's GPU), not via a cloud
   API — see `docs/ARCHITECTURE.md`'s "Reasoning backend" note for why
   that's a deliberate choice, not a privacy requirement.
-- Everything past DOM-based perception/redaction (local vision model, PVM
-  caching, benchmarks, dashboard) is deferred on purpose — see
-  `docs/ARCHITECTURE.md`'s scope table before adding to those areas.
+- Still deferred on purpose: PVM caching, the full benchmark suite,
+  dashboard, Firefox — see `docs/ARCHITECTURE.md`'s scope table.

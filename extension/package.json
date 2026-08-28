@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "build": "node esbuild.config.mjs",
-    "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "dev": "node esbuild.config.mjs --watch",
+    "test": "vitest run src/",
+    "test:integration": "node esbuild.test.config.mjs && node --test \"dist-tests/*.test.mjs\"",
+    "typecheck": "tsc --noEmit",
+    "typecheck:tests": "tsc --noEmit -p tsconfig.test.json"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.270",
@@ -15,5 +18,8 @@
     "jsdom": "^29.1.1",
     "typescript": "^5.5.4",
     "vitest": "^4.1.11"
+  },
+  "dependencies": {
+    "onnxruntime-web": "^1.29.0"
   }
 }

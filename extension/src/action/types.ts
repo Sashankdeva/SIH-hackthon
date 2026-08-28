@@ -1,4 +1,5 @@
-export type ActionType = "click" | "type" | "type_secret" | "scroll" | "navigate" | "keypress" | "wait";
+export type ActionType = "click" | "type" | "type_secret" | "scroll" | "navigate" | "keypress" | "wait" | "done";
+
 
 export type LifecycleInterruptionReason =
   | "CONTENT_SCRIPT_UNAVAILABLE"

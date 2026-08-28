@@ -1,7 +1,12 @@
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.middleware import RequestInspectorMiddleware
 from app.routes.reason import router as reason_router
+
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(title="PrivyVision Server", version="0.1.0")
 
@@ -13,6 +18,10 @@ app.add_middleware(
     allow_methods=["POST", "GET"],
     allow_headers=["*"],
 )
+
+# The canary-test evidence trail — see app/middleware.py and
+# scripts/canary_check.py.
+app.add_middleware(RequestInspectorMiddleware)
 
 app.include_router(reason_router)
 

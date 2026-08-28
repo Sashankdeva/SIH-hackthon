@@ -14,6 +14,7 @@ def test_health() -> None:
 def test_reason_rejects_unredacted_field() -> None:
     payload = {
         "task_id": "t1",
+        "task": "log in",
         "page": "login",
         "url_origin": "http://localhost:8000",
         "elements": [],
@@ -26,6 +27,7 @@ def test_reason_rejects_unredacted_field() -> None:
 def test_reason_accepts_sanitized_payload() -> None:
     payload = {
         "task_id": "t1",
+        "task": "submit the form",
         "page": "login",
         "url_origin": "http://localhost:8000",
         "elements": [{"element_id": 1, "role": "button", "label": "Submit"}],
@@ -40,6 +42,7 @@ def test_reason_rejects_unadapted_camelcase_payload() -> None:
     """Verifies that un-adapted client camelCase payloads are rejected by strict validation."""
     raw_client_payload = {
         "taskId": "t1",
+        "task": "login",
         "page": "login",
         "urlOrigin": "http://localhost:8000",
         "elements": [{"elementId": 1, "role": "button", "label": "Submit"}],
@@ -53,6 +56,7 @@ def test_reason_accepts_mock_site_wire_payload() -> None:
     """Verifies that full mock-site checkout wire payload passes server validation."""
     wire_payload = {
         "task_id": "task-mock-checkout-001",
+        "task": "complete checkout",
         "page": "Mock Checkout",
         "url_origin": "http://localhost:3000",
         "elements": [
@@ -74,3 +78,33 @@ def test_reason_accepts_mock_site_wire_payload() -> None:
     data = response.json()
     assert data["action"] == "wait"
     assert data["task_id"] == "task-mock-checkout-001"
+
+
+def test_reason_requires_a_task() -> None:
+    """The agent must never reason about a page with no stated goal —
+    that was the pre-task behaviour, where it acted on whatever looked
+    clickable. A payload without a task is now a schema violation.
+    """
+    payload = {
+        "task_id": "t1",
+        "page": "login",
+        "url_origin": "http://localhost:8000",
+        "elements": [{"element_id": 1, "role": "button", "label": "Submit"}],
+        "fields": {},
+    }
+    response = client.post("/reason", json=payload)
+    assert response.status_code == 422
+
+
+def test_reason_rejects_empty_task() -> None:
+    payload = {
+        "task_id": "t1",
+        "task": "   ",
+        "page": "login",
+        "url_origin": "http://localhost:8000",
+        "elements": [{"element_id": 1, "role": "button", "label": "Submit"}],
+        "fields": {},
+    }
+    response = client.post("/reason", json=payload)
+    assert response.status_code == 422
+

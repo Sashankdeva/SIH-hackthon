@@ -1,30 +1,40 @@
+"""Reasoning backends.
+
+Pipeline for the real one:
+    SanitizedContext -> prompt.build_prompt -> Ollama -> raw text
+    -> JSON parse -> validation.build_validated_action -> ActionResponse
+
+Every failure raises a typed error from app.llm.errors. Nothing here
+invents an action to paper over a failure — see errors.py for why that
+matters.
+"""
+
 import json
 import logging
 from abc import ABC, abstractmethod
+from typing import Any
 
 import httpx
 
-from app.models.action import ActionResponse, ActionType
+from app.config import Settings, load_settings
+from app.llm.errors import ModelOutputInvalid, ModelUnavailable
+from app.llm.prompt import build_prompt
+from app.llm.validation import build_validated_action
+from app.models.action import ActionResponse
 from app.models.context import SanitizedContext
 
 logger = logging.getLogger(__name__)
 
-ALLOWED_ACTIONS: set[ActionType] = {
-    "click",
-    "type",
-    "type_secret",
-    "scroll",
-    "navigate",
-    "keypress",
-    "wait",
-}
-
 
 class ReasoningClient(ABC):
     """Swap implementations behind this interface — nothing outside this
-    module should know which one is in use. The active implementation is
-    selected in app/routes/reason.py via the REASONING_BACKEND env var.
+    module should know which one is in use. Selected in
+    app/routes/reason.py from Settings.
     """
+
+    #: Reported in logs and health output so it's always clear which
+    #: backend produced (or refused) an action.
+    name: str = "abstract"
 
     @abstractmethod
     async def propose_action(self, context: SanitizedContext) -> ActionResponse: ...
@@ -32,10 +42,15 @@ class ReasoningClient(ABC):
 
 class StubReasoningClient(ReasoningClient):
     """Deterministic stand-in requiring no GPU and no running model — the
-    default backend. This is what the other five roles run against so
-    nobody but Server AI needs a local model installed to develop
-    against a live /reason endpoint. Always proposes a harmless 'wait'.
+    default backend, so the other five roles can develop against a live
+    /reason endpoint with zero setup. Always proposes a harmless 'wait'.
+
+    This is the one place a fixed action is legitimate: it is the
+    configured behaviour of this backend, not a fallback masking a
+    failure.
     """
+
+    name = "stub"
 
     async def propose_action(self, context: SanitizedContext) -> ActionResponse:
         return ActionResponse(
@@ -43,30 +58,51 @@ class StubReasoningClient(ReasoningClient):
             amount=500,
             confidence=0.99,
             task_id=context.task_id,
-            step_id=1,
+            step_id=len(context.history) + 1,
         )
 
 
-class OllamaReasoningClient(ReasoningClient):
-    """Local reasoning via Ollama — the project's actual choice: privacy
-    is enforced by redacting PII client-side before anything is sent
-    (extension/src/privacy/), not by avoiding a server. Running the
-    reasoning model locally too is a deliberate step further, not a
-    requirement of the architecture, and it means the machine running
-    this needs a real GPU (see docs/ARCHITECTURE.md, hardware note).
 
-    Requires Ollama running locally (`ollama serve`, default port 11434)
-    with the model already pulled (`ollama pull <model>`).
+class OllamaReasoningClient(ReasoningClient):
+    """Local reasoning via Ollama.
+
+    Privacy note: the payload reaching this client is already sanitized
+    — the client-side firewall redacted it and
+    validators/context_validator.py re-checked it on arrival. The server
+    never holds raw passwords, PII, or local profile values, so there is
+    nothing sensitive here to forward to the model.
+
+    `transport` exists so tests can drive the whole pipeline through
+    httpx.MockTransport without a running Ollama.
     """
 
-    def __init__(self, model: str = "qwen2.5:7b-instruct", base_url: str = "http://localhost:11434") -> None:
-        self.model = model
-        self.base_url = base_url.rstrip("/")
+    name = "ollama"
+
+    def __init__(
+        self,
+        model: str | None = None,
+        base_url: str | None = None,
+        timeout_s: float | None = None,
+        settings: Settings | None = None,
+        transport: httpx.AsyncBaseTransport | None = None,
+    ) -> None:
+        resolved = settings or load_settings()
+        self.model = model or resolved.ollama_model
+        self.base_url = (base_url or resolved.ollama_base_url).rstrip("/")
+        self.timeout_s = timeout_s if timeout_s is not None else resolved.ollama_timeout_s
+        self._transport = transport
 
     async def propose_action(self, context: SanitizedContext) -> ActionResponse:
-        prompt = self._build_prompt(context)
+        raw_text = await self._generate(build_prompt(context))
+        data = self._parse_json(raw_text)
+        # Deterministic security + semantic validation. Raises
+        # ActionRejected; deliberately not caught here.
+        return build_validated_action(data, context)
+
+    async def _generate(self, prompt: str) -> str:
+        """Call Ollama and return the raw completion text."""
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
+            async with httpx.AsyncClient(timeout=self.timeout_s, transport=self._transport) as client:
                 response = await client.post(
                     f"{self.base_url}/api/generate",
                     json={
@@ -74,63 +110,45 @@ class OllamaReasoningClient(ReasoningClient):
                         "prompt": prompt,
                         "format": "json",
                         "stream": False,
-                        "options": {"temperature": 0.1},
+                        # temperature 0: at 0.1 the same page and task
+                        # produced different actions across runs. A demo
+                        # that must be reproducible cannot roll dice.
+                        "options": {"temperature": 0.0},
                     },
                 )
-                response.raise_for_status()
-                raw_text = response.json()["response"]
-        except (httpx.HTTPError, KeyError) as exc:
-            logger.error("Ollama call failed (%s) — falling back to a safe 'wait'.", exc)
-            return self._safe_fallback(context)
+        except httpx.TimeoutException as exc:
+            raise ModelUnavailable(f"Ollama timed out after {self.timeout_s}s") from exc
+        except httpx.HTTPError as exc:
+            raise ModelUnavailable(f"cannot reach Ollama at {self.base_url}: {exc}") from exc
 
-        return self._parse_response(raw_text, context)
+        if response.status_code == 404:
+            # Ollama's shape for "that model isn't pulled".
+            raise ModelUnavailable(f"model {self.model!r} is not available on this Ollama instance")
+        if response.status_code >= 400:
+            raise ModelUnavailable(f"Ollama returned HTTP {response.status_code}")
 
-    def _build_prompt(self, context: SanitizedContext) -> str:
-        elements_desc = "\n".join(
-            f"- id={el.element_id} role={el.role} label={el.label!r}" for el in context.elements
-        )
-        return f"""You are a browser automation reasoning engine. You only ever see
-sanitized data — every field value below is already a redaction token
-([EMAIL_01], [PASSWORD_FIELD], etc.), never a real value. You do not need
-and will never receive the real value.
+        try:
+            payload = response.json()
+        except ValueError as exc:  # includes json.JSONDecodeError
+            raise ModelUnavailable("Ollama returned a non-JSON envelope") from exc
 
-Page: {context.page}
-Origin: {context.url_origin}
-Task ID: {context.task_id}
+        raw_text = payload.get("response") if isinstance(payload, dict) else None
+        if not isinstance(raw_text, str) or not raw_text.strip():
+            raise ModelOutputInvalid("Ollama envelope contained no 'response' text")
+        return raw_text
 
-Interactive elements:
-{elements_desc or "(none captured)"}
-
-Redacted fields present: {list(context.fields.values())}
-
-Respond with ONLY a JSON object matching this exact shape, no other text:
-{{
-  "action": "click" | "type" | "type_secret" | "scroll" | "navigate" | "keypress" | "wait",
-  "element_id": <int or null>,
-  "value": <string or null>,
-  "confidence": <float 0-1>
-}}"""
-
-    def _parse_response(self, raw_text: str, context: SanitizedContext) -> ActionResponse:
+    @staticmethod
+    def _parse_json(raw_text: str) -> dict[str, Any]:
+        """Parse the completion. Handles prose, fences, truncation."""
         try:
             data = json.loads(raw_text)
-            action = data.get("action")
-            if action not in ALLOWED_ACTIONS:
-                raise ValueError(f"model returned disallowed action: {action!r}")
-            return ActionResponse(
-                action=action,
-                element_id=data.get("element_id"),
-                value=data.get("value"),
-                confidence=float(data.get("confidence", 0.5)),
-                task_id=context.task_id,
-                step_id=1,
-            )
-        except (json.JSONDecodeError, ValueError, TypeError) as exc:
-            # A local 7B model is far less reliable at strict JSON than a
-            # frontier cloud model — never let a malformed response reach
-            # the extension's action validator. Fail safe, not silently.
-            logger.error("Could not parse Ollama response (%s): %r", exc, raw_text)
-            return self._safe_fallback(context)
+        except json.JSONDecodeError as exc:
+            # Never echo raw_text to the client — it is model output
+            # derived from page content. Truncated into the server log
+            # only.
+            logger.warning("model output was not JSON (%s): %.200r", exc, raw_text)
+            raise ModelOutputInvalid("model did not return valid JSON") from exc
 
-    def _safe_fallback(self, context: SanitizedContext) -> ActionResponse:
-        return ActionResponse(action="wait", amount=500, confidence=0.0, task_id=context.task_id, step_id=1)
+        if not isinstance(data, dict):
+            raise ModelOutputInvalid(f"model returned {type(data).__name__}, expected a single JSON object")
+        return data

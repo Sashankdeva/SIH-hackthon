@@ -1,5 +1,7 @@
 import { resolveElement } from "../perception/domCapture";
 import { resolveLocalSecret } from "./secretStore";
+import { resolveSecret } from "../privacy/secretStore";
+import { resolveFromProfile } from "../privacy/profileStore";
 import type { ActionRequest } from "./types";
 
 /**
@@ -31,6 +33,17 @@ function injectTextIntoElement(el: Element, text: string): void {
 }
 
 /**
+ * Resolves local secret values in priority order:
+ *  1. action/secretStore or privacy/secretStore (captured from page session at redaction time)
+ *  2. profileStore (user's saved details from extension popup)
+ */
+async function resolveLocalValue(token: string): Promise<string | null> {
+  const secret = resolveLocalSecret(token) || resolveSecret(token);
+  if (secret != null) return secret;
+  return await resolveFromProfile(token);
+}
+
+/**
  * Maps a validated ActionRequest to real browser interaction.
  * Never call this on an unvalidated request — see validator.ts.
  * See PS26171_Role1_Extension.pdf, Day 2.
@@ -50,15 +63,26 @@ export async function executeAction(req: ActionRequest): Promise<void> {
       return;
     }
     case "type_secret": {
-      // The real secret is resolved from local session storage via valueRef — it
-      // never travels through the server response or any caller of this
-      // function. See PS26171 Structured Action Protocol: "Secret-safe typing."
+      // The real secret is resolved locally via valueRef (the redaction token)
+      // and never appears in the server request or response.
       const el = resolveElement(req.elementId!);
-      const secret = await resolveLocalSecret(req.valueRef ?? "");
-      if (el && secret != null) {
+      const secret = await resolveLocalValue(req.valueRef ?? "");
+      if (!el) {
+        console.warn("[executor] type_secret target element not found:", req.elementId);
+      } else if (secret == null) {
+        console.warn(
+          "[executor] no local value for",
+          req.valueRef,
+          "— add your details in the extension popup to auto-fill this field."
+        );
+      } else {
         injectTextIntoElement(el, secret);
       }
       return;
+    }
+    case "done": {
+      return;
+    }
     }
     case "scroll": {
       const delta = req.amount ?? 400;

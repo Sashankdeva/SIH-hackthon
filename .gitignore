@@ -13,10 +13,15 @@ __pycache__/
 .DS_Store
 Thumbs.db
 .vscode/
-
 # Documents & Binary Assets
 *.pdf
 
 # Ignore scratch directory
 scratch/
+dist-tests/
+
+# Logs
+server/logs/
+*.jsonl
+
 

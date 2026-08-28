@@ -12,6 +12,9 @@ import type { VerificationResult } from "../pvm/types";
 export type Message =
   | { type: "PAGE_STATE"; payload: PageState }
   | { type: "PRIVACY_REPORT"; payload: PrivacyReport }
+  | { type: "PRIVACY_BLOCKED"; payload: { taskId: string; missingElementIds: number[] } }
+  /** Popup -> content script: the user typed a task and pressed Run. */
+  | { type: "RUN_TASK"; payload: { task: string } }
   | { type: "ACTION_REQUEST"; payload: ActionRequest }
   | { type: "ACTION_RESULT"; payload: VerificationResult }
   | {
