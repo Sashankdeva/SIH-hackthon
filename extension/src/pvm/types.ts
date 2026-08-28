@@ -126,6 +126,34 @@ export type SuggestedRecoveryAction =
   | "ALTERNATIVE_CANDIDATE"
   | "ABORT";
 
+export interface Role5LifecycleParams {
+  taskId: string;
+  actionId: string;
+  actionInput: SafeActionInput;
+  stateInput: SafeStateInput;
+  verificationRequest: VerificationRequest;
+  taskScope?: string;
+  sessionScope?: string;
+  attemptsSoFar?: number;
+}
+
+export interface Role5LifecycleTimings {
+  lookupMs: number;
+  verificationMs: number;
+  learningMs: number;
+  recoveryMs: number;
+  totalMs: number;
+}
+
+export interface Role5LifecycleResult {
+  actionId: string;
+  candidate: PvmPredictionCandidate | null;
+  verificationResult: VerificationResult;
+  learnedRecord: PvmRecord | null;
+  recoveryDecision: RecoveryDecision | null;
+  timings: Role5LifecycleTimings;
+}
+
 export interface PvmRecoveryContext {
   attemptsSoFar: number;
   maxAttempts?: number;
