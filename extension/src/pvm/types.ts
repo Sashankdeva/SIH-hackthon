@@ -144,6 +144,10 @@ export interface PvmRecord {
   failureCount?: number;
   createdAt?: number;
   updatedAt?: number;
+
+  // Phase 3 scope & freshness fields:
+  taskScope?: string;
+  sessionScope?: string;
 }
 
 /** Parameters for recording a verified outcome */
@@ -157,6 +161,8 @@ export interface RecordVerifiedOutcomeParams {
   verificationResult: VerificationResult;
   confidence?: number;
   metadata?: Record<string, unknown>;
+  taskScope?: string;
+  sessionScope?: string;
 }
 
 /** Candidate prediction result returned from PVM lookup */
@@ -169,4 +175,41 @@ export interface PvmPredictionCandidate {
   confidence: number;
   successCount: number;
   lastUsed: number;
+  taskId?: string;
+  taskScope?: string;
+  sessionScope?: string;
+  createdAt?: number;
 }
+
+/** Reasons why a candidate might be rejected during validation */
+export type CandidateRejectionReason =
+  | "INVALID_CANDIDATE"
+  | "STATE_MISMATCH"
+  | "ACTION_MISMATCH"
+  | "LOW_CONFIDENCE"
+  | "TASK_SCOPE_MISMATCH"
+  | "SESSION_SCOPE_MISMATCH"
+  | "STALE_RECORD"
+  | "UNVERIFIED_RECORD";
+
+/** Request parameters for validating a PVM candidate action */
+export interface CandidateValidationRequest {
+  candidate: PvmPredictionCandidate | PvmRecord;
+  currentStateInput: SafeStateInput;
+  currentActionInput?: SafeActionInput;
+  taskScope?: string;
+  sessionScope?: string;
+  minConfidenceThreshold?: number;
+  maxStaleAgeMs?: number;
+}
+
+/** Result of validating a PVM candidate action */
+export interface CandidateValidationResult {
+  isValid: boolean;
+  candidate: PvmPredictionCandidate | null;
+  confidence: number;
+  rejectionReason?: CandidateRejectionReason;
+  details?: string;
+  validationLatencyMs: number;
+}
+

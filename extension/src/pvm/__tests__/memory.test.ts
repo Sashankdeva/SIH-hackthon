@@ -10,6 +10,8 @@ import {
   queryPvmCandidates,
   lookupInMemory,
   findCandidatesInMemory,
+  validateCandidate,
+  findAndValidateCandidates,
   getMemorySize,
   clearMemory,
   setMaxMemoryEntries,
@@ -23,6 +25,7 @@ import type {
   SafeActionInput,
   VerificationResult,
   PvmRecord,
+  CandidateValidationRequest,
 } from "../types";
 
 describe("Role 5 Phase 2 — PVM Memory Foundation, Privacy-Safe Signatures & Verified Learning", () => {
@@ -544,4 +547,317 @@ describe("Role 5 Phase 2 — PVM Memory Foundation, Privacy-Safe Signatures & Ve
       expect(max).toBeLessThan(5.0);
     });
   });
+
+  // =========================================================================
+  // 8. Phase 3 — Confidence-Aware Candidate Validation & Applicability Checks
+  // =========================================================================
+  describe("8. Phase 3 — Confidence-Aware Candidate Validation & Applicability Checks", () => {
+    const sampleStateInput: SafeStateInput = {
+      url: "http://localhost:8000/checkout",
+      title: "Checkout Page",
+      elements: [
+        { elementId: 10, role: "button", tag: "button" },
+        { elementId: 11, role: "textbox", tag: "input", inputType: "text" },
+      ],
+    };
+
+    const sampleActionInput: SafeActionInput = {
+      action: "click",
+      targetRole: "button",
+      targetElementId: 10,
+      targetSelector: "#pay-button",
+    };
+
+    it("approves valid candidate matching state, action, confidence, and scope", async () => {
+      const stateSig = computeStateSignature(sampleStateInput);
+      const actionSig = computeActionSignature(sampleActionInput);
+
+      await recordVerifiedOutcome({
+        taskId: "task-checkout-101",
+        stateSignature: stateSig,
+        actionSignature: actionSig,
+        actionType: "click",
+        targetRole: "button",
+        targetElementId: 10,
+        confidence: 0.95,
+        taskScope: "checkout",
+        sessionScope: "sess-abc",
+        verificationResult: {
+          actionId: "act-1",
+          expected: "success",
+          observed: "success",
+          status: "success",
+          latencyMs: 1.2,
+        },
+      });
+
+      const candidate = (await queryPvmCandidates(stateSig))[0];
+      expect(candidate).toBeDefined();
+
+      const validation = validateCandidate({
+        candidate,
+        currentStateInput: sampleStateInput,
+        currentActionInput: sampleActionInput,
+        taskScope: "checkout",
+        sessionScope: "sess-abc",
+        minConfidenceThreshold: 0.8,
+      });
+
+      expect(validation.isValid).toBe(true);
+      expect(validation.rejectionReason).toBeUndefined();
+      expect(validation.confidence).toBeGreaterThanOrEqual(0.95);
+      expect(validation.validationLatencyMs).toBeLessThan(1.0);
+    });
+
+    it("rejects candidate when state signature mismatches", () => {
+      const stateA = computeStateSignature(sampleStateInput);
+      const diffStateInput: SafeStateInput = {
+        url: "http://localhost:8000/cart",
+        title: "Cart Page",
+      };
+
+      const candidateRecord: PvmRecord = {
+        stateHash: stateA,
+        stateSignature: stateA,
+        actionSignature: "act_sig_click_123",
+        actionType: "click",
+        taskId: "t-1",
+        action: {},
+        verified: true,
+        confidence: 0.9,
+        lastUsed: Date.now(),
+      };
+
+      const validation = validateCandidate({
+        candidate: candidateRecord,
+        currentStateInput: diffStateInput,
+      });
+
+      expect(validation.isValid).toBe(false);
+      expect(validation.rejectionReason).toBe("STATE_MISMATCH");
+    });
+
+    it("rejects candidate when action signature mismatches", () => {
+      const stateSig = computeStateSignature(sampleStateInput);
+      const actionSigA = computeActionSignature(sampleActionInput);
+      const actionInputB: SafeActionInput = { action: "type", value: "hello" };
+
+      const candidateRecord: PvmRecord = {
+        stateHash: stateSig,
+        stateSignature: stateSig,
+        actionSignature: actionSigA,
+        actionType: "click",
+        taskId: "t-1",
+        action: {},
+        verified: true,
+        confidence: 0.95,
+        lastUsed: Date.now(),
+      };
+
+      const validation = validateCandidate({
+        candidate: candidateRecord,
+        currentStateInput: sampleStateInput,
+        currentActionInput: actionInputB,
+      });
+
+      expect(validation.isValid).toBe(false);
+      expect(validation.rejectionReason).toBe("ACTION_MISMATCH");
+    });
+
+    it("rejects candidate when confidence is below minimum threshold", () => {
+      const stateSig = computeStateSignature(sampleStateInput);
+      const candidateRecord: PvmRecord = {
+        stateHash: stateSig,
+        stateSignature: stateSig,
+        actionSignature: "act_sig_click_1",
+        actionType: "click",
+        taskId: "t-1",
+        action: {},
+        verified: true,
+        confidence: 0.65, // Below 0.8 threshold
+        lastUsed: Date.now(),
+      };
+
+      const validation = validateCandidate({
+        candidate: candidateRecord,
+        currentStateInput: sampleStateInput,
+        minConfidenceThreshold: 0.8,
+      });
+
+      expect(validation.isValid).toBe(false);
+      expect(validation.rejectionReason).toBe("LOW_CONFIDENCE");
+    });
+
+    it("rejects candidate when taskScope mismatches", () => {
+      const stateSig = computeStateSignature(sampleStateInput);
+      const candidateRecord: PvmRecord = {
+        stateHash: stateSig,
+        stateSignature: stateSig,
+        actionSignature: "act_sig_click_1",
+        actionType: "click",
+        taskId: "t-1",
+        taskScope: "scope-payments",
+        action: {},
+        verified: true,
+        confidence: 0.9,
+        lastUsed: Date.now(),
+      };
+
+      const validation = validateCandidate({
+        candidate: candidateRecord,
+        currentStateInput: sampleStateInput,
+        taskScope: "scope-shipping", // Incompatible task scope
+      });
+
+      expect(validation.isValid).toBe(false);
+      expect(validation.rejectionReason).toBe("TASK_SCOPE_MISMATCH");
+    });
+
+    it("rejects candidate when sessionScope mismatches", () => {
+      const stateSig = computeStateSignature(sampleStateInput);
+      const candidateRecord: PvmRecord = {
+        stateHash: stateSig,
+        stateSignature: stateSig,
+        actionSignature: "act_sig_click_1",
+        actionType: "click",
+        taskId: "t-1",
+        sessionScope: "session-111",
+        action: {},
+        verified: true,
+        confidence: 0.9,
+        lastUsed: Date.now(),
+      };
+
+      const validation = validateCandidate({
+        candidate: candidateRecord,
+        currentStateInput: sampleStateInput,
+        sessionScope: "session-222", // Incompatible session scope
+      });
+
+      expect(validation.isValid).toBe(false);
+      expect(validation.rejectionReason).toBe("SESSION_SCOPE_MISMATCH");
+    });
+
+    it("rejects stale candidate whose age exceeds maxStaleAgeMs", () => {
+      const stateSig = computeStateSignature(sampleStateInput);
+      const oldTimestamp = Date.now() - 60000; // 60 seconds ago
+
+      const candidateRecord: PvmRecord = {
+        stateHash: stateSig,
+        stateSignature: stateSig,
+        actionSignature: "act_sig_click_1",
+        actionType: "click",
+        taskId: "t-1",
+        action: {},
+        verified: true,
+        confidence: 0.9,
+        lastUsed: oldTimestamp,
+      };
+
+      const validation = validateCandidate({
+        candidate: candidateRecord,
+        currentStateInput: sampleStateInput,
+        maxStaleAgeMs: 30000, // Max 30 seconds
+      });
+
+      expect(validation.isValid).toBe(false);
+      expect(validation.rejectionReason).toBe("STALE_RECORD");
+    });
+
+    it("rejects candidate records where verified === false", () => {
+      const stateSig = computeStateSignature(sampleStateInput);
+      const unverifiedRecord: PvmRecord = {
+        stateHash: stateSig,
+        stateSignature: stateSig,
+        actionSignature: "act_sig_click_1",
+        actionType: "click",
+        taskId: "t-1",
+        action: {},
+        verified: false, // Explicitly unverified / failed record
+        confidence: 0.9,
+        lastUsed: Date.now(),
+      };
+
+      const validation = validateCandidate({
+        candidate: unverifiedRecord,
+        currentStateInput: sampleStateInput,
+      });
+
+      expect(validation.isValid).toBe(false);
+      expect(validation.rejectionReason).toBe("UNVERIFIED_RECORD");
+    });
+
+    it("findAndValidateCandidates returns sorted list of valid candidates", async () => {
+      const stateSig = computeStateSignature(sampleStateInput);
+
+      await recordVerifiedOutcome({
+        taskId: "t-1",
+        stateSignature: stateSig,
+        actionSignature: "act_sig_1",
+        actionType: "click",
+        confidence: 0.85,
+        verificationResult: { actionId: "a1", expected: "e", observed: "e", status: "success", latencyMs: 1 },
+      });
+
+      await recordVerifiedOutcome({
+        taskId: "t-1",
+        stateSignature: stateSig,
+        actionSignature: "act_sig_2",
+        actionType: "type",
+        confidence: 0.98,
+        verificationResult: { actionId: "a2", expected: "e", observed: "e", status: "success", latencyMs: 1 },
+      });
+
+      const validCandidates = findAndValidateCandidates(sampleStateInput, {
+        minConfidenceThreshold: 0.8,
+      });
+
+      expect(validCandidates.length).toBe(2);
+      expect(validCandidates[0].confidence).toBeGreaterThanOrEqual(validCandidates[1].confidence);
+      expect(validCandidates[0].candidate?.actionType).toBe("type");
+    });
+
+    it("measures candidate validation latency over 1,000 iterations (p50, p95 < 0.1ms)", () => {
+      const stateSig = computeStateSignature(sampleStateInput);
+      const candidateRecord: PvmRecord = {
+        stateHash: stateSig,
+        stateSignature: stateSig,
+        actionSignature: "act_sig_click_bench",
+        actionType: "click",
+        taskId: "t-bench",
+        action: {},
+        verified: true,
+        confidence: 0.95,
+        lastUsed: Date.now(),
+      };
+
+      const request: CandidateValidationRequest = {
+        candidate: candidateRecord,
+        currentStateInput: sampleStateInput,
+        minConfidenceThreshold: 0.8,
+      };
+
+      const iterations = 1000;
+      const latencies: number[] = [];
+
+      for (let i = 0; i < iterations; i++) {
+        const res = validateCandidate(request);
+        latencies.push(res.validationLatencyMs);
+      }
+
+      latencies.sort((a, b) => a - b);
+      const p50 = latencies[Math.floor(iterations * 0.5)];
+      const p95 = latencies[Math.floor(iterations * 0.95)];
+      const max = latencies[iterations - 1];
+
+      console.log(
+        `[PVM Candidate Validation Benchmark (1000 runs)] p50=${p50.toFixed(4)}ms | p95=${p95.toFixed(4)}ms | max=${max.toFixed(4)}ms`
+      );
+
+      expect(p50).toBeLessThan(0.1);
+      expect(p95).toBeLessThan(0.5);
+      expect(max).toBeLessThan(5.0);
+    });
+  });
 });
+

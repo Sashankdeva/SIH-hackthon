@@ -4,7 +4,12 @@ import type {
   SafeActionInput,
   RecordVerifiedOutcomeParams,
   PvmPredictionCandidate,
+  CandidateValidationRequest,
+  CandidateValidationResult,
+  CandidateRejectionReason,
 } from "./types";
+
+export type { CandidateValidationRequest, CandidateValidationResult, CandidateRejectionReason };
 
 export const DB_NAME = "pvm-store";
 export const STORE_NAME = "transitions";
@@ -307,6 +312,10 @@ export function findCandidatesInMemory(stateSignature: string): PvmPredictionCan
     confidence: r.confidence ?? 0.95,
     successCount: r.successCount ?? 1,
     lastUsed: r.lastUsed,
+    taskId: r.taskId,
+    taskScope: r.taskScope,
+    sessionScope: r.sessionScope,
+    createdAt: r.createdAt,
   }));
 }
 
@@ -327,7 +336,18 @@ export function clearMemory(): void {
  * HARD INVARIANT: Rejects failures, timeouts, ambiguous outcomes, and unverified actions.
  */
 export async function recordVerifiedOutcome(params: RecordVerifiedOutcomeParams): Promise<PvmRecord | null> {
-  const { verificationResult, stateSignature, actionSignature, actionType, taskId, targetRole, targetElementId, confidence } = params;
+  const {
+    verificationResult,
+    stateSignature,
+    actionSignature,
+    actionType,
+    taskId,
+    targetRole,
+    targetElementId,
+    confidence,
+    taskScope,
+    sessionScope,
+  } = params;
 
   // HARD INVARIANT CHECK: Only "success" verification status may enter PVM memory
   if (!verificationResult || verificationResult.status !== "success" || verificationResult.failureCategory) {
@@ -361,6 +381,8 @@ export async function recordVerifiedOutcome(params: RecordVerifiedOutcomeParams)
     failureCount: existing?.failureCount || 0,
     createdAt: existing?.createdAt || now,
     updatedAt: now,
+    taskScope: taskScope || existing?.taskScope,
+    sessionScope: sessionScope || existing?.sessionScope,
   };
 
   // 1. Update high-speed in-memory store
@@ -399,6 +421,204 @@ export async function queryPvmCandidates(stateSignature: string): Promise<PvmPre
 
   return [];
 }
+
+// =========================================================================
+// Phase 3 — Confidence-Aware Candidate Validation Engine
+// =========================================================================
+
+/**
+ * Validates a PVM candidate action deterministically against current state,
+ * action signatures, confidence thresholds, task/session scope, and freshness.
+ *
+ * Invariants:
+ * - Sub-millisecond execution latency
+ * - Does NOT perform browser actions or mutate DOM
+ * - Does NOT call neural models / LLMs
+ */
+export function validateCandidate(request: CandidateValidationRequest): CandidateValidationResult {
+  const startTime = typeof performance !== "undefined" ? performance.now() : Date.now();
+
+  const {
+    candidate,
+    currentStateInput,
+    currentActionInput,
+    taskScope,
+    sessionScope,
+    minConfidenceThreshold = 0.8,
+    maxStaleAgeMs,
+  } = request;
+
+  const getLatency = () =>
+    Math.max(0.0001, (typeof performance !== "undefined" ? performance.now() : Date.now()) - startTime);
+
+  // 1. Candidate presence check
+  if (!candidate || typeof candidate !== "object") {
+    return {
+      isValid: false,
+      candidate: null,
+      confidence: 0,
+      rejectionReason: "INVALID_CANDIDATE",
+      details: "Candidate object is null or missing",
+      validationLatencyMs: getLatency(),
+    };
+  }
+
+  // Check if candidate is a PvmRecord and verified === false
+  if ("verified" in candidate && candidate.verified === false) {
+    return {
+      isValid: false,
+      candidate: null,
+      confidence: candidate.confidence ?? 0,
+      rejectionReason: "UNVERIFIED_RECORD",
+      details: "Candidate outcome was not verified as successful",
+      validationLatencyMs: getLatency(),
+    };
+  }
+
+  // Normalize candidate structure to PvmPredictionCandidate
+  const candidateSig = candidate.stateSignature || ("stateHash" in candidate ? candidate.stateHash : "");
+  const candActionSig = candidate.actionSignature || ("action" in candidate && typeof candidate.action === "string" ? candidate.action : "");
+  const candConfidence = candidate.confidence ?? 0.9;
+
+  const candidateObj: PvmPredictionCandidate = {
+    actionType: candidate.actionType || ("action" in candidate && typeof candidate.action === "object" && candidate.action ? (candidate.action as any).actionType : "unknown"),
+    targetRole: candidate.targetRole,
+    targetElementId: candidate.targetElementId,
+    actionSignature: candActionSig,
+    stateSignature: candidateSig,
+    confidence: candConfidence,
+    successCount: candidate.successCount ?? 1,
+    lastUsed: candidate.lastUsed ?? Date.now(),
+    taskId: candidate.taskId,
+    taskScope: candidate.taskScope,
+    sessionScope: candidate.sessionScope,
+  };
+
+  // 2. State Signature Match Check
+  const currentStateSig = computeStateSignature(currentStateInput);
+  if (currentStateSig !== candidateSig) {
+    return {
+      isValid: false,
+      candidate: candidateObj,
+      confidence: candConfidence,
+      rejectionReason: "STATE_MISMATCH",
+      details: `State signature mismatch: expected ${candidateSig}, current is ${currentStateSig}`,
+      validationLatencyMs: getLatency(),
+    };
+  }
+
+  // 3. Action Signature Match Check (if current action input provided)
+  if (currentActionInput) {
+    const currentActionSig = computeActionSignature(currentActionInput);
+    if (candActionSig && currentActionSig !== candActionSig) {
+      return {
+        isValid: false,
+        candidate: candidateObj,
+        confidence: candConfidence,
+        rejectionReason: "ACTION_MISMATCH",
+        details: `Action signature mismatch: candidate ${candActionSig}, current ${currentActionSig}`,
+        validationLatencyMs: getLatency(),
+      };
+    }
+  }
+
+  // 4. Confidence Threshold Check
+  if (candConfidence < minConfidenceThreshold) {
+    return {
+      isValid: false,
+      candidate: candidateObj,
+      confidence: candConfidence,
+      rejectionReason: "LOW_CONFIDENCE",
+      details: `Candidate confidence ${candConfidence.toFixed(2)} is below minimum threshold ${minConfidenceThreshold.toFixed(2)}`,
+      validationLatencyMs: getLatency(),
+    };
+  }
+
+  // 5. Task Scope Check
+  if (taskScope && candidateObj.taskScope && candidateObj.taskScope !== taskScope) {
+    return {
+      isValid: false,
+      candidate: candidateObj,
+      confidence: candConfidence,
+      rejectionReason: "TASK_SCOPE_MISMATCH",
+      details: `Task scope mismatch: required '${taskScope}', candidate has '${candidateObj.taskScope}'`,
+      validationLatencyMs: getLatency(),
+    };
+  }
+
+  // 6. Session Scope Check
+  if (sessionScope && candidateObj.sessionScope && candidateObj.sessionScope !== sessionScope) {
+    return {
+      isValid: false,
+      candidate: candidateObj,
+      confidence: candConfidence,
+      rejectionReason: "SESSION_SCOPE_MISMATCH",
+      details: `Session scope mismatch: required '${sessionScope}', candidate has '${candidateObj.sessionScope}'`,
+      validationLatencyMs: getLatency(),
+    };
+  }
+
+  // 7. Freshness / Stale Check
+  if (maxStaleAgeMs && maxStaleAgeMs > 0) {
+    const ageMs = Date.now() - candidateObj.lastUsed;
+    if (ageMs > maxStaleAgeMs) {
+      return {
+        isValid: false,
+        candidate: candidateObj,
+        confidence: candConfidence,
+        rejectionReason: "STALE_RECORD",
+        details: `Candidate record age (${ageMs}ms) exceeds maximum allowed age (${maxStaleAgeMs}ms)`,
+        validationLatencyMs: getLatency(),
+      };
+    }
+  }
+
+  // Passed all candidate applicability checks
+  return {
+    isValid: true,
+    candidate: candidateObj,
+    confidence: candConfidence,
+    validationLatencyMs: getLatency(),
+  };
+}
+
+/**
+ * Finds and validates candidates for a given state input.
+ * Returns only valid candidate validation results sorted by confidence descending.
+ */
+export function findAndValidateCandidates(
+  currentStateInput: SafeStateInput,
+  options: {
+    currentActionInput?: SafeActionInput;
+    taskScope?: string;
+    sessionScope?: string;
+    minConfidenceThreshold?: number;
+    maxStaleAgeMs?: number;
+  } = {}
+): CandidateValidationResult[] {
+  const stateSig = computeStateSignature(currentStateInput);
+  const candidates = findCandidatesInMemory(stateSig);
+  if (candidates.length === 0) return [];
+
+  const results: CandidateValidationResult[] = [];
+  for (const cand of candidates) {
+    const validation = validateCandidate({
+      candidate: cand,
+      currentStateInput,
+      currentActionInput: options.currentActionInput,
+      taskScope: options.taskScope,
+      sessionScope: options.sessionScope,
+      minConfidenceThreshold: options.minConfidenceThreshold,
+      maxStaleAgeMs: options.maxStaleAgeMs,
+    });
+    if (validation.isValid) {
+      results.push(validation);
+    }
+  }
+
+  return results.sort((a, b) => b.confidence - a.confidence);
+}
+
 
 // =========================================================================
 // IndexedDB Storage Layer (Preserves Existing Signature & Schema)
