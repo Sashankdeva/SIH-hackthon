@@ -54,6 +54,12 @@ export interface VerificationResult {
   retryability?: Retryability;
   evidence?: VerificationEvidence[];
   timestamp?: number;
+
+  // Phase 5 multi-level per-level timing and escalation metadata:
+  l1LatencyMs?: number;
+  l2LatencyMs?: number;
+  l3LatencyMs?: number;
+  escalatedFromLevel?: VerificationLevel;
 }
 
 export interface ElementStateExpectation {
@@ -65,6 +71,31 @@ export interface ElementStateExpectation {
   className?: string;
   value?: string;
   isSecret?: boolean;
+}
+
+/** Level 2 Semantic Verification expectations */
+export interface L2SemanticExpectation {
+  semanticRole?: string;
+  expectedTextPattern?: string; // Regex or substring pattern
+  accessibilityLabel?: string;
+  semanticStatus?: "success" | "error" | "pending" | "info";
+  customSemanticFlags?: Record<string, string | boolean | number>;
+}
+
+/** Level 3 Visual Verification expectations (privacy-safe, NO image buffers) */
+export interface L3VisualExpectation {
+  regionBoundingBox?: { x: number; y: number; width: number; height: number };
+  expectedVisibilityState?: "visible" | "hidden" | "occluded";
+  elementLayoutShifted?: boolean;
+  visualColorClass?: string;
+}
+
+/** Options for controlling higher-level verification escalation */
+export interface HigherLevelVerificationOptions {
+  allowEscalation?: boolean;
+  requestedLevel?: VerificationLevel;
+  minL2Confidence?: number;
+  minL3Confidence?: number;
 }
 
 export interface VerificationRequest {
@@ -81,6 +112,11 @@ export interface VerificationRequest {
   expectedRegionSelector?: string | null;
   startedAt?: number;
   level?: VerificationLevel;
+
+  // Phase 5 Higher-Level Verification fields:
+  expectedSemanticState?: L2SemanticExpectation | null;
+  expectedVisualState?: L3VisualExpectation | null;
+  verificationOptions?: HigherLevelVerificationOptions | null;
 }
 
 export type SuggestedRecoveryAction =

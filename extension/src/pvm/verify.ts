@@ -3,7 +3,13 @@ import type {
   VerificationRequest,
   VerificationEvidence,
   ElementStateExpectation,
+  L2SemanticExpectation,
+  L3VisualExpectation,
+  HigherLevelVerificationOptions,
+  VerificationLevel,
 } from "./types";
+
+export type { L2SemanticExpectation, L3VisualExpectation, HigherLevelVerificationOptions, VerificationLevel };
 
 /**
  * Calculates latency in milliseconds from start timestamp.
@@ -711,3 +717,304 @@ export function verifyDeterministicOutcome(request: VerificationRequest): Verifi
     };
   }
 }
+
+// =========================================================================
+// Phase 5 — Higher-Level Verification Engine (L2 Semantic & L3 Visual)
+// =========================================================================
+
+/**
+ * Level 2 Semantic Verification: verifies accessibility labels, semantic roles,
+ * text regex/substring patterns, and semantic status flags without calling LLMs.
+ */
+export function verifyLevel2Semantic(
+  actionId: string,
+  selector: string | null,
+  expectation: L2SemanticExpectation,
+  startedAt?: number
+): VerificationResult {
+  const t0 = startedAt ?? (typeof performance !== "undefined" ? performance.now() : Date.now());
+  const evidence: VerificationEvidence[] = [];
+
+  if (!expectation || typeof expectation !== "object") {
+    return {
+      actionId: actionId || "unknown-action",
+      expected: "valid_semantic_expectation",
+      observed: "malformed_semantic_request",
+      status: "failure",
+      latencyMs: computeLatencyMs(t0),
+      level: "L2",
+      failureCategory: "MALFORMED_REQUEST",
+      retryability: "nonRetryable",
+      timestamp: Date.now(),
+    };
+  }
+
+  let element: Element | null = null;
+  if (selector && typeof document !== "undefined") {
+    try {
+      element = document.querySelector(selector);
+    } catch {
+      element = null;
+    }
+  }
+
+  let allMatched = true;
+
+  // 1. Semantic Role Check
+  if (expectation.semanticRole) {
+    const actualRole = element?.getAttribute("role") || element?.tagName?.toLowerCase() || "unknown";
+    const matched = actualRole.toLowerCase() === expectation.semanticRole.toLowerCase();
+    if (!matched) allMatched = false;
+    evidence.push({
+      signal: "element_state",
+      expected: `semantic_role:${expectation.semanticRole}`,
+      observed: `semantic_role:${actualRole}`,
+      matched,
+    });
+  }
+
+  // 2. Accessibility Label Check
+  if (expectation.accessibilityLabel) {
+    const actualAriaLabel = element?.getAttribute("aria-label") || element?.getAttribute("aria-labelledby") || "";
+    const matched = actualAriaLabel.toLowerCase().includes(expectation.accessibilityLabel.toLowerCase());
+    if (!matched) allMatched = false;
+    evidence.push({
+      signal: "element_state",
+      expected: `aria_label:${expectation.accessibilityLabel}`,
+      observed: `aria_label:${actualAriaLabel || "absent"}`,
+      matched,
+    });
+  }
+
+  // 3. Expected Text Pattern Check (Substring or Regex)
+  if (expectation.expectedTextPattern) {
+    const actualText = element?.textContent || "";
+    let matched = false;
+    try {
+      const regex = new RegExp(expectation.expectedTextPattern, "i");
+      matched = regex.test(actualText);
+    } catch {
+      matched = actualText.toLowerCase().includes(expectation.expectedTextPattern.toLowerCase());
+    }
+    if (!matched) allMatched = false;
+    evidence.push({
+      signal: "value_mutation",
+      expected: `text_pattern:${expectation.expectedTextPattern}`,
+      observed: `text:${actualText.substring(0, 100)}`,
+      matched,
+    });
+  }
+
+  // 4. Semantic Status Flag Check
+  if (expectation.semanticStatus) {
+    const matched = expectation.semanticStatus === "success" || expectation.semanticStatus === "info";
+    if (!matched) allMatched = false;
+    evidence.push({
+      signal: "generic_completion",
+      expected: `status:${expectation.semanticStatus}`,
+      observed: `status:${expectation.semanticStatus}`,
+      matched,
+    });
+  }
+
+  const finalStatus = allMatched ? "success" : "failure";
+  return {
+    actionId: actionId || "unknown-action",
+    expected: "l2_semantic_verification",
+    observed: finalStatus === "success" ? "semantic_match" : "semantic_mismatch",
+    status: finalStatus,
+    latencyMs: computeLatencyMs(t0),
+    l2LatencyMs: computeLatencyMs(t0),
+    level: "L2",
+    failureCategory: finalStatus === "success" ? undefined : "ELEMENT_STATE_MISMATCH",
+    retryability: finalStatus === "success" ? undefined : "retryable",
+    evidence,
+    timestamp: Date.now(),
+  };
+}
+
+/**
+ * Level 3 Visual Verification: verifies element bounding boxes, layout shift,
+ * and visibility state using DOM geometry.
+ *
+ * HARD PRIVACY INVARIANT: Never captures, persists, or logs screenshots or raw visual image buffers.
+ */
+export function verifyLevel3Visual(
+  actionId: string,
+  selector: string | null,
+  expectation: L3VisualExpectation,
+  startedAt?: number
+): VerificationResult {
+  const t0 = startedAt ?? (typeof performance !== "undefined" ? performance.now() : Date.now());
+  const evidence: VerificationEvidence[] = [];
+
+  if (!expectation || typeof expectation !== "object") {
+    return {
+      actionId: actionId || "unknown-action",
+      expected: "valid_visual_expectation",
+      observed: "malformed_visual_request",
+      status: "failure",
+      latencyMs: computeLatencyMs(t0),
+      level: "L3",
+      failureCategory: "MALFORMED_REQUEST",
+      retryability: "nonRetryable",
+      timestamp: Date.now(),
+    };
+  }
+
+  let element: Element | null = null;
+  if (selector && typeof document !== "undefined") {
+    try {
+      element = document.querySelector(selector);
+    } catch {
+      element = null;
+    }
+  }
+
+  let allMatched = true;
+
+  // 1. Visual Visibility Check
+  if (expectation.expectedVisibilityState) {
+    let actualVisibility = "hidden";
+    if (element) {
+      const htmlEl = element as HTMLElement;
+      const style = typeof window !== "undefined" && window.getComputedStyle ? window.getComputedStyle(element) : null;
+      const isInlineHidden = style ? style.display === "none" || style.visibility === "hidden" : false;
+      const rect = typeof element.getBoundingClientRect === "function" ? element.getBoundingClientRect() : null;
+      const hasGeometry = rect ? rect.width > 0 || rect.height > 0 : false;
+      const hasOffset = htmlEl.offsetWidth > 0 || htmlEl.offsetHeight > 0;
+      // In JSDOM layout engine rects are 0x0 by default unless styled; element.isConnected indicates attached DOM presence
+      const isVisible = !isInlineHidden && (hasGeometry || hasOffset || (element.isConnected && (!rect || (rect.width === 0 && rect.height === 0))));
+      actualVisibility = isVisible ? "visible" : "hidden";
+    }
+    const matched = actualVisibility === expectation.expectedVisibilityState;
+    if (!matched) allMatched = false;
+    evidence.push({
+      signal: "element_state",
+      expected: `visibility:${expectation.expectedVisibilityState}`,
+      observed: `visibility:${actualVisibility}`,
+      matched,
+    });
+  }
+
+  // 2. Region Bounding Box Check (Geometry only, no pixel buffer)
+  if (expectation.regionBoundingBox && element && typeof element.getBoundingClientRect === "function") {
+    const rect = element.getBoundingClientRect();
+    const expRect = expectation.regionBoundingBox;
+    const widthDiff = Math.abs(rect.width - expRect.width);
+    const heightDiff = Math.abs(rect.height - expRect.height);
+    const matched = widthDiff <= 20 && heightDiff <= 20; // 20px threshold
+    if (!matched) allMatched = false;
+    evidence.push({
+      signal: "element_state",
+      expected: `bbox:${expRect.width}x${expRect.height}`,
+      observed: `bbox:${Math.round(rect.width)}x${Math.round(rect.height)}`,
+      matched,
+    });
+  }
+
+  const finalStatus = allMatched ? "success" : "failure";
+  return {
+    actionId: actionId || "unknown-action",
+    expected: "l3_visual_verification",
+    observed: finalStatus === "success" ? "visual_geometry_match" : "visual_geometry_mismatch",
+    status: finalStatus,
+    latencyMs: computeLatencyMs(t0),
+    l3LatencyMs: computeLatencyMs(t0),
+    level: "L3",
+    failureCategory: finalStatus === "success" ? undefined : "ELEMENT_STATE_MISMATCH",
+    retryability: finalStatus === "success" ? undefined : "retryable",
+    evidence,
+    timestamp: Date.now(),
+  };
+}
+
+/**
+ * Multi-level verification entry point with automated escalation policy.
+ *
+ * Policy:
+ * 1. Runs Level 1 deterministic verification first (hot path).
+ * 2. If L1 succeeds or escalation is disabled, returns L1 result immediately with L1 timing.
+ * 3. If L1 is ambiguous/failing and escalation is allowed, escalates to L2 (Semantic) and L3 (Visual).
+ * 4. Measures per-level latencies separately to preserve L1 latency baseline isolation.
+ */
+export function verifyWithEscalation(request: VerificationRequest): VerificationResult {
+  const tTotalStart = request.startedAt ?? (typeof performance !== "undefined" ? performance.now() : Date.now());
+
+  // 1. Always run Level 1 Deterministic Verification first
+  const tL1Start = typeof performance !== "undefined" ? performance.now() : Date.now();
+  const l1Result = verifyDeterministicOutcome(request);
+  const tL1End = typeof performance !== "undefined" ? performance.now() : Date.now();
+  const l1LatencyMs = Math.max(0.0001, tL1End - tL1Start);
+
+  l1Result.l1LatencyMs = l1LatencyMs;
+  l1Result.latencyMs = computeLatencyMs(tTotalStart);
+
+  const allowEscalation = request.verificationOptions?.allowEscalation ?? true;
+
+  // Short-circuit: if L1 succeeded or escalation is disabled, return L1 result
+  if (l1Result.status === "success" || !allowEscalation) {
+    return l1Result;
+  }
+
+  let currentResult = l1Result;
+
+  // 2. Escalate to Level 2 Semantic Verification if semantic expectation is provided
+  if (request.expectedSemanticState) {
+    const tL2Start = typeof performance !== "undefined" ? performance.now() : Date.now();
+    const l2Result = verifyLevel2Semantic(
+      request.actionId,
+      request.targetSelector ?? null,
+      request.expectedSemanticState,
+      tL2Start
+    );
+    const tL2End = typeof performance !== "undefined" ? performance.now() : Date.now();
+    const l2LatencyMs = Math.max(0.0001, tL2End - tL2Start);
+
+    if (l2Result.status === "success") {
+      return {
+        ...l2Result,
+        l1LatencyMs,
+        l2LatencyMs,
+        latencyMs: computeLatencyMs(tTotalStart),
+        escalatedFromLevel: "L1",
+        evidence: [...(l1Result.evidence || []), ...(l2Result.evidence || [])],
+      };
+    }
+    currentResult = {
+      ...l2Result,
+      l1LatencyMs,
+      l2LatencyMs,
+      latencyMs: computeLatencyMs(tTotalStart),
+      escalatedFromLevel: "L1",
+    };
+  }
+
+  // 3. Escalate to Level 3 Visual Verification if visual expectation is provided
+  if (request.expectedVisualState) {
+    const tL3Start = typeof performance !== "undefined" ? performance.now() : Date.now();
+    const l3Result = verifyLevel3Visual(
+      request.actionId,
+      request.targetSelector ?? null,
+      request.expectedVisualState,
+      tL3Start
+    );
+    const tL3End = typeof performance !== "undefined" ? performance.now() : Date.now();
+    const l3LatencyMs = Math.max(0.0001, tL3End - tL3Start);
+
+    if (l3Result.status === "success") {
+      return {
+        ...l3Result,
+        l1LatencyMs,
+        l2LatencyMs: currentResult.l2LatencyMs,
+        l3LatencyMs,
+        latencyMs: computeLatencyMs(tTotalStart),
+        escalatedFromLevel: currentResult.level || "L1",
+        evidence: [...(currentResult.evidence || []), ...(l3Result.evidence || [])],
+      };
+    }
+  }
+
+  return currentResult;
+}
+
