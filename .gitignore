@@ -14,8 +14,9 @@ __pycache__/
 Thumbs.db
 .vscode/
 
-# Ignore sprint plan
-PS26171_Sprint_Plan.pdf
+# Documents & Binary Assets
+*.pdf
 
 # Ignore scratch directory
 scratch/
+
