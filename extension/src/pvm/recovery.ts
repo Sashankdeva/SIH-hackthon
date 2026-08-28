@@ -202,9 +202,19 @@ export function decideRecovery(
       break;
   }
 
+  const actionDesc =
+    suggestedAction === "RECAPTURE_STATE"
+      ? "a fresh state capture"
+      : suggestedAction.toLowerCase().replace("_", " ");
+
+  const reasonPrefix =
+    result.status === "ambiguous"
+      ? `action ambiguous (${category}) — ambiguous outcome — retry with ${actionDesc}`
+      : `action failed (${category}) — retry with ${actionDesc}`;
+
   return {
     shouldRetry: true,
-    reason: `action failed (${category}) — retry with ${suggestedAction.toLowerCase().replace("_", " ")}`,
+    reason: reasonPrefix,
     failureCategory: category,
     retryability: "retryable",
     suggestedAction,
