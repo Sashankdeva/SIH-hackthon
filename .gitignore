@@ -17,4 +17,5 @@ Thumbs.db
 # Ignore sprint plan
 PS26171_Sprint_Plan.pdf
 
-
+# Ignore scratch directory
+scratch/
