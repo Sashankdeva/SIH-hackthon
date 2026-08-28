@@ -3,9 +3,13 @@ import type {
   RecoveryDecision,
   FailureCategory,
   Retryability,
+  SuggestedRecoveryAction,
+  PvmRecoveryContext,
+  PvmPredictionCandidate,
 } from "./types";
+import { findCandidatesInMemory, computeStateSignature } from "./memory";
 
-export { type RecoveryDecision };
+export { type RecoveryDecision, type PvmRecoveryContext, type SuggestedRecoveryAction };
 
 export const MAX_RECOVERY_ATTEMPTS = 2;
 
@@ -82,13 +86,30 @@ export function isFailureRetryable(
 }
 
 /**
- * Recovery decision engine — governs whether an action should retry or escalate.
+ * Recovery decision engine — governs whether an action should retry, use alternative candidate, or escalate.
+ *
+ * Invariants:
+ * - Role 5 ONLY returns structured recommendations; it NEVER executes browser actions or retries itself.
+ * - Sub-millisecond execution latency.
+ * - Bounded retry limits prevent infinite execution loops.
  */
 export function decideRecovery(
   result: VerificationResult,
-  attemptsSoFar: number,
-  maxAttempts: number = MAX_RECOVERY_ATTEMPTS
+  attemptsOrContext: number | PvmRecoveryContext,
+  maxAttemptsOverride?: number
 ): RecoveryDecision {
+  const startTime = typeof performance !== "undefined" ? performance.now() : Date.now();
+  const getLatency = () =>
+    Math.max(0.0001, (typeof performance !== "undefined" ? performance.now() : Date.now()) - startTime);
+
+  const context: PvmRecoveryContext =
+    typeof attemptsOrContext === "number"
+      ? { attemptsSoFar: attemptsOrContext, maxAttempts: maxAttemptsOverride ?? MAX_RECOVERY_ATTEMPTS }
+      : attemptsOrContext;
+
+  const attemptsSoFar = context.attemptsSoFar ?? 0;
+  const maxAttempts = context.maxAttempts ?? maxAttemptsOverride ?? MAX_RECOVERY_ATTEMPTS;
+
   if (!result || typeof result !== "object") {
     return {
       shouldRetry: false,
@@ -96,6 +117,7 @@ export function decideRecovery(
       failureCategory: "MALFORMED_REQUEST",
       retryability: "nonRetryable",
       suggestedAction: "ABORT",
+      recoveryLatencyMs: getLatency(),
     };
   }
 
@@ -104,6 +126,7 @@ export function decideRecovery(
       shouldRetry: false,
       reason: "verified success",
       retryability: "nonRetryable",
+      recoveryLatencyMs: getLatency(),
     };
   }
 
@@ -114,39 +137,77 @@ export function decideRecovery(
       failureCategory: result.failureCategory ?? classifyFailure(result),
       retryability: "nonRetryable",
       suggestedAction: "ABORT",
+      recoveryLatencyMs: getLatency(),
     };
   }
 
   const category = result.failureCategory ?? classifyFailure(result);
+  const retryable = isFailureRetryable(category, attemptsSoFar, maxAttempts);
 
-  if (result.status === "failure") {
-    const retryable = isFailureRetryable(category, attemptsSoFar, maxAttempts);
-    if (retryable === "nonRetryable") {
-      return {
-        shouldRetry: false,
-        reason: `non-retryable failure (${category}) — abort`,
-        failureCategory: category,
-        retryability: "nonRetryable",
-        suggestedAction: "ABORT",
-      };
-    }
-    const suggestedAction: "RETRY_IMMEDIATE" | "RECAPTURE_STATE" | "BACKOFF_RETRY" =
-      category === "STATE_NOT_CHANGED" ? "BACKOFF_RETRY" : "RECAPTURE_STATE";
+  if (retryable === "nonRetryable") {
     return {
-      shouldRetry: true,
-      reason: "action failed — retry with a fresh state capture",
+      shouldRetry: false,
+      reason: `non-retryable failure (${category}) — abort`,
       failureCategory: category,
-      retryability: "retryable",
-      suggestedAction,
+      retryability: "nonRetryable",
+      suggestedAction: "ABORT",
+      recoveryLatencyMs: getLatency(),
     };
   }
 
-  // Ambiguous outcome (e.g. url_unchanged on navigate)
+  // Check if PVM memory has alternative candidate actions for this state
+  let candidates: PvmPredictionCandidate[] = context.pvmCandidates || [];
+  if (candidates.length === 0 && (context.stateSignature || context.stateInput)) {
+    const stateSig = context.stateSignature || (context.stateInput ? computeStateSignature(context.stateInput) : "");
+    if (stateSig) {
+      candidates = findCandidatesInMemory(stateSig);
+    }
+  }
+
+  // Filter candidates matching task/session scope if specified
+  const validCandidates = candidates.filter((c) => {
+    if (context.taskScope && c.taskScope && c.taskScope !== context.taskScope) return false;
+    if (context.sessionScope && c.sessionScope && c.sessionScope !== context.sessionScope) return false;
+    return c.confidence >= 0.8;
+  });
+
+  if (validCandidates.length > 0) {
+    const altCandidate = validCandidates[0];
+    return {
+      shouldRetry: true,
+      reason: `failure recovery — alternative PVM candidate available (${altCandidate.actionType})`,
+      failureCategory: category,
+      retryability: "retryable",
+      suggestedAction: "ALTERNATIVE_CANDIDATE",
+      alternativeCandidate: altCandidate,
+      recoveryLatencyMs: getLatency(),
+    };
+  }
+
+  // Determine standard recovery suggestion based on failure classification
+  let suggestedAction: SuggestedRecoveryAction;
+  switch (category) {
+    case "STATE_NOT_CHANGED":
+      suggestedAction = "BACKOFF_RETRY";
+      break;
+    case "TIMEOUT":
+    case "EXECUTION_INTERRUPTED":
+      suggestedAction = "RETRY_IMMEDIATE";
+      break;
+    case "TARGET_NOT_FOUND":
+    case "ELEMENT_STATE_MISMATCH":
+    case "STALE_STATE":
+    default:
+      suggestedAction = "RECAPTURE_STATE";
+      break;
+  }
+
   return {
     shouldRetry: true,
-    reason: "ambiguous outcome — re-evaluate before retrying",
+    reason: `action failed (${category}) — retry with ${suggestedAction.toLowerCase().replace("_", " ")}`,
     failureCategory: category,
-    retryability: "inconclusive",
-    suggestedAction: "RECAPTURE_STATE",
+    retryability: "retryable",
+    suggestedAction,
+    recoveryLatencyMs: getLatency(),
   };
 }

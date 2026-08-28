@@ -83,12 +83,31 @@ export interface VerificationRequest {
   level?: VerificationLevel;
 }
 
+export type SuggestedRecoveryAction =
+  | "RETRY_IMMEDIATE"
+  | "RECAPTURE_STATE"
+  | "BACKOFF_RETRY"
+  | "ALTERNATIVE_CANDIDATE"
+  | "ABORT";
+
+export interface PvmRecoveryContext {
+  attemptsSoFar: number;
+  maxAttempts?: number;
+  stateSignature?: string;
+  stateInput?: SafeStateInput;
+  pvmCandidates?: PvmPredictionCandidate[];
+  taskScope?: string;
+  sessionScope?: string;
+}
+
 export interface RecoveryDecision {
   shouldRetry: boolean;
   reason: string;
   failureCategory?: FailureCategory;
   retryability?: Retryability;
-  suggestedAction?: "RETRY_IMMEDIATE" | "RECAPTURE_STATE" | "BACKOFF_RETRY" | "ABORT";
+  suggestedAction?: SuggestedRecoveryAction;
+  alternativeCandidate?: PvmPredictionCandidate;
+  recoveryLatencyMs?: number;
 }
 
 /** Safe state input for computing deterministic, privacy-safe state signatures */

@@ -380,7 +380,7 @@ describe("Role 5 Phase 1 — Deterministic Level-1 Verification & Recovery Found
 
     it("evaluates recovery decision across lifecycle attempts", () => {
       const successRes: VerificationResult = { actionId: "act-1", expected: "url", observed: "url", status: "success", latencyMs: 1 };
-      expect(decideRecovery(successRes, 0)).toEqual({
+      expect(decideRecovery(successRes, 0)).toMatchObject({
         shouldRetry: false,
         reason: "verified success",
         retryability: "nonRetryable",
