@@ -3,12 +3,10 @@ import type { VisionAssetUrls } from "../perception/faceDetector";
 import type { PageState } from "../perception/types";
 import { detectTier1 } from "../privacy/tier1DomRules";
 import { redact } from "../privacy/redact";
-import { buildSanitizedContext } from "../privacy/sanitizedContext";
 import type { StepRecord } from "../privacy/sanitizedContext";
 import type { PrivacyDetection, RedactionRecord } from "../privacy/types";
 import { sendMessage, onMessage } from "../messaging/bus";
-import { runOneStep } from "./pipeline";
-import { cleanupSession } from "../action/session";
+import { runAgentLoop, AGENT_LOOP_MAX_STEPS, AGENT_LOOP_STEP_TIMEOUT_MS, AGENT_LOOP_TASK_TIMEOUT_MS } from "../action/agentLoop";
 
 /**
  * Stable identifier for this content-script lifetime — used only for the
@@ -127,17 +125,17 @@ async function analysePage(): Promise<PageAnalysis> {
 }
 
 // ---------------------------------------------------------------------------
-// Multi-step loop budgets
+// Multi-step loop budgets (re-exported from agentLoop for backward compat)
 // ---------------------------------------------------------------------------
 
 /** Maximum browser interactions per user-submitted task. */
-export const MAX_STEPS = 8;
+export const MAX_STEPS = AGENT_LOOP_MAX_STEPS;
 
 /** Maximum total wall-clock time for a task, in milliseconds. */
-export const TASK_TIMEOUT_MS = 60_000;
+export const TASK_TIMEOUT_MS = AGENT_LOOP_TASK_TIMEOUT_MS;
 
 /** Maximum time to wait for a single step (server + execute + verify), in ms. */
-export const STEP_TIMEOUT_MS = 20_000;
+export const STEP_TIMEOUT_MS = AGENT_LOOP_STEP_TIMEOUT_MS;
 
 // ---------------------------------------------------------------------------
 // Per-step DOM capture helper (exported for tests)
@@ -204,13 +202,14 @@ export function buildStepRecord(
 /**
  * Runs only when the user submits a task from the popup.
  *
- * Orchestrates a capture → reason → validate → execute → verify → record
- * loop up to MAX_STEPS times within TASK_TIMEOUT_MS. The server sees the
+ * Delegates to runAgentLoop() in action/agentLoop.ts which orchestrates:
+ *   capture → reason → validate → execute → verify → record
+ * up to MAX_STEPS times within TASK_TIMEOUT_MS. The server sees the
  * current page state on every call. The server is stateless — all context
  * for future steps comes from the sanitized history the extension builds
  * and sends back.
  *
- * Termination conditions:
+ * Termination conditions (handled by runAgentLoop):
  *   done signal  → task succeeded, model says it's done.
  *   null result  → server/network error or validator rejection → halt.
  *   failure      → verification failed (action did not land) → halt.
@@ -219,120 +218,17 @@ export function buildStepRecord(
 export async function runTask(task: string): Promise<{ ok: boolean; detail: string }> {
   // One UUID per user-submitted task.
   const taskId = crypto.randomUUID();
-  const taskStartedAt = Date.now();
 
   console.log("[content] task started:", task, "taskId:", taskId);
 
-  // Accumulates sanitized step summaries to send back in each context.
-  const history: StepRecord[] = [];
+  const loopResult = await runAgentLoop(taskId, {
+    task,
+    maxSteps: MAX_STEPS,
+    stepTimeoutMs: STEP_TIMEOUT_MS,
+    taskTimeoutMs: TASK_TIMEOUT_MS,
+  });
 
-  try {
-    for (let stepNumber = 1; stepNumber <= MAX_STEPS; stepNumber++) {
-      // ---- Total budget check ----
-      const elapsed = Date.now() - taskStartedAt;
-      if (elapsed >= TASK_TIMEOUT_MS) {
-        console.warn("[content] task budget exhausted after", elapsed, "ms");
-        return { ok: false, detail: `Task timed out after ${elapsed}ms (limit ${TASK_TIMEOUT_MS}ms).` };
-      }
-
-      // ---- Fresh DOM capture ----
-      const capture = await captureCurrentPage(taskId);
-      if (!capture) {
-        return { ok: false, detail: "DOM capture failed — cannot reason on a blank page." };
-      }
-      const { pageState, domDetections, domRedactions } = capture;
-
-      // ---- Privacy Firewall ----
-      const firewall = buildSanitizedContext(
-        { ...pageState, taskId },
-        domDetections,
-        domRedactions,
-        task
-      );
-      if (!firewall.ok) {
-        console.error("[content] Privacy Firewall blocked step", stepNumber, firewall.missingElementIds);
-        await sendMessage({
-          type: "PRIVACY_BLOCKED",
-          payload: { taskId, missingElementIds: firewall.missingElementIds },
-        });
-        return { ok: false, detail: "Blocked by Privacy Firewall — nothing was sent." };
-      }
-
-      // Attach accumulated history so the model sees what has already happened.
-      const context = { ...firewall.context, history: history.length > 0 ? [...history] : undefined };
-
-      console.log(
-        "[content] step", stepNumber, "/ context elements:", context.elements.length,
-        "history:", history.length
-      );
-
-      // ---- Per-step timeout ----
-      let stepResult: Awaited<ReturnType<typeof runOneStep>> = null;
-      const stepTimeoutPromise = new Promise<null>((resolve) =>
-        setTimeout(() => resolve(null), STEP_TIMEOUT_MS)
-      );
-      const stepRunPromise = runOneStep(context);
-
-      stepResult = await Promise.race([stepRunPromise, stepTimeoutPromise]);
-
-      if (stepResult === null) {
-        console.warn("[content] step", stepNumber, "returned null — halting");
-        return {
-          ok: false,
-          detail: `Step ${stepNumber} failed — server error or validator rejection.`,
-        };
-      }
-
-      // ---- done: model signals task is complete ----
-      if (stepResult.expected === "done") {
-        console.log("[content] task complete (done) after", stepNumber - 1, "action(s)");
-        await sendMessage({ type: "ACTION_RESULT", payload: stepResult });
-        return { ok: true, detail: `Task complete — done after ${stepNumber - 1} step(s).` };
-      }
-
-      // ---- Verification failure halts ----
-      if (stepResult.status === "failure") {
-        console.warn("[content] step", stepNumber, "verification failed:", stepResult.observed);
-        await sendMessage({ type: "ACTION_RESULT", payload: stepResult });
-        return {
-          ok: false,
-          detail: `Step ${stepNumber} verification failed (${stepResult.observed}) — halting.`,
-        };
-      }
-
-      // ---- Record sanitized history ----
-      const actionTypeFromExpected =
-        stepResult.expected === "wait_completed" ? "wait"
-        : stepResult.expected === "click_effect" ? "click"
-        : stepResult.expected === "value_matches" ? "type"
-        : stepResult.expected === "value_changed" ? "type_secret"
-        : stepResult.expected === "scroll_changed" ? "scroll"
-        : stepResult.expected === "url_changed" ? "navigate"
-        : stepResult.expected === "keypress_effect" ? "keypress"
-        : "unknown";
-
-      const record = buildStepRecord(
-        stepNumber,
-        actionTypeFromExpected,
-        null,
-        null,
-        stepResult.status as "success" | "failure" | "ambiguous"
-      );
-      history.push(record);
-
-      await sendMessage({ type: "ACTION_RESULT", payload: stepResult });
-      console.log("[content] step", stepNumber, "complete:", stepResult.status);
-    }
-
-    // Exhausted step budget without done.
-    console.warn("[content] step budget exhausted (MAX_STEPS =", MAX_STEPS, ")");
-    return {
-      ok: false,
-      detail: `Task halted after ${MAX_STEPS} steps without completion.`,
-    };
-  } finally {
-    cleanupSession(taskId);
-  }
+  return { ok: loopResult.ok, detail: loopResult.detail };
 }
 
 // ---------------------------------------------------------------------------

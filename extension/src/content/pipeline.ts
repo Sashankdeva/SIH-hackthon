@@ -7,6 +7,42 @@ import { verifyAction } from "../pvm/verify";
 import type { ActionSnapshot } from "../pvm/verify";
 import type { VerificationResult } from "../pvm/types";
 
+// ---------------------------------------------------------------------------
+// Phase 6 — StepError: structured failure carrier
+// ---------------------------------------------------------------------------
+
+/**
+ * Returned by runOneStep when a failure has a specific, distinguishable root
+ * cause that the agent loop should surface as a precise termination reason.
+ *
+ * Using a branded discriminant (`_stepError: true`) keeps the return type
+ * backwards-compatible with injectable test mocks that still return
+ * `VerificationResult | null` — neither of those shapes has this property.
+ */
+export interface StepError {
+  readonly _stepError: true;
+  /** Maps 1-to-1 to AgentLoopTerminationReason in agentLoop.ts */
+  readonly reason: "server_error" | "validation_failed" | "execution_failed";
+  /** Human-readable detail for logging / popup display. */
+  readonly detail: string;
+}
+
+/** Helper so callers don't need to write the discriminant manually. */
+function stepError(
+  reason: StepError["reason"],
+  detail: string
+): StepError {
+  return { _stepError: true, reason, detail };
+}
+
+/** Type guard — true for StepError objects, false for VerificationResult / null. */
+export function isStepError(v: unknown): v is StepError {
+  return typeof v === "object" && v !== null && (v as StepError)._stepError === true;
+}
+
+/** The full result type of runOneStep — VerificationResult, StepError, or null. */
+export type StepResult = VerificationResult | StepError | null;
+
 const DEFAULT_SERVER_URL = "http://127.0.0.1:8787/reason";
 
 /**
@@ -111,20 +147,37 @@ function snapshotElementValue(action: ActionRequest): string | null {
   return el?.value ?? null;
 }
 
-export async function runOneStep(sanitized: SanitizedContext): Promise<VerificationResult | null> {
+/**
+ * Phase 6 — typed one-step runner used by the agent loop.
+ *
+ * Returns StepResult (VerificationResult | StepError | null) so the loop can
+ * surface precise termination reasons ("validation_failed", "execution_failed",
+ * "server_error") rather than collapsing all failures to a bare null.
+ *
+ * The real pipeline (fetch → validate → execute → verify) lives here.
+ * All existing modules are reused; this function only adds a try/catch
+ * around execution and converts null/rejected paths to typed StepErrors.
+ */
+export async function runOneStepTyped(sanitized: SanitizedContext): Promise<StepResult> {
+  // ---- Fetch from reasoning server ----
   const action = await fetchAction(sanitized);
-  if (!action) return null;
+  if (!action) {
+    return stepError("server_error", "Could not reach the reasoning server or it returned a non-200 response.");
+  }
 
+  // ---- Existing validator — never execute on a rejected action ----
   const validation = validateAction(action, sanitized.taskId);
   if (!validation.ok) {
     console.warn("[pipeline] action rejected by validator:", validation.reason, action);
-    return null;
+    return stepError(
+      "validation_failed",
+      `Validator rejected action (${action.action}): ${validation.reason}`
+    );
   }
 
   const actionId = `${sanitized.taskId}:${action.stepId}`;
 
   // 'done' is a bare terminal signal — no browser interaction, no dispatch gate.
-  // The loop in content/index.ts checks result.expected === "done" to terminate.
   if (action.action === "done") {
     const result: VerificationResult = {
       actionId,
@@ -146,14 +199,41 @@ export async function runOneStep(sanitized: SanitizedContext): Promise<Verificat
     startedAt: Date.now(),
   };
 
-  // One gate per server response — see action/dispatch.ts.
+  // ---- One-gate executor — catch throws so the loop gets a clean StepError ----
+  // dispatch.run() calls executeAction() which interacts with the browser DOM.
+  // Any uncaught throw (e.g. DOM exception, permission denied) is an
+  // execution_failed — the agent loop must not crash or retry the same action.
   const dispatch = createDispatch(actionId);
-  await dispatch.run(action);
+  try {
+    await dispatch.run(action);
+  } catch (execErr) {
+    console.error("[pipeline] execution error for", actionId, ":", execErr);
+    return stepError(
+      "execution_failed",
+      `Browser execution threw for action ${action.action}: ${String(execErr)}`
+    );
+  }
 
-  // Per-action verification — see pvm/verify.ts.
-  // Runs after execution and reports; it never triggers another execution.
+  // ---- Per-action verification — see pvm/verify.ts ----
   const result = verifyAction(actionId, snapshot);
   console.log("[pipeline] verification:", result);
 
+  return result;
+}
+
+/**
+ * Backwards-compatible one-step runner used by pipeline.test.ts and any
+ * caller that expects `VerificationResult | null`.
+ *
+ * Delegates to runOneStepTyped and converts StepError → null so existing
+ * callers are unaffected by the Phase 6 type change.
+ */
+export async function runOneStep(sanitized: SanitizedContext): Promise<VerificationResult | null> {
+  const result = await runOneStepTyped(sanitized);
+  if (isStepError(result)) {
+    // StepError → null keeps the pre-Phase-6 contract for direct callers.
+    // The agent loop uses runOneStepTyped directly to get the precise reason.
+    return null;
+  }
   return result;
 }
