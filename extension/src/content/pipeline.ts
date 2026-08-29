@@ -5,7 +5,9 @@ import { toWireSanitizedContext, type SanitizedContext } from "../privacy/saniti
 import { resolveElement } from "../perception/domCapture";
 import { verifyAction } from "../pvm/verify";
 import type { ActionSnapshot } from "../pvm/verify";
+import { verifyLevel2Semantic } from "../pvm/verify";
 import type { VerificationResult } from "../pvm/types";
+import { computeStateSignature, computeActionSignature, recordVerifiedOutcome } from "../pvm/memory";
 
 const DEFAULT_SERVER_URL = "http://127.0.0.1:8787/reason";
 
@@ -150,10 +152,72 @@ export async function runOneStep(sanitized: SanitizedContext): Promise<Verificat
   const dispatch = createDispatch(actionId);
   await dispatch.run(action);
 
-  // Per-action verification — see pvm/verify.ts.
-  // Runs after execution and reports; it never triggers another execution.
-  const result = verifyAction(actionId, snapshot);
+  // Level-1 Snapshot-Based Deterministic Verification (exactly once).
+  // verifyAction uses the pre/post snapshot to evaluate click, type,
+  // type_secret, scroll, navigate, wait, and keypress outcomes.
+  let result = verifyAction(actionId, snapshot);
+
+  // Level 2/3 Escalation — invoked only when L1 is non-success and
+  // meaningful semantic or visual expectations can be evaluated.
+  // Genuine deterministic failures (e.g. value_mismatch) and unobservable
+  // actions without semantic state changes are preserved faithfully.
+  if (result.status !== "success") {
+    const selector = action.elementId != null
+      ? `[data-privy-id="${action.elementId}"]`
+      : null;
+
+    // Level 2 — Semantic escalation for type actions where text content matches
+    if (selector && action.action === "type" && action.value) {
+      const l2Result = verifyLevel2Semantic(actionId, selector, {
+        expectedTextPattern: action.value,
+      });
+      if (l2Result.status === "success") {
+        result = {
+          ...l2Result,
+          l1LatencyMs: result.latencyMs,
+          l2LatencyMs: l2Result.latencyMs,
+          escalatedFromLevel: "L1",
+          evidence: [...(result.evidence || []), ...(l2Result.evidence || [])],
+        };
+      }
+    }
+  }
+
   console.log("[pipeline] verification:", result);
+
+  // PVM Memory Learning — HARD INVARIANT: Only verified success outcomes
+  // enter memory. Failures and ambiguous outcomes are strictly rejected.
+  // Fire-and-forget: the in-memory LRU cache updates synchronously inside
+  // recordVerifiedOutcome; the async IndexedDB persistence runs in the
+  // background so it does not block the verification result return path.
+  if (result.status === "success") {
+    const stateSig = computeStateSignature({
+      url: sanitized.urlOrigin,
+      title: sanitized.page,
+      elements: sanitized.elements,
+    });
+    const actionSig = computeActionSignature({
+      action: action.action,
+      targetElementId: action.elementId ?? null,
+      valueRef: action.valueRef ?? null,
+      direction: action.direction ?? null,
+      amount: action.amount ?? null,
+      url: action.url ?? null,
+    });
+
+    recordVerifiedOutcome({
+      taskId: sanitized.taskId,
+      stateSignature: stateSig,
+      actionSignature: actionSig,
+      actionType: action.action,
+      targetElementId: action.elementId ?? null,
+      verificationResult: result,
+      confidence: action.confidence,
+      taskScope: sanitized.task,
+    }).catch((err) => {
+      console.warn("[pipeline] PVM memory persistence error (non-fatal):", err instanceof Error ? err.message : String(err));
+    });
+  }
 
   return result;
 }

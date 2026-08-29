@@ -41,12 +41,17 @@ Then `chrome://extensions` &rarr; Developer mode &rarr; Load unpacked &rarr; sel
 cd server
 python -m venv .venv
 ./.venv/Scripts/python.exe -m pip install -r requirements.txt   # Windows
-./.venv/Scripts/python.exe -m pytest -q                          # should show 18 passed
+./.venv/Scripts/python.exe -m pytest -q
+
+# For Localhost Development:
 ./.venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8787
+
+# For Cross-Laptop LAN Deployment (Laptop 2 hosting for Laptop 1):
+./.venv/Scripts/python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8787
 ```
 Runs against a stub reasoning backend by default — zero setup, no GPU
 needed. Server AI runs the real thing locally via Ollama; see
-`server/README.md`'s "Reasoning backend" section.
+`server/README.md`'s "Cross-Laptop / LAN Setup Guide" section.
 
 **Mock site:**
 ```bash
