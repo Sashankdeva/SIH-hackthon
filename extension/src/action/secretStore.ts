@@ -9,14 +9,15 @@
  * See PS26171 Structured Action Protocol: "Secret-safe typing".
  */
 
-const secretRegistry = new Map<string, string>();
+import { storeSecret, resolveSecret, clearSecrets } from "../privacy/secretStore";
 
 /**
  * Registers a local credential against an opaque reference token.
+ * Forwards directly to the authoritative privacy/secretStore.
  */
 export function setLocalSecret(ref: string, value: string): void {
   if (!ref || typeof ref !== "string") return;
-  secretRegistry.set(ref, value);
+  storeSecret(ref, value);
 }
 
 /**
@@ -27,13 +28,12 @@ export async function resolveLocalSecret(ref: string): Promise<string | null> {
   if (!ref || typeof ref !== "string") {
     return null;
   }
-  const secret = secretRegistry.get(ref);
-  return secret !== undefined ? secret : null;
+  return resolveSecret(ref);
 }
 
 /**
  * Clears all registered credentials from session memory.
  */
 export function clearLocalSecrets(): void {
-  secretRegistry.clear();
+  clearSecrets();
 }

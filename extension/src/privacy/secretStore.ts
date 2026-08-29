@@ -19,3 +19,7 @@ export function storeSecret(ref: string, value: string): void {
 export function resolveSecret(ref: string): string | null {
   return secretStore.get(ref) ?? null;
 }
+
+export function clearSecrets(): void {
+  secretStore.clear();
+}

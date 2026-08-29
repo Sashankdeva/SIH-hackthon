@@ -1,9 +1,9 @@
 import type { CapturedElement, PageState } from "./types";
 
 /**
- * DOM/accessibility-only capture for this sprint. The local vision model
- * (ONNX Runtime Web + WebGPU) is deferred past the Sept 1 milestone —
- * see docs/ARCHITECTURE.md and PS26171_Role2_Perception.pdf.
+ * Deterministic DOM & accessibility tree capture.
+ * Local ONNX face detection (via onnxruntime-web / WebGPU) is integrated
+ * alongside DOM capture through `faceDetector.ts` and `vision-main/index.ts`.
  */
 const INTERACTIVE_SELECTOR =
   "input, textarea, select, button, a[href], [role='button'], [role='link'], [role='checkbox'], [role='radio'], [role='combobox'], [role='tab'], [role='switch'], [role='menuitem'], [contenteditable='true'], [tabindex='0']";

@@ -1,5 +1,4 @@
 import { resolveElement } from "../perception/domCapture";
-import { resolveLocalSecret } from "./secretStore";
 import { resolveSecret } from "../privacy/secretStore";
 import { resolveFromProfile } from "../privacy/profileStore";
 import type { ActionRequest } from "./types";
@@ -34,15 +33,12 @@ function injectTextIntoElement(el: Element, text: string): void {
 
 /**
  * Resolves local secret values in priority order:
- *  1. privacy/secretStore (sync, captured from page session at redaction time)
- *  2. action/secretStore (async session registry)
- *  3. profileStore (user's saved details from extension popup)
+ *  1. privacy/secretStore (sync, in-memory secrets captured from page session)
+ *  2. profileStore (user's saved details from extension popup)
  */
 async function resolveLocalValue(token: string): Promise<string | null> {
-  const syncSecret = resolveSecret(token);
-  if (syncSecret != null) return syncSecret;
-  const asyncSecret = await resolveLocalSecret(token);
-  if (asyncSecret != null) return asyncSecret;
+  const secret = resolveSecret(token);
+  if (secret != null) return secret;
   return await resolveFromProfile(token);
 }
 

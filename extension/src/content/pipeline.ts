@@ -1,7 +1,7 @@
 import { validateAction } from "../action/validator";
 import { createDispatch } from "../action/dispatch";
-import type { ActionRequest } from "../action/types";
-import type { SanitizedContext } from "../privacy/sanitizedContext";
+import { fromWireActionResponse, type ActionRequest, type WireActionResponse } from "../action/types";
+import { toWireSanitizedContext, type SanitizedContext } from "../privacy/sanitizedContext";
 import { resolveElement } from "../perception/domCapture";
 import { verifyAction } from "../pvm/verify";
 import type { ActionSnapshot } from "../pvm/verify";
@@ -29,35 +29,6 @@ async function getServerUrl(): Promise<string> {
   });
 }
 
-/** Raw wire shape the server actually returns — snake_case, mirrors shared/schemas/action.schema.json. */
-interface RawActionResponse {
-  action: ActionRequest["action"];
-  element_id: number | null;
-  value: string | null;
-  value_ref: string | null;
-  direction: ActionRequest["direction"];
-  amount: number | null;
-  url: string | null;
-  confidence: number;
-  task_id: string;
-  step_id: number;
-}
-
-function toActionRequest(raw: RawActionResponse): ActionRequest {
-  return {
-    action: raw.action,
-    elementId: raw.element_id,
-    value: raw.value,
-    valueRef: raw.value_ref,
-    direction: raw.direction,
-    amount: raw.amount,
-    url: raw.url,
-    confidence: raw.confidence,
-    taskId: raw.task_id,
-    stepId: raw.step_id,
-  };
-}
-
 /**
  * SHA-256 of the exact bytes about to be sent, computed client-side
  * with the browser's own crypto API — not a claim, a value anyone can
@@ -80,21 +51,8 @@ async function sha256Hex(text: string): Promise<string> {
 async function fetchAction(sanitized: SanitizedContext): Promise<ActionRequest | null> {
   const serverUrl = await getServerUrl();
 
-  // Build the outbound payload in snake_case (server schema).
-  // history is included only when non-empty, so the first-step payload
-  // is byte-for-byte identical to the previous single-step shape.
-  const historyPayload =
-    sanitized.history && sanitized.history.length > 0 ? sanitized.history : undefined;
-
-  const bodyJson = JSON.stringify({
-    task_id: sanitized.taskId,
-    task: sanitized.task,
-    page: sanitized.page,
-    url_origin: sanitized.urlOrigin,
-    elements: sanitized.elements.map((el) => ({ element_id: el.elementId, role: el.role, label: el.label })),
-    fields: sanitized.fields,
-    ...(historyPayload !== undefined ? { history: historyPayload } : {}),
-  });
+  const wirePayload = toWireSanitizedContext(sanitized);
+  const bodyJson = JSON.stringify(wirePayload);
 
   const sha256 = await sha256Hex(bodyJson);
   console.log(`%c[privacy-proof] outbound payload SHA-256: ${sha256}`, "font-weight:bold");
@@ -111,8 +69,8 @@ async function fetchAction(sanitized: SanitizedContext): Promise<ActionRequest |
       console.error("[pipeline] server rejected the request:", response.status, await response.text());
       return null;
     }
-    const raw = (await response.json()) as RawActionResponse;
-    return toActionRequest(raw);
+    const raw = (await response.json()) as WireActionResponse;
+    return fromWireActionResponse(raw);
   } catch (err) {
     console.error("[pipeline] could not reach the server — is it running at", serverUrl, "?", err);
     return null;

@@ -120,18 +120,22 @@ export function buildSanitizedContext(
  */
 export interface WireSanitizedContext {
   task_id: string;
+  task: string;
   page: string;
   url_origin: string;
   elements: Array<{ element_id: number; role: string; label: string | null }>;
   fields: Record<string, string>;
+  history?: StepRecord[];
 }
 
 /**
  * Converts internal camelCase SanitizedContext to snake_case wire payload.
+ * Adheres strictly to shared/schemas/sanitized-context.schema.json.
  */
 export function toWireSanitizedContext(context: SanitizedContext): WireSanitizedContext {
-  return {
+  const wire: WireSanitizedContext = {
     task_id: context.taskId,
+    task: context.task,
     page: context.page,
     url_origin: context.urlOrigin,
     elements: context.elements.map((el) => ({
@@ -141,4 +145,10 @@ export function toWireSanitizedContext(context: SanitizedContext): WireSanitized
     })),
     fields: context.fields,
   };
+
+  if (context.history && context.history.length > 0) {
+    wire.history = context.history;
+  }
+
+  return wire;
 }
