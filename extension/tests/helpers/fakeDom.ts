@@ -187,12 +187,29 @@ export function installFakeDom(elements: FakeElement[]): FakeEnv {
   };
   g.HTMLInputElement = FakeInputElement;
   g.KeyboardEvent = FakeKeyboardEvent;
+  const storageState: Record<string, unknown> = {};
   g.chrome = {
     storage: {
       local: {
-        // No stored serverUrl -> pipeline falls back to its default.
-        get: (_keys: string[], cb: (result: Record<string, unknown>) => void) => cb({}),
-        set: async () => undefined,
+        get: (keys: string[] | string | null, cb?: (result: Record<string, unknown>) => void) => {
+          const res: Record<string, unknown> = {};
+          if (Array.isArray(keys)) {
+            for (const k of keys) {
+              if (k in storageState) res[k] = storageState[k];
+            }
+          } else if (typeof keys === "string") {
+            if (keys in storageState) res[keys] = storageState[keys];
+          } else {
+            Object.assign(res, storageState);
+          }
+          if (cb) cb(res);
+          return Promise.resolve(res);
+        },
+        set: (items: Record<string, unknown>, cb?: () => void) => {
+          Object.assign(storageState, items);
+          if (cb) cb();
+          return Promise.resolve();
+        },
       },
     },
     runtime: {

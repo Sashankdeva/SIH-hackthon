@@ -1,6 +1,7 @@
 import type { PrivacyReport } from "../privacy/types";
 import type { VerificationResult } from "../pvm/types";
 import { loadProfile, saveProfile, type Profile, type ProfileField } from "../privacy/profileStore";
+import { DEFAULT_SERVER_URL, normalizeServerUrl, checkServerHealth } from "../content/pipeline";
 
 /**
  * Privacy inspector UI — Day 3, PS26171_Role3_Privacy.pdf /
@@ -101,8 +102,6 @@ function render(state: StoredState, container: HTMLElement): void {
 
   container.appendChild(el("p", { className: "timestamp", text: `Updated ${new Date(state.updatedAt).toLocaleTimeString()}` }));
 }
-
-const DEFAULT_SERVER_URL = "http://127.0.0.1:8787/reason";
 
 const container = document.getElementById("report");
 if (container) {
@@ -226,16 +225,26 @@ const saveStatus = document.getElementById("save-status");
 
 if (urlInput && saveButton && saveStatus) {
   chrome.storage.local.get(["serverUrl"], (result) => {
-    urlInput.value = (result.serverUrl as string | undefined) || DEFAULT_SERVER_URL;
+    urlInput.value = normalizeServerUrl((result.serverUrl as string | undefined) || DEFAULT_SERVER_URL);
   });
 
-  saveButton.addEventListener("click", () => {
-    const value = urlInput.value.trim() || DEFAULT_SERVER_URL;
-    chrome.storage.local.set({ serverUrl: value }, () => {
-      saveStatus.textContent = "Saved — reload the target page to use it.";
+  saveButton.addEventListener("click", async () => {
+    const raw = urlInput.value.trim();
+    const normalized = normalizeServerUrl(raw || DEFAULT_SERVER_URL);
+    urlInput.value = normalized;
+
+    saveStatus.textContent = "Checking connection…";
+    const health = await checkServerHealth(normalized, 3000);
+
+    chrome.storage.local.set({ serverUrl: normalized }, () => {
+      if (health.ok) {
+        saveStatus.textContent = `Saved — connected to ${normalized} (${health.latencyMs}ms)`;
+      } else {
+        saveStatus.textContent = `Saved — ${normalized} (${health.error || "unreachable"})`;
+      }
       setTimeout(() => {
         saveStatus.textContent = "";
-      }, 3000);
+      }, 4000);
     });
   });
 }

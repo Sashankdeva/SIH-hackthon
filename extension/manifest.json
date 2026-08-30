@@ -4,7 +4,12 @@
   "version": "0.1.0",
   "description": "SIH26171 prototype: local perception and redaction run before any network request leaves the browser.",
   "permissions": ["activeTab", "storage", "scripting"],
-  "host_permissions": ["http://localhost/*", "http://127.0.0.1/*"],
+  "host_permissions": [
+    "http://localhost/*",
+    "http://127.0.0.1/*",
+    "http://*/*",
+    "https://*/*"
+  ],
   "background": {
     "service_worker": "dist/background.js"
   },

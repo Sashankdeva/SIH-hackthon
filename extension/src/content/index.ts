@@ -268,12 +268,17 @@ export async function runTask(task: string): Promise<{ ok: boolean; detail: stri
 
       // ---- Per-step timeout ----
       let stepResult: Awaited<ReturnType<typeof runOneStep>> = null;
-      const stepTimeoutPromise = new Promise<null>((resolve) =>
-        setTimeout(() => resolve(null), STEP_TIMEOUT_MS)
-      );
+      let stepTimeoutId: ReturnType<typeof setTimeout> | undefined;
+      const stepTimeoutPromise = new Promise<null>((resolve) => {
+        stepTimeoutId = setTimeout(() => resolve(null), STEP_TIMEOUT_MS);
+      });
       const stepRunPromise = runOneStep(context);
 
-      stepResult = await Promise.race([stepRunPromise, stepTimeoutPromise]);
+      try {
+        stepResult = await Promise.race([stepRunPromise, stepTimeoutPromise]);
+      } finally {
+        clearTimeout(stepTimeoutId);
+      }
 
       if (stepResult === null) {
         console.warn("[content] step", stepNumber, "returned null — halting");
