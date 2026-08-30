@@ -15,6 +15,9 @@ export function validateRedactionCoverage(
   detections: PrivacyDetection[],
   redactions: RedactionRecord[]
 ): ValidationResult {
+  if (!Array.isArray(detections) || !Array.isArray(redactions)) {
+    return { ok: false, missing: [] };
+  }
   const redactedIds = new Set(redactions.map((r) => r.elementId));
   const missing = detections.filter((d) => !redactedIds.has(d.elementId)).map((d) => d.elementId);
   return { ok: missing.length === 0, missing };

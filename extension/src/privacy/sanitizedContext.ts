@@ -66,6 +66,51 @@ export type FirewallResult =
   | { ok: false; missingElementIds: number[] };
 
 /**
+ * Sanitizes page title string to ensure raw PII (emails, phone numbers,
+ * cards, government IDs) does not leak via document.title into the outbound
+ * SanitizedContext 'page' field.
+ */
+export function sanitizePageTitle(rawTitle: string): string {
+  if (!rawTitle || typeof rawTitle !== "string") return "unknown";
+  let sanitized = rawTitle;
+  // Redact email addresses
+  sanitized = sanitized.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[EMAIL]");
+  // Redact 13-19 digit card numbers
+  sanitized = sanitized.replace(/\b(?:\d[ -]*?){13,19}\b/g, "[FINANCIAL]");
+  // Redact phone numbers
+  sanitized = sanitized.replace(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/g, "[PHONE]");
+  // Redact Aadhaar / SSN / PAN identifiers
+  sanitized = sanitized.replace(/\b\d{4}\s\d{4}\s\d{4}\b/g, "[GOVERNMENT_ID]");
+  sanitized = sanitized.replace(/\b\d{3}-\d{2}-\d{4}\b/g, "[GOVERNMENT_ID]");
+  sanitized = sanitized.replace(/\b[A-Z]{5}[0-9]{4}[A-Z]\b/g, "[GOVERNMENT_ID]");
+  return sanitized.trim() || "unknown";
+}
+
+/**
+ * Extracts origin safely from location or page URL, guaranteeing that
+ * query parameters and URL paths that may carry PII are never sent.
+ */
+export function sanitizeOrigin(pageUrl?: string): string {
+  if (pageUrl !== undefined && pageUrl !== null) {
+    if (typeof pageUrl === "string" && pageUrl.trim()) {
+      try {
+        const parsed = new URL(pageUrl);
+        if (parsed.origin && parsed.origin !== "null") {
+          return parsed.origin;
+        }
+      } catch {
+        return "http://localhost";
+      }
+    }
+    return "http://localhost";
+  }
+  if (typeof location !== "undefined" && location.origin && location.origin !== "null") {
+    return location.origin;
+  }
+  return "http://localhost";
+}
+
+/**
  * The Privacy Firewall: the only function allowed to produce a
  * network-bound payload. Refuses to build anything (ok: false) if
  * redaction coverage is incomplete — fail closed, per the project's
@@ -77,6 +122,10 @@ export function buildSanitizedContext(
   redactions: RedactionRecord[],
   task: string
 ): FirewallResult {
+  if (!pageState || !Array.isArray(pageState.elements)) {
+    return { ok: false, missingElementIds: [] };
+  }
+
   const coverage = validateRedactionCoverage(detections, redactions);
   if (!coverage.ok) {
     console.error("[privacy-firewall] blocked: missing redactions for elements", coverage.missing);
@@ -90,26 +139,32 @@ export function buildSanitizedContext(
 
   const fields: Record<string, string> = {};
   for (const el of pageState.elements) {
-    if (redactedIds.has(el.elementId)) {
+    if (el && typeof el.elementId === "number" && redactedIds.has(el.elementId)) {
       fields[String(el.elementId)] = tokenByElement.get(el.elementId)!;
     }
   }
 
+  const rawTitle = pageState.title || (typeof document !== "undefined" ? document.title : "");
+  const page = sanitizePageTitle(rawTitle);
+  const urlOrigin = sanitizeOrigin(pageState.url);
+
   const context: SanitizedContext = {
-    taskId: pageState.taskId,
-    task,
-    page: document.title || "unknown",
-    urlOrigin: location.origin,
+    taskId: pageState.taskId || "unknown",
+    task: task || "",
+    page,
+    urlOrigin,
     // Redacted elements STAY in this list — with the label replaced by
     // its token — so the model can see "there's a password field here"
     // (and target it for type_secret) without ever seeing its value.
     // Dropping redacted elements entirely was the earlier bug: the
     // model could never target something it couldn't see existed.
-    elements: pageState.elements.map((el) => ({
-      elementId: el.elementId,
-      role: el.role,
-      label: redactedIds.has(el.elementId) ? tokenByElement.get(el.elementId)! : el.label,
-    })),
+    elements: pageState.elements
+      .filter((el) => el && typeof el.elementId === "number")
+      .map((el) => ({
+        elementId: el.elementId,
+        role: el.role || "unknown",
+        label: redactedIds.has(el.elementId) ? tokenByElement.get(el.elementId)! : (el.label ?? null),
+      })),
     fields,
   };
   return { ok: true, context };

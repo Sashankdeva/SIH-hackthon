@@ -13,13 +13,19 @@
 const secretStore = new Map<string, string>();
 
 export function storeSecret(ref: string, value: string): void {
+  if (!ref || typeof ref !== "string" || typeof value !== "string") return;
   secretStore.set(ref, value);
 }
 
 export function resolveSecret(ref: string): string | null {
+  if (!ref || typeof ref !== "string") return null;
   return secretStore.get(ref) ?? null;
 }
 
 export function clearSecrets(): void {
   secretStore.clear();
+}
+
+export function getSecretCount(): number {
+  return secretStore.size;
 }
