@@ -46,6 +46,10 @@
     },
     "step_id": {
       "type": "integer"
+    },
+    "tab_id": {
+      "type": ["integer", "null"],
+      "description": "Optional tab identifier. Supplied by the server when it targets a specific browser tab. The extension may use this for routing but is not required to. If absent or null, the action applies to the current active tab."
     }
   }
 }

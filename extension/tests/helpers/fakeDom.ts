@@ -113,6 +113,12 @@ export interface FakeEnv {
   get scrollY(): number;
   /** Queue raw server response(s) or functions returning response objects. */
   respondWith(...responses: Array<object | ((body: string, callIndex: number) => object)>): void;
+  /**
+   * ISSUE-11: Queue raw text responses for malformed-response testing.
+   * Each entry is { status, body } where body is returned verbatim by text()
+   * and json() is made to throw (simulating a non-JSON or empty body).
+   */
+  respondWithRaw(...responses: Array<{ status: number; body: string }>): void;
 
   restore(): void;
 }
@@ -171,9 +177,19 @@ export function installFakeDom(elements: FakeElement[]): FakeEnv {
   class FakeKeyboardEvent {
     type: string;
     key: string;
-    constructor(type: string, init: { key?: string } = {}) {
+    code: string;
+    ctrlKey: boolean;
+    shiftKey: boolean;
+    altKey: boolean;
+    metaKey: boolean;
+    constructor(type: string, init: { key?: string; code?: string; ctrlKey?: boolean; shiftKey?: boolean; altKey?: boolean; metaKey?: boolean } = {}) {
       this.type = type;
       this.key = init.key ?? "";
+      this.code = init.code ?? "";
+      this.ctrlKey = !!init.ctrlKey;
+      this.shiftKey = !!init.shiftKey;
+      this.altKey = !!init.altKey;
+      this.metaKey = !!init.metaKey;
     }
   }
 
@@ -203,11 +219,25 @@ export function installFakeDom(elements: FakeElement[]): FakeEnv {
   };
   type ResponseProvider = object | ((body: string, callIndex: number) => object);
   let responseProviders: ResponseProvider[] = [];
+  // ISSUE-11: raw text response providers for malformed-response test cases.
+  let rawResponseProviders: Array<{ status: number; body: string }> | null = null;
 
   g.fetch = async (url: unknown, init?: { body?: unknown }) => {
     const bodyStr = String(init?.body ?? "");
     fetchCalls.push({ url: String(url), body: bodyStr });
     const idx = fetchCalls.length - 1;
+
+    // ISSUE-11: if raw response providers are set, use them for malformed-response tests.
+    if (rawResponseProviders !== null) {
+      const raw = rawResponseProviders[Math.min(idx, Math.max(0, rawResponseProviders.length - 1))];
+      const { status, body } = raw ?? { status: 200, body: "" };
+      return {
+        ok: status >= 200 && status < 300,
+        status,
+        text: async () => body,
+        json: async () => { throw new Error("[fake] this response is not JSON"); },
+      };
+    }
 
     let taskIdFromReq = "task-under-test";
     try {
@@ -269,7 +299,12 @@ export function installFakeDom(elements: FakeElement[]): FakeEnv {
       return currentScrollY;
     },
     respondWith(...next: Array<object | ((body: string, callIndex: number) => object)>) {
+      rawResponseProviders = null;
       responseProviders = next;
+    },
+    respondWithRaw(...next: Array<{ status: number; body: string }>) {
+      responseProviders = [];
+      rawResponseProviders = next;
     },
 
     restore() {

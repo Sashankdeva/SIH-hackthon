@@ -9,6 +9,7 @@ import type { PrivacyDetection, RedactionRecord } from "../privacy/types";
 import { sendMessage, onMessage } from "../messaging/bus";
 import { runOneStep } from "./pipeline";
 import { cleanupSession } from "../action/session";
+import { clearLocalSecrets } from "../action/secretStore";
 
 /**
  * Stable identifier for this content-script lifetime — used only for the
@@ -38,6 +39,31 @@ const VISION_TIMEOUT_MS = 15000;
  * sanitized payload sent to the server — images were never part of
  * that schema.
  */
+/**
+ * Runs on page load to detect faces and other visual PII using the
+ * vision-main content script (main world, ORT + ONNX model).
+ *
+ * Event listener protocol (ISSUE-15 analysis):
+ *
+ *   privyvision:vision-result  — emitted ONCE PER IMAGE BATCH by vision-main.
+ *     Multiple legitimate events may fire (one per <img> batch on the page)
+ *     before the final vision-done event. This is by design: the model
+ *     processes images in parallel and reports results as they complete.
+ *     Therefore onResult CANNOT use { once: true } — it must stay registered
+ *     until finish() is called.
+ *
+ *   privyvision:vision-done    — emitted ONCE when all images are processed.
+ *     Uses { once: true } because it is a terminal signal. Triggers finish().
+ *
+ *   timeout                    — fires finish() if vision-done never arrives
+ *     (e.g. vision-main not injected, all images cross-origin).
+ *
+ * Lifecycle invariant:
+ *   finish() is idempotent (settles only once via `settled` guard).
+ *   Both listeners AND the timeout are always removed inside finish() —
+ *   guaranteeing no stale listener and no duplicate settlement regardless of
+ *   which trigger fires first (vision-done, timeout, or rapid results).
+ */
 function runVisualDetection(): Promise<{ detections: PrivacyDetection[]; redactions: RedactionRecord[] }> {
   return new Promise((resolve) => {
     const detections: PrivacyDetection[] = [];
@@ -46,14 +72,20 @@ function runVisualDetection(): Promise<{ detections: PrivacyDetection[]; redacti
     let settled = false;
 
     function finish() {
+      // Idempotent: the `settled` flag prevents duplicate settlement regardless
+      // of whether vision-done, timeout, or a late onResult call triggers finish.
       if (settled) return;
       settled = true;
+      // Always remove both listeners — prevents any stale onResult callback
+      // from accumulating detections after the promise has resolved.
       document.removeEventListener("privyvision:vision-result", onResult as EventListener);
       document.removeEventListener("privyvision:vision-done", onDone);
       clearTimeout(timeout);
       resolve({ detections, redactions });
     }
 
+    // onResult intentionally does NOT use { once: true } — see protocol note above.
+    // It accumulates face detections across multiple batch events until finish() fires.
     function onResult(event: Event) {
       const { faceCount } = (event as CustomEvent<VisionResultDetail>).detail;
       for (let i = 0; i < faceCount; i++) {
@@ -266,14 +298,18 @@ export async function runTask(task: string): Promise<{ ok: boolean; detail: stri
         "history:", history.length
       );
 
-      // ---- Per-step timeout ----
+      // ---- Per-step timeout (ISSUE-04: timer always cleared in finally) ----
       let stepResult: Awaited<ReturnType<typeof runOneStep>> = null;
-      const stepTimeoutPromise = new Promise<null>((resolve) =>
-        setTimeout(() => resolve(null), STEP_TIMEOUT_MS)
-      );
-      const stepRunPromise = runOneStep(context);
-
-      stepResult = await Promise.race([stepRunPromise, stepTimeoutPromise]);
+      let stepTimerId: ReturnType<typeof setTimeout> | undefined;
+      try {
+        const stepTimeoutPromise = new Promise<null>((resolve) => {
+          stepTimerId = setTimeout(() => resolve(null), STEP_TIMEOUT_MS);
+        });
+        const stepRunPromise = runOneStep(context);
+        stepResult = await Promise.race([stepRunPromise, stepTimeoutPromise]);
+      } finally {
+        clearTimeout(stepTimerId);
+      }
 
       if (stepResult === null) {
         console.warn("[content] step", stepNumber, "returned null — halting");
@@ -331,6 +367,10 @@ export async function runTask(task: string): Promise<{ ok: boolean; detail: stri
       detail: `Task halted after ${MAX_STEPS} steps without completion.`,
     };
   } finally {
+    // ISSUE-05: Clear all in-memory secrets on every task exit path
+    // (success, failure, exception, early return, timeout, cancellation).
+    // Prevents cross-task secret retention within a single page visit.
+    clearLocalSecrets();
     cleanupSession(taskId);
   }
 }

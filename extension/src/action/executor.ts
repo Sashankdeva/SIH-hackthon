@@ -104,16 +104,49 @@ export async function executeAction(req: ActionRequest): Promise<void> {
       return;
     }
     case "keypress": {
-      const key = req.value ?? "Enter";
+      const rawKey = req.value && req.value.trim() !== "" ? req.value.trim() : "Enter";
+
+      // Parse optional modifier combinations (e.g. "Ctrl+Enter", "Shift+Tab", "Alt+ArrowDown", "Meta+K")
+      const parts = rawKey.split("+").map((p) => p.trim()).filter(Boolean);
+      let baseKey = parts.length > 0 ? parts[parts.length - 1] : "Enter";
+      let ctrlKey = false;
+      let shiftKey = false;
+      let altKey = false;
+      let metaKey = false;
+
+      if (parts.length > 1) {
+        for (let i = 0; i < parts.length - 1; i++) {
+          const mod = parts[i].toLowerCase();
+          if (mod === "ctrl" || mod === "control") ctrlKey = true;
+          else if (mod === "shift") shiftKey = true;
+          else if (mod === "alt") altKey = true;
+          else if (mod === "meta" || mod === "cmd" || mod === "command") metaKey = true;
+        }
+      } else {
+        baseKey = rawKey;
+      }
+
+      let target: Element = document.activeElement ?? document.body;
+      if (req.elementId != null) {
+        const el = resolveElement(req.elementId);
+        if (el) {
+          (el as HTMLElement).focus?.();
+          target = el;
+        }
+      }
+
       const eventInit: KeyboardEventInit = {
-        key,
-        code: key,
+        key: baseKey,
+        code: baseKey,
+        ctrlKey,
+        shiftKey,
+        altKey,
+        metaKey,
         bubbles: true,
         cancelable: true,
       };
-      const active = document.activeElement ?? document.body;
-      active.dispatchEvent(new KeyboardEvent("keydown", eventInit));
-      active.dispatchEvent(new KeyboardEvent("keyup", eventInit));
+      target.dispatchEvent(new KeyboardEvent("keydown", eventInit));
+      target.dispatchEvent(new KeyboardEvent("keyup", eventInit));
       return;
     }
     case "wait": {

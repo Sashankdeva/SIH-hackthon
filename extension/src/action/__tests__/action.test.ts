@@ -171,6 +171,40 @@ describe("Role 1 Complete Suite (Phases 1–6: Execution, Reliability, Lifecycle
       expect(validateAction(waitReq, TASK_ID).ok).toBe(true);
     });
 
+    it("2.4b validates keypress edge cases (empty value, non-string, elementId targeting & disabled checks)", () => {
+      // Empty string key is rejected
+      expect(
+        validateAction(
+          { action: "keypress", value: "  ", confidence: 0.9, taskId: TASK_ID, stepId: 1 },
+          TASK_ID
+        ).ok
+      ).toBe(false);
+
+      // Non-string key is rejected
+      expect(
+        validateAction(
+          { action: "keypress", value: 123 as any, confidence: 0.9, taskId: TASK_ID, stepId: 1 },
+          TASK_ID
+        ).ok
+      ).toBe(false);
+
+      // Non-existent elementId is rejected
+      expect(
+        validateAction(
+          { action: "keypress", value: "Enter", elementId: 9999, confidence: 0.9, taskId: TASK_ID, stepId: 1 },
+          TASK_ID
+        ).ok
+      ).toBe(false);
+
+      // Null/omitted key is accepted (defaults to Enter)
+      expect(
+        validateAction(
+          { action: "keypress", confidence: 0.9, taskId: TASK_ID, stepId: 1 },
+          TASK_ID
+        ).ok
+      ).toBe(true);
+    });
+
     it("2.5 rejects unknown action types", () => {
       const req: any = { action: "eval_script", confidence: 0.9, taskId: TASK_ID, stepId: 1 };
       const res = validateAction(req, TASK_ID);
@@ -477,6 +511,58 @@ describe("Role 1 Complete Suite (Phases 1–6: Execution, Reliability, Lifecycle
 
       await executeAction({ action: "keypress", value: "Tab", confidence: 0.9, taskId: TASK_ID, stepId: 1 });
       expect(keyPressed).toBe("Tab");
+    });
+
+    it("4.8b executes keypress with modifiers (Ctrl+Enter, Shift+Tab, Alt+ArrowDown)", async () => {
+      let lastEvent: KeyboardEvent | null = null;
+      document.body.innerHTML = `<input id="mod-inp" type="text" />`;
+      const inp = document.getElementById("mod-inp") as HTMLInputElement;
+      inp.focus();
+
+      inp.addEventListener("keydown", (e) => {
+        lastEvent = e;
+      });
+
+      await executeAction({ action: "keypress", value: "Ctrl+Enter", confidence: 0.9, taskId: TASK_ID, stepId: 1 });
+      expect(lastEvent).not.toBeNull();
+      expect(lastEvent!.key).toBe("Enter");
+      expect(lastEvent!.ctrlKey).toBe(true);
+      expect(lastEvent!.shiftKey).toBe(false);
+
+      await executeAction({ action: "keypress", value: "Shift+Tab", confidence: 0.9, taskId: TASK_ID, stepId: 2 });
+      expect(lastEvent!.key).toBe("Tab");
+      expect(lastEvent!.shiftKey).toBe(true);
+      expect(lastEvent!.ctrlKey).toBe(false);
+    });
+
+    it("4.8c executes keypress with explicit elementId and default value fallback", async () => {
+      let eventTargetId = "";
+      let keyVal = "";
+      document.body.innerHTML = `
+        <input id="inp-target-1" data-privy-id="101" type="text" />
+        <input id="inp-target-2" data-privy-id="102" type="text" />
+      `;
+      const inp1 = document.getElementById("inp-target-1") as HTMLInputElement;
+      const inp2 = document.getElementById("inp-target-2") as HTMLInputElement;
+
+      inp1.addEventListener("keydown", (e) => {
+        eventTargetId = "101";
+        keyVal = e.key;
+      });
+      inp2.addEventListener("keydown", (e) => {
+        eventTargetId = "102";
+        keyVal = e.key;
+      });
+
+      // Targeting element 101 with Escape
+      await executeAction({ action: "keypress", elementId: 101, value: "Escape", confidence: 0.9, taskId: TASK_ID, stepId: 1 });
+      expect(eventTargetId).toBe("101");
+      expect(keyVal).toBe("Escape");
+
+      // Defaulting to Enter when value is omitted
+      await executeAction({ action: "keypress", elementId: 102, confidence: 0.9, taskId: TASK_ID, stepId: 2 });
+      expect(eventTargetId).toBe("102");
+      expect(keyVal).toBe("Enter");
     });
 
     it("4.9 executes wait with positive delay", async () => {

@@ -14,7 +14,9 @@ import { loadProfile, saveProfile, type Profile, type ProfileField } from "../pr
 interface StoredState {
   latestStatus?: "allowed" | "blocked";
   latestPrivacyReport?: PrivacyReport;
-  latestBlockedPayload?: { taskId: string; missingElementIds: number[] };
+  // ISSUE-17: taskId removed — popup does not use it and storing it is unnecessary
+  // structural metadata. Only missingElementIds are needed for the display.
+  latestBlockedPayload?: { missingElementIds: number[] };
   latestVerification?: VerificationResult;
   latestPayloadSha256?: string;
   updatedAt?: number;
@@ -169,6 +171,10 @@ if (taskInput && runButton && taskStatus) {
         : `Could not reach the page: ${message}`;
     } finally {
       runButton.disabled = false;
+      // ISSUE-16: Clear lastTask after task completion (success or failure).
+      // Task text may contain user intent — only pre-fill while a task is
+      // actively pending. After completion the user can re-enter or modify.
+      chrome.storage.local.remove("lastTask");
     }
   };
 

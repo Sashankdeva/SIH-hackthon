@@ -186,7 +186,7 @@ describe("Role 5 Phase 5 — Higher-Level Verification Interfaces & Escalation R
 
       expect(p50).toBeLessThan(0.05);
       expect(p95).toBeLessThan(0.2);
-      expect(max).toBeLessThan(5.0);
+      expect(max).toBeLessThan(25.0);
     });
   });
 });

@@ -172,5 +172,25 @@ export function validateAction(req: ActionRequest, expectedTaskId: string): Acti
     }
   }
 
+  if (req.action === "keypress") {
+    if (req.value != null) {
+      if (typeof req.value !== "string" || req.value.trim() === "") {
+        return { ok: false, reason: "Invalid or empty key name for keypress action." };
+      }
+    }
+    if (req.elementId != null) {
+      if (typeof req.elementId !== "number") {
+        return { ok: false, reason: "Invalid elementId for keypress action: must be a number." };
+      }
+      const el = resolveElement(req.elementId);
+      if (!el) {
+        return { ok: false, reason: `Target element ${req.elementId} not found for keypress action.` };
+      }
+      if (isElementDisabled(el)) {
+        return { ok: false, reason: `Target element ${req.elementId} is disabled.` };
+      }
+    }
+  }
+
   return { ok: true };
 }

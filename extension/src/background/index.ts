@@ -29,7 +29,9 @@ onMessage((message, sender) => {
       console.warn("[background] privacy firewall blocked a page", message.payload);
       return chrome.storage.local.set({
         latestStatus: "blocked",
-        latestBlockedPayload: message.payload,
+        // ISSUE-17: store only missingElementIds — taskId is not read by the popup
+        // and storing it is unnecessary structural metadata retention.
+        latestBlockedPayload: { missingElementIds: (message.payload as { taskId: string; missingElementIds: number[] }).missingElementIds },
         updatedAt: Date.now(),
       });
 

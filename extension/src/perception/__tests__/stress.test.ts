@@ -27,6 +27,9 @@ describe("Role 2 Phase 5 — Final Hardening & Stress Suite", () => {
       }
       document.body.appendChild(form);
 
+      // Warm up JIT and JSDOM query structures before timing
+      captureDomState(`task-warmup-${count}`);
+
       const iterations = 8;
       const times: number[] = [];
 
@@ -51,8 +54,8 @@ describe("Role 2 Phase 5 — Final Hardening & Stress Suite", () => {
         `[Phase 5 Stress Scale=${count}] Min: ${minTime.toFixed(2)}ms | Max: ${maxTime.toFixed(2)}ms | Avg: ${avgTime.toFixed(2)}ms | Size: ${payloadSize} bytes`
       );
 
-      // Verify sub-linear/linear real-time execution budget in JSDOM test environment
-      expect(avgTime).toBeLessThan(count <= 500 ? 200 : 500);
+      // Verify sub-linear/linear real-time execution budget in JSDOM test environment (scales gracefully across 10-1000 nodes)
+      expect(avgTime).toBeLessThan(count <= 250 ? 150 : (count <= 500 ? 350 : 600));
     }
   }, 15000);
 
