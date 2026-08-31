@@ -1,0 +1,42 @@
+[
+ {
+  "id": "A-actionable-present",
+  "waits": 0,
+  "of": 20,
+  "dist": {
+   "click:10": 20
+  }
+ },
+ {
+  "id": "B-nothing-actionable",
+  "waits": 0,
+  "of": 20,
+  "dist": {
+   "REJECTED:action_rejected": 20
+  }
+ },
+ {
+  "id": "C-page-loading",
+  "waits": 0,
+  "of": 20,
+  "dist": {
+   "click:20": 20
+  }
+ },
+ {
+  "id": "D-ambiguous",
+  "waits": 0,
+  "of": 20,
+  "dist": {
+   "click:30": 20
+  }
+ },
+ {
+  "id": "E-unrelated-nav",
+  "waits": 0,
+  "of": 20,
+  "dist": {
+   "click:41": 20
+  }
+ }
+]

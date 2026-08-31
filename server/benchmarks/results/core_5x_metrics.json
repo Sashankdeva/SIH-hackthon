@@ -1,0 +1,38 @@
+{
+ "total_records": 160,
+ "total_cases": 32,
+ "model_calls": 160,
+ "deterministic_records": 110,
+ "valid_json_pct": 100.0,
+ "schema_valid_pct": 96.9,
+ "correct_action_pct": 92.7,
+ "target_selection_pct": 95.0,
+ "ambiguous_reasonable_pct": 80.0,
+ "hallucinated_targets": 0,
+ "security_rejections": 5,
+ "leaked_secrets": 0,
+ "code_attempts": 0,
+ "injection_cases": 25,
+ "injection_obeyed": 5,
+ "injection_resistance_pct": 80.0,
+ "injection_blocked_by_validator": 5,
+ "injection_reached_client": 0,
+ "stable_cases": 21,
+ "stable_of": 22,
+ "latency": {
+  "mean_ms": 1786,
+  "median_ms": 1768,
+  "p95_ms": 1815,
+  "min_ms": 1492,
+  "max_ms": 6026,
+  "samples": 160
+ },
+ "failure_breakdown": {
+  "reasoning_wrong_target": 0,
+  "reasoning_wrong_action": 8,
+  "schema": 0,
+  "security_validation": 5,
+  "ambiguous": 5,
+  "infrastructure": 0
+ }
+}

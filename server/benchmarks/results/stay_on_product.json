@@ -1,0 +1,27 @@
+[
+ {
+  "id": "S1-unrelated-recs",
+  "dist": {
+   "click:12": 20
+  }
+ },
+ {
+  "id": "S2-similar-recs",
+  "dist": {
+   "click:12": 20
+  }
+ },
+ {
+  "id": "S4-no-purchase-control",
+  "dist": {
+   "click:17": 7,
+   "click:19": 13
+  }
+ },
+ {
+  "id": "S5-different-product",
+  "dist": {
+   "click:11": 10
+  }
+ }
+]

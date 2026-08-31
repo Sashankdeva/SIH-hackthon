@@ -1,0 +1,26 @@
+[
+ {
+  "id": "P1-wrong-variant-first",
+  "correct": 15,
+  "of": 20,
+  "target": 22
+ },
+ {
+  "id": "P2-exact-first",
+  "correct": 12,
+  "of": 20,
+  "target": 18
+ },
+ {
+  "id": "P3-exact-unavailable",
+  "correct": 20,
+  "of": 20,
+  "target": 20
+ },
+ {
+  "id": "P4-different-product",
+  "correct": 20,
+  "of": 20,
+  "target": 20
+ }
+]

@@ -56,7 +56,9 @@
     },
     "route_hint": {
       "type": "string",
-      "description": "Optional. Current in-page route, PATH ONLY (location.pathname) — never the query string or fragment, which are the parts that carry identifiers. Single-page apps often leave the document title stale after a client-side navigation, so `page` alone can describe the previous view; this is the authoritative signal for which view is actually on screen. Absent when unavailable."
+      "maxLength": 200,
+      "description": "Optional. The CURRENT page's pathname only, e.g. '/search' or '/product/123' — never a full URL. Query strings, hash fragments, and credentials must already be stripped before this is built (extension/src/privacy/sanitizedContext.ts derives it straight from location.pathname, which excludes all three by construction). This is structural navigation context only: it is NOT the semantic page type ('checkout', 'login') that the `page` field's own description above calls for — nothing may infer a page's meaning from this value, client or server side. Optional and not in the top-level `required` list for backward compatibility with clients built before this field existed; absent means the route is unknown, never '/' by default.",
+      "pattern": "^/"
     },
     "elements": {
       "type": "array",
@@ -68,10 +70,15 @@
           "element_id": { "type": "integer" },
           "role": { "type": "string" },
           "label": { "type": ["string", "null"] },
+          "disabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "True when the control is unavailable for interaction. The client derives this from the native `disabled` property, `aria-disabled`, and `fieldset[disabled]` inheritance (extension/src/perception/domCapture.ts). Optional: absent means 'not known to be disabled', which the server treats as false. This is factual UI state only — it carries no instruction about what the model should do with it."
+          },
           "value_state": {
             "type": "string",
             "enum": ["empty", "nonempty", "redacted"],
-            "description": "Optional. Safe current occupancy of an EDITABLE control, so the model can tell an already-filled field from a blank one. Absent for non-editable elements. The raw value of a field must NEVER be sent in any form — a field the privacy firewall classified as sensitive always reports 'redacted', regardless of whether it is actually empty or filled."
+            "description": "Optional. WHETHER an editable control currently holds content — never WHAT it holds. A closed three-token enum by design: because no other string validates, a raw field value (a password, a query, any PII) can never travel in this field even if a client tried to put one here. 'empty' = editable and currently blank; 'nonempty' = currently holds content, contents deliberately not disclosed; 'redacted' = holds content the client classified as sensitive (a password/token-labelled field), likewise not disclosed — 'redacted' and 'nonempty' differ only in the client's sensitivity classification, and neither reveals content. Absent means the client does not report field state, which the server treats as unknown (NOT as empty) — the same 'absence is not a negative claim' convention `disabled` uses above. Reflects the CURRENT capture for this request, not a replay of past actions."
           }
         }
       }

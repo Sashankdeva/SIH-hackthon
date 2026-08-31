@@ -1,0 +1,85 @@
+{
+  "connection_overhead": {
+    "per_call_client": {
+      "n": 30,
+      "mean_ms": 426.7,
+      "p50_ms": 429.0,
+      "p95_ms": 447.1,
+      "p99_ms": 449.6,
+      "min_ms": 414.9,
+      "max_ms": 449.6
+    },
+    "shared_client": {
+      "n": 30,
+      "mean_ms": 10.9,
+      "p50_ms": 2.0,
+      "p95_ms": 2.5,
+      "p99_ms": 265.4,
+      "min_ms": 1.7,
+      "max_ms": 265.4
+    }
+  },
+  "reason": {
+    "before_per_call_client": {
+      "n": 15,
+      "mean_ms": 1258.7,
+      "p50_ms": 1337.3,
+      "p95_ms": 1353.4,
+      "p99_ms": 1367.4,
+      "min_ms": 1140.6,
+      "max_ms": 1367.4
+    },
+    "after_shared_client": {
+      "n": 15,
+      "mean_ms": 841.6,
+      "p50_ms": 902.9,
+      "p95_ms": 936.9,
+      "p99_ms": 1179.7,
+      "min_ms": 721.1,
+      "max_ms": 1179.7
+    }
+  },
+  "complete": {
+    "before_per_call_client": {
+      "n": 15,
+      "mean_ms": 546.9,
+      "p50_ms": 546.6,
+      "p95_ms": 558.8,
+      "p99_ms": 569.2,
+      "min_ms": 514.8,
+      "max_ms": 569.2
+    },
+    "after_shared_client": {
+      "n": 15,
+      "mean_ms": 127.5,
+      "p50_ms": 113.0,
+      "p95_ms": 122.0,
+      "p99_ms": 355.0,
+      "min_ms": 97.7,
+      "max_ms": 355.0
+    }
+  },
+  "concurrency": {
+    "1": {
+      "trials": 2,
+      "mean_wall_s": 0.72,
+      "min_wall_s": 0.72,
+      "max_wall_s": 0.72,
+      "mean_wall_per_request_s": 0.72
+    },
+    "2": {
+      "trials": 2,
+      "mean_wall_s": 1.44,
+      "min_wall_s": 1.44,
+      "max_wall_s": 1.44,
+      "mean_wall_per_request_s": 0.72
+    },
+    "3": {
+      "trials": 2,
+      "mean_wall_s": 2.16,
+      "min_wall_s": 2.16,
+      "max_wall_s": 2.17,
+      "mean_wall_per_request_s": 0.72
+    }
+  }
+}
