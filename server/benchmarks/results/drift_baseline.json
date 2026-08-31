@@ -1,0 +1,44 @@
+[
+ {
+  "id": "A-product-page",
+  "correct": 20,
+  "of": 20,
+  "wait": 0,
+  "invalid": 0
+ },
+ {
+  "id": "B-results-page",
+  "correct": 20,
+  "of": 20,
+  "wait": 0,
+  "invalid": 0
+ },
+ {
+  "id": "C-nav-semantic",
+  "correct": 20,
+  "of": 20,
+  "wait": 0,
+  "invalid": 0
+ },
+ {
+  "id": "D-form-page",
+  "correct": 20,
+  "of": 20,
+  "wait": 0,
+  "invalid": 0
+ },
+ {
+  "id": "E-plausible-buttons",
+  "correct": 20,
+  "of": 20,
+  "wait": 0,
+  "invalid": 0
+ },
+ {
+  "id": "F-looks-done",
+  "correct": 0,
+  "of": 20,
+  "wait": 17,
+  "invalid": 0
+ }
+]

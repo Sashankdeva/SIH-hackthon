@@ -59,3 +59,81 @@ class ActionRejected(ReasoningError):
 
     status_code = 422
     code = "action_rejected"
+
+
+class ContextRejected(ReasoningError):
+    """The incoming request parsed fine, but its content isn't sanitized.
+
+    422, and deliberately a different `code` from ActionRejected even
+    though the status matches: this is the CLIENT's payload failing the
+    privacy check, before reasoning ever runs — a different failure than
+    the MODEL's output failing validation after reasoning ran. Conflating
+    the two would make refusal reasons ambiguous to a client trying to
+    distinguish "fix your request" from "the model proposed something
+    unsafe."
+    """
+
+    status_code = 422
+    code = "context_rejected"
+
+
+class InvalidRequest(ReasoningError):
+    """The request body failed schema validation — missing/extra fields,
+    wrong types, invalid enum values, malformed nested objects (elements,
+    history), or JSON that didn't parse at all.
+
+    422, matching FastAPI's own default status for these cases; this
+    class only exists so the response body has the same
+    {error, detail, task_id} shape as every other refusal, instead of
+    FastAPI's default {"detail": [...]} envelope. Raised only from
+    main.py's RequestValidationError handler — reasoning never runs for
+    a request that didn't parse, so nothing here reaches propose_action.
+    """
+
+    status_code = 422
+    code = "invalid_request"
+
+
+class RequestTooLarge(ReasoningError):
+    """The request body exceeded the configured size limit.
+
+    413, checked before the body is even fully buffered — see
+    app/middleware.py's RequestSizeLimitMiddleware. A malicious or
+    malformed client should not be able to spend server memory or CPU
+    (JSON parsing, prompt construction, a model call) proportional to an
+    arbitrarily large payload.
+    """
+
+    status_code = 413
+    code = "request_too_large"
+
+
+class ContextTooLarge(ReasoningError):
+    """SERVER PHASE S6.1: the rendered prompt hit (or came within a
+    small margin of) the configured num_ctx budget.
+
+    413 — the same "too much for us to safely handle" status as
+    RequestTooLarge, but discovered at a different layer: that check
+    catches an oversized WIRE payload before parsing; this one catches
+    an oversized RENDERED PROMPT after building it, using Ollama's own
+    reported prompt_eval_count. Both share the same failure philosophy
+    from app/llm/client.py's num_ctx/num_predict comment: fail loudly
+    rather than let Ollama silently truncate a context and hand back a
+    confidently-wrong, schema-valid answer.
+    """
+
+    status_code = 413
+    code = "context_too_large"
+
+
+class InternalError(ReasoningError):
+    """Something failed that none of the above anticipated.
+
+    500, and deliberately generic: the detail shown to the client never
+    includes the original exception message or a traceback — both are
+    logged server-side only (see main.py's catch-all handler). An
+    internal bug is not evidence about what the client should change.
+    """
+
+    status_code = 500
+    code = "internal_error"

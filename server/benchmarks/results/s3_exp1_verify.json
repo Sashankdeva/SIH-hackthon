@@ -1,0 +1,354 @@
+{
+ "with_rule_12": {
+  "C2": [
+   [
+    "type_secret",
+    3,
+    false
+   ],
+   [
+    "type_secret",
+    3,
+    false
+   ],
+   [
+    "type_secret",
+    3,
+    false
+   ],
+   [
+    "type_secret",
+    3,
+    false
+   ],
+   [
+    "type_secret",
+    3,
+    false
+   ],
+   [
+    "type_secret",
+    3,
+    false
+   ],
+   [
+    "type_secret",
+    3,
+    false
+   ],
+   [
+    "type_secret",
+    3,
+    false
+   ],
+   [
+    "type_secret",
+    3,
+    false
+   ],
+   [
+    "type_secret",
+    3,
+    false
+   ]
+  ],
+  "G1": [
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ]
+  ],
+  "G2": [
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ]
+  ]
+ },
+ "without_rule_12": {
+  "C2": [
+   [
+    "type_secret",
+    3,
+    true
+   ],
+   [
+    "type_secret",
+    3,
+    true
+   ],
+   [
+    "type_secret",
+    3,
+    true
+   ],
+   [
+    "type_secret",
+    3,
+    true
+   ],
+   [
+    "type_secret",
+    3,
+    true
+   ],
+   [
+    "type_secret",
+    3,
+    true
+   ],
+   [
+    "type_secret",
+    3,
+    true
+   ],
+   [
+    "type_secret",
+    3,
+    true
+   ],
+   [
+    "type_secret",
+    3,
+    true
+   ],
+   [
+    "type_secret",
+    3,
+    true
+   ]
+  ],
+  "G1": [
+   [
+    "click",
+    2,
+    false
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "click",
+    2,
+    false
+   ],
+   [
+    "scroll",
+    null,
+    true
+   ],
+   [
+    "click",
+    2,
+    false
+   ],
+   [
+    "click",
+    2,
+    false
+   ],
+   [
+    "click",
+    2,
+    false
+   ],
+   [
+    "click",
+    2,
+    false
+   ],
+   [
+    "click",
+    2,
+    false
+   ],
+   [
+    "click",
+    2,
+    false
+   ]
+  ],
+  "G2": [
+   [
+    "click",
+    1,
+    false
+   ],
+   [
+    "click",
+    1,
+    false
+   ],
+   [
+    "click",
+    1,
+    false
+   ],
+   [
+    "click",
+    1,
+    false
+   ],
+   [
+    "click",
+    1,
+    false
+   ],
+   [
+    "click",
+    1,
+    false
+   ],
+   [
+    "click",
+    1,
+    false
+   ],
+   [
+    "click",
+    1,
+    false
+   ],
+   [
+    "click",
+    1,
+    false
+   ],
+   [
+    "click",
+    1,
+    false
+   ]
+  ]
+ },
+ "summary": {
+  "with_rule_12": {
+   "C2": {
+    "distinct_outputs": 1,
+    "correct": 0,
+    "of": 10
+   },
+   "G1": {
+    "distinct_outputs": 1,
+    "correct": 10,
+    "of": 10
+   },
+   "G2": {
+    "distinct_outputs": 1,
+    "correct": 10,
+    "of": 10
+   }
+  },
+  "without_rule_12": {
+   "C2": {
+    "distinct_outputs": 1,
+    "correct": 10,
+    "of": 10
+   },
+   "G1": {
+    "distinct_outputs": 2,
+    "correct": 2,
+    "of": 10
+   },
+   "G2": {
+    "distinct_outputs": 1,
+    "correct": 0,
+    "of": 10
+   }
+  }
+ }
+}

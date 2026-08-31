@@ -1,0 +1,242 @@
+{
+ "CP1": {
+  "expected": false,
+  "answers": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "correct": 10
+ },
+ "CP2": {
+  "expected": true,
+  "answers": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "correct": 0
+ },
+ "K1": {
+  "expected": false,
+  "answers": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "correct": 0
+ },
+ "FM1": {
+  "expected": true,
+  "answers": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "correct": 10
+ },
+ "FM2": {
+  "expected": false,
+  "answers": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "correct": 10
+ },
+ "SL1": {
+  "expected": true,
+  "answers": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "correct": 10
+ },
+ "SL2": {
+  "expected": false,
+  "answers": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "correct": 10
+ },
+ "NV1": {
+  "expected": true,
+  "answers": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "correct": 10
+ },
+ "NV2": {
+  "expected": false,
+  "answers": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "correct": 10
+ },
+ "SM1": {
+  "expected": true,
+  "answers": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "correct": 10
+ },
+ "SM2": {
+  "expected": true,
+  "answers": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "correct": 10
+ },
+ "CI1": {
+  "expected": false,
+  "answers": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "correct": 10
+ },
+ "CI2": {
+  "expected": false,
+  "answers": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "correct": 10
+ },
+ "CC1": {
+  "expected": true,
+  "answers": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "correct": 10
+ },
+ "CC2": {
+  "expected": true,
+  "answers": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "correct": 10
+ }
+}

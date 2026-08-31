@@ -1,0 +1,33 @@
+[
+ {
+  "id": "A-results-5-products",
+  "dist": {
+   "click:9": 15
+  }
+ },
+ {
+  "id": "B-product-page-recs",
+  "dist": {
+   "click:10": 15
+  }
+ },
+ {
+  "id": "E-after-successful-add",
+  "dist": {
+   "click:7": 10,
+   "click:10": 5
+  }
+ },
+ {
+  "id": "F-ambiguous-add-once",
+  "dist": {
+   "click:10": 15
+  }
+ },
+ {
+  "id": "F2-ambiguous-x3",
+  "dist": {
+   "click:10": 15
+  }
+ }
+]

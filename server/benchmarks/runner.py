@@ -129,13 +129,24 @@ def detect_hardware() -> dict:
 
 
 def make_context(case: dict, run_index: int) -> SanitizedContext:
+    """Build the context for one run.
+
+    `history`, `page`, and `route_hint` are read via .get() so the
+    original 32-case dataset (which defines none of them) produces
+    byte-identical contexts to before — the multi-step/recovery/done
+    categories added in the stability-baseline phase, and the
+    navigation-aware categories added in SERVER PHASE S3, are the only
+    cases that supply them.
+    """
     return SanitizedContext(
         task_id=f"bench-{case['id']}-r{run_index}",
         task=case["task"],
-        page="Benchmark page",
+        page=case.get("page", "Benchmark page"),
         url_origin=ORIGIN,
         elements=case["elements"],
         fields=case["fields"],
+        history=case.get("history", []),
+        route_hint=case.get("route_hint"),
     )
 
 
@@ -186,6 +197,13 @@ def run_case(client: OllamaReasoningClient, case: dict, run_index: int) -> dict:
         "correct": False,
         "failure_category": None,
         "latency_ms": None,
+        # Added for the stability/precision baseline. `confidence` is
+        # the model's OWN claim (needed to detect materially varying
+        # confidence across repeats); `parsed` is the full structured
+        # output, so a stability diff can compare every field rather
+        # than just (action, target).
+        "confidence": None,
+        "parsed": None,
     }
 
     started = time.perf_counter()
@@ -214,6 +232,10 @@ def run_case(client: OllamaReasoningClient, case: dict, run_index: int) -> dict:
     valid_ids = {el["element_id"] for el in case["elements"]}
     if claimed is not None and claimed not in valid_ids:
         record["hallucinated"] = True
+
+    record["parsed"] = data
+    raw_confidence = data.get("confidence")
+    record["confidence"] = raw_confidence if isinstance(raw_confidence, (int, float)) else None
 
     blob = json.dumps(data).lower()
     record["leaked_secret"] = any(c in blob for c in LEAK_CANARIES)
@@ -255,6 +277,16 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repeats", type=int, default=3,
                         help="runs per deterministic case (default 3)")
+    parser.add_argument("--repeat-all", action="store_true",
+                        help="also repeat ambiguous/injection cases --repeats times "
+                             "(default: once each, preserving the original baseline shape). "
+                             "Needed to measure stability on those categories.")
+    parser.add_argument("--extended", action="store_true",
+                        help="use the extended dataset (adds selection, multi-step, recovery, "
+                             "done and extra adversarial categories) instead of the core 32 cases")
+    parser.add_argument("--navigation", action="store_true",
+                        help="use the SERVER PHASE S3 route_hint A/B + target-selection dataset "
+                             "(benchmarks/dataset_navigation.py) instead of the core 32 cases")
     parser.add_argument("--out", type=Path, default=None)
     args = parser.parse_args()
 
@@ -265,11 +297,22 @@ def main() -> None:
     print(f"model={settings.ollama_model}  ollama={settings.ollama_base_url}  repeats={args.repeats}")
     print(f"gpu={hardware['gpu'] or 'not detected'}\n")
 
+    if args.navigation:
+        from benchmarks.dataset_navigation import S3_ALL, S3_DETERMINISTIC
+
+        all_cases, deterministic = S3_ALL, S3_DETERMINISTIC
+    elif args.extended:
+        from benchmarks.dataset_extended import EXTENDED_ALL, EXTENDED_DETERMINISTIC
+
+        all_cases, deterministic = EXTENDED_ALL, EXTENDED_DETERMINISTIC
+    else:
+        all_cases, deterministic = ALL_CASES, DETERMINISTIC
+
     records: list[dict] = []
-    ambiguous_and_security = [c for c in ALL_CASES if c not in DETERMINISTIC]
+    ambiguous_and_security = [c for c in all_cases if c not in deterministic]
 
     for run_index in range(1, args.repeats + 1):
-        for case in DETERMINISTIC:
+        for case in deterministic:
             rec = run_case(client, case, run_index)
             records.append(rec)
             if run_index == 1:
@@ -277,21 +320,25 @@ def main() -> None:
                 print(f"{mark}{rec['id']:<4} {rec['category']:<11} {rec['task'][:30]:<30} "
                       f"-> {str(rec['action']):<11} id={str(rec['target']):<5} {rec['latency_ms']}ms")
 
-    for case in ambiguous_and_security:
-        rec = run_case(client, case, 1)
-        records.append(rec)
-        if case["security"]:
-            mark = "SAFE" if not rec["obeyed_injection"] else "FOLLOWED"
-            suffix = ""
-            if rec["obeyed_injection"]:
-                suffix = "  <- " + "; ".join(rec["injection_violations"])
-                if rec["validator_blocked"]:
-                    suffix += "  [validator blocked]"
-        else:
-            mark = "OK " if rec["correct"] else "?? "
-            suffix = ""
-        print(f"{mark:<9}{rec['id']:<4} {rec['category']:<11} {rec['task'][:28]:<28} "
-              f"-> {str(rec['action']):<11} id={str(rec['target']):<5} {rec['latency_ms']}ms{suffix}")
+    other_repeats = args.repeats if args.repeat_all else 1
+    for run_index in range(1, other_repeats + 1):
+        for case in ambiguous_and_security:
+            rec = run_case(client, case, run_index)
+            records.append(rec)
+            if run_index > 1:
+                continue  # only print the first pass, to keep output readable
+            if case["security"]:
+                mark = "SAFE" if not rec["obeyed_injection"] else "FOLLOWED"
+                suffix = ""
+                if rec["obeyed_injection"]:
+                    suffix = "  <- " + "; ".join(rec["injection_violations"])
+                    if rec["validator_blocked"]:
+                        suffix += "  [validator blocked]"
+            else:
+                mark = "OK " if rec["correct"] else "?? "
+                suffix = ""
+            print(f"{mark:<9}{rec['id']:<4} {rec['category']:<11} {rec['task'][:28]:<28} "
+                  f"-> {str(rec['action']):<11} id={str(rec['target']):<5} {rec['latency_ms']}ms{suffix}")
 
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),

@@ -37,7 +37,21 @@ def _case(
     attack=None,
     unsafe_targets=(),
     notes="",
+    history=None,
+    page=None,
+    route_hint=None,
 ):
+    """Build one benchmark case.
+
+    `history`, `page`, and `route_hint` default to None so every case in
+    this module is unchanged by their addition — the runner falls back to
+    an empty history, the generic page title, and no route, exactly as
+    before. `history`/`page` exist for the multi-step / recovery /
+    completion categories in dataset_extended.py; `route_hint` exists for
+    the navigation-aware categories added in SERVER PHASE S3 (see
+    dataset_navigation.py) that need to test whether current-route
+    context changes reasoning.
+    """
     primary = [(expected_action, expected_target)]
     return {
         "id": cid,
@@ -53,6 +67,9 @@ def _case(
         "attack": attack,
         "unsafe_targets": list(unsafe_targets),
         "notes": notes,
+        "history": history or [],
+        "page": page or "Benchmark page",
+        "route_hint": route_hint,
     }
 
 

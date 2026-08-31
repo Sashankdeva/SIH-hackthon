@@ -23,21 +23,50 @@ model deliberately chose to wait" from "the server could not produce a
 trustworthy answer" — a fabricated `wait` makes those identical, which
 is what this server used to do.
 
+Every failure — regardless of cause — has the same body shape:
+`{"error": <code>, "detail": <human-readable message>, "task_id": <string or null>}`.
+`task_id` is `null` only when the request never parsed far enough to
+contain one.
+
 | Status | `error` | Cause |
 |---|---|---|
-| 200 | — | A validated action |
-| 422 | `action_rejected` | Model answered, but the action failed deterministic validation (invented element, token misuse, off-origin navigation, code in a value…) |
+| 200 | — | A validated action, matching `ActionResponse` exactly |
+| 413 | `request_too_large` | Body exceeded `MAX_REQUEST_BODY_BYTES` — rejected before parsing or any model call |
+| 422 | `invalid_request` | Request never reached reasoning: malformed JSON, a missing/wrong-typed field, an invalid enum value (e.g. a bad `history` outcome) |
+| 422 | `context_rejected` | Request parsed, but a `fields` value isn't a redaction token — the privacy check rejected it before reasoning ran |
+| 422 | `action_rejected` | Model answered, but the *action it proposed* failed deterministic validation (invented element, token misuse, off-origin navigation, code in a value…) |
 | 502 | `model_output_invalid` | Model answered with something that isn't a single JSON object (prose, truncated JSON, an array) |
 | 503 | `model_unavailable` | Ollama unreachable, model not pulled, or timed out |
+| 500 | `internal_error` | An unanticipated server-side failure. The real exception and traceback are logged server-side only — never in the response |
+
+`invalid_request` and `context_rejected` are deliberately separate codes
+even though both are 422: one is "your request doesn't parse," the
+other is "your request parsed but isn't sanitized." Conflating them
+would make it harder for a client to know what to fix. Same reasoning
+kept `action_rejected` distinct from both — that one is about the
+*model's* output, not the client's request at all.
 
 ## Configuration
 
 | Env var | Default | Purpose |
 |---|---|---|
+| `HOST` | `127.0.0.1` | Interface FastAPI binds to. Loopback-only by default; see **Running on the LAN** below. |
+| `PORT` | `8787` | Port FastAPI listens on. |
 | `REASONING_BACKEND` | `stub` | `ollama` for the real model |
 | `OLLAMA_MODEL` | `qwen2.5:7b-instruct` | Model tag |
-| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama endpoint |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama endpoint — keep this pointed at `localhost`; see **Running on the LAN** |
 | `OLLAMA_TIMEOUT_S` | `60` | Generous — a cold model pages into VRAM before emitting a token |
+| `MAX_REQUEST_BODY_BYTES` | `65536` (64 KiB) | `/reason`/`/complete` request bodies larger than this get 413, before parsing or any model call. Real payloads measured 120-1100 bytes; this default leaves generous headroom |
+| `API_KEY` | (empty — disabled) | Requires a matching `X-API-Key` header on `/reason`/`/complete` when set. See `.env.example` and `app/auth.py`. |
+| `LOG_FULL_REQUEST_BODY` | `false` | Whether the audit log persists full request bodies, not just hash/size/status/timing. Synthetic-data-only demos only — see `.env.example`. |
+| `ALLOWED_ORIGINS` | `http://localhost:8000,http://127.0.0.1:8000` | Comma-separated CORS allow-list. See `.env.example` for what this does and doesn't protect. |
+
+See `docs/DEPLOYMENT.md` for the full setup/troubleshooting guide, including these three.
+
+Copy `.env.example` to `.env` for reference — the app reads these from
+the real process environment (`os.getenv`, in `app/config.py`), not from
+the file directly, so export them in your shell or use a process
+manager/`.env` loader of your choice.
 
 ## Setup
 
@@ -116,6 +145,74 @@ reproducible demo can't tolerate.
 **For the rest of the team:** leave `REASONING_BACKEND` unset. You don't
 need Ollama installed to develop against a live `/reason` endpoint.
 
+## Running on the LAN
+
+This server is designed to run standalone, on its own machine, serving
+one or more browser-extension clients over the network — not only as a
+same-laptop `localhost` process. The reasoning core (`app/llm/`,
+`app/models/`, `app/validators/`) has no knowledge of hosting or
+network topology at all; only binding and the Ollama endpoint change.
+
+**Ollama must stay reachable from this machine only.** Every request to
+Ollama originates from this FastAPI process itself
+(`app/llm/client.py`'s `OllamaReasoningClient`, via `OLLAMA_BASE_URL`).
+No other machine — not even a client extension — ever talks to Ollama
+directly. Leave `OLLAMA_BASE_URL=http://localhost:11434` and leave
+Ollama's own binding at its default (loopback); do not set an
+`OLLAMA_HOST` that exposes Ollama itself to the network. FastAPI is the
+only thing that needs to be LAN-reachable — Ollama does not.
+
+**Steps:**
+
+1. Find this machine's LAN IP:
+   ```bash
+   ipconfig            # Windows — look for "IPv4 Address" under your active adapter
+   # ifconfig / ip a    # macOS/Linux
+   ```
+2. Set `HOST` to `0.0.0.0` (any interface) or to that specific IP (that
+   interface only), and optionally `PORT` if you don't want the
+   default:
+   ```bash
+   # Windows PowerShell
+   $env:HOST = "0.0.0.0"
+   $env:PORT = "8787"
+   $env:REASONING_BACKEND = "ollama"
+   ./.venv/Scripts/python.exe -m app.main
+   ```
+   ```bash
+   # macOS/Linux
+   HOST=0.0.0.0 PORT=8787 REASONING_BACKEND=ollama ./.venv/bin/python -m app.main
+   ```
+   `python -m app.main` reads `HOST`/`PORT` from the environment (via
+   `app/config.py`) and calls `uvicorn.run(...)` itself — no CLI flags
+   to remember. The `uvicorn app.main:app --reload --port 8787` form
+   used elsewhere in this README still works for local dev with hot
+   reload; `--reload` just isn't compatible with the settings-driven
+   `python -m app.main` entry point, so pass `--host`/`--port` directly
+   on that command line instead if you want both.
+3. Allow inbound connections on that port through this machine's
+   firewall (first LAN connection attempt will usually prompt Windows
+   Firewall automatically; accept for at least "Private networks").
+4. From another machine on the same network, confirm reachability
+   before pointing an extension at it:
+   ```bash
+   curl http://<this-machine's-LAN-IP>:8787/health
+   # {"status":"ok"}
+   ```
+5. On the client laptop, set the extension's Server URL (popup → Server
+   field) to `http://<this-machine's-LAN-IP>:8787/reason`, and add that
+   same origin to `extension/manifest.json`'s `host_permissions` before
+   rebuilding — Chrome blocks the content script's fetch at the
+   extension level if the origin isn't listed there, independent of
+   what the popup field says. (Client-side change, not part of this
+   server's setup — see `extension/README.md`.)
+
+Optional API-key authentication exists — set `API_KEY` here and the
+matching value in the extension popup's "API key" field (Server
+section) to require it. Unset by default, matching every other setting
+in this file. See `.env.example` and `docs/DEPLOYMENT.md` before
+exposing this server beyond machines you personally control.
+
 ## Demoing without a local GPU
 
 Two options if you're showing this on a laptop that isn't running Ollama:
@@ -126,20 +223,6 @@ proves itself; reasoning is always `wait` instead of a real action.
 
 **2. Point at the GPU laptop over LAN.** Keep Ollama + this server
 running here, and have the demo laptop's extension talk to it over
-WiFi instead of `localhost`:
-
-1. On this machine, find the LAN IP (`ipconfig` → IPv4 Address) and run
-   the server bound to all interfaces, not just localhost:
-   ```bash
-   ./.venv/Scripts/python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8787
-   ```
-2. On the demo laptop, open the extension's popup → Server field → set
-   it to `http://<this-machine's-LAN-IP>:8787/reason` → Save.
-3. **Before rebuilding**, add that same origin to
-   `extension/manifest.json`'s `host_permissions` (e.g.
-   `"http://192.168.1.23:8787/*"`) — the popup setting alone doesn't
-   grant the extension permission to reach a new host. Then
-   `npm run build` and reload the unpacked extension.
-
-Both laptops need to be on the same network, and this machine's
-firewall needs to allow inbound connections on port 8787.
+WiFi instead of `localhost` — see **Running on the LAN** above for the
+full steps (binding, firewall, manifest permission). Both laptops need
+to be on the same network.

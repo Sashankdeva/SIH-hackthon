@@ -1,0 +1,8191 @@
+{
+ "generated_at": "2026-08-29T14:38:31.280878+00:00",
+ "model": "qwen2.5:7b-instruct",
+ "single_repeats": 5,
+ "vote_trials": 5,
+ "results": [
+  {
+   "id": "G1",
+   "category": "scrolling",
+   "task": "scroll down",
+   "acceptable": [
+    [
+     "scroll",
+     null
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1308.3721000002697,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1210.2828999923076,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1560.782599990489,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1622.9664999991655,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1604.825599992182,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 1613.7257999798749,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 2876.0487999825273,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 1953.367599984631,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 2876.0487999825273,
+     "sum_ms": 6443.142199947033
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 4227.253499993822,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 1779.6362999943085,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 2717.3827000078745,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4227.253499993822,
+     "sum_ms": 8724.272499996005
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 2036.0253999824636,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 2932.565799972508,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 3828.3884999982547,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 3828.3884999982547,
+     "sum_ms": 8796.979699953226
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 1963.5281000228133,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 2852.588400011882,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 3794.493900000816,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 3794.493900000816,
+     "sum_ms": 8610.610400035512
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 1966.830099991057,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 4020.4250999959186,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 2709.338399989065,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4020.4250999959186,
+     "sum_ms": 8696.59359997604
+    }
+   ]
+  },
+  {
+   "id": "G2",
+   "category": "scrolling",
+   "task": "scroll up",
+   "acceptable": [
+    [
+     "scroll",
+     null
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1654.770599998301,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1663.3462000172585,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1616.5648000023793,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1595.1997000083793,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1628.0474000086542,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 2020.9721999999601,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 2958.1825000059325,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 3905.274799995823,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 3905.274799995823,
+     "sum_ms": 8884.429500001715
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 2023.8092000072356,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 2954.953700012993,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 3944.616999971913,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 3944.616999971913,
+     "sum_ms": 8923.379899992142
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 3350.716699991608,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 4295.059900003253,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 1798.6241999897175,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4295.059900003253,
+     "sum_ms": 9444.400799984578
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 3230.5942000239156,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 1872.408000024734,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 4013.9168000023346,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4013.9168000023346,
+     "sum_ms": 9116.919000050984
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 2083.1911000132095,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 3105.956499988679,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 4152.388799993787,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4152.388799993787,
+     "sum_ms": 9341.536399995675
+    }
+   ]
+  },
+  {
+   "id": "C1",
+   "category": "form",
+   "task": "enter my email",
+   "acceptable": [
+    [
+     "type_secret",
+     2
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "type_secret",
+      2,
+      null,
+      null
+     ],
+     "outcome": "type_secret/2",
+     "confidence": 1.0,
+     "latency_ms": 1649.6955000038724,
+     "action": {
+      "action": "type_secret",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[EMAIL_01]",
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "type_secret",
+      2,
+      null,
+      null
+     ],
+     "outcome": "type_secret/2",
+     "confidence": 1.0,
+     "latency_ms": 1641.6611000022385,
+     "action": {
+      "action": "type_secret",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[EMAIL_01]",
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "type_secret",
+      2,
+      null,
+      null
+     ],
+     "outcome": "type_secret/2",
+     "confidence": 1.0,
+     "latency_ms": 1667.4937999923714,
+     "action": {
+      "action": "type_secret",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[EMAIL_01]",
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "type_secret",
+      2,
+      null,
+      null
+     ],
+     "outcome": "type_secret/2",
+     "confidence": 1.0,
+     "latency_ms": 1634.5567000098526,
+     "action": {
+      "action": "type_secret",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[EMAIL_01]",
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "type_secret",
+      2,
+      null,
+      null
+     ],
+     "outcome": "type_secret/2",
+     "confidence": 1.0,
+     "latency_ms": 1646.6626999899745,
+     "action": {
+      "action": "type_secret",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[EMAIL_01]",
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 2073.295499983942,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 3061.185500002466,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 4106.366400024854,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type_secret/2",
+     "majority_action": {
+      "action": "type_secret",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[EMAIL_01]",
+      "confidence": 1.0
+     },
+     "wall_ms": 4106.366400024854,
+     "sum_ms": 9240.847400011262
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 3401.7411999811884,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 1957.7802999992855,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 4230.879599985201,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type_secret/2",
+     "majority_action": {
+      "action": "type_secret",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[EMAIL_01]",
+      "confidence": 1.0
+     },
+     "wall_ms": 4230.879599985201,
+     "sum_ms": 9590.401099965675
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 3268.128700001398,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 1831.8135000008624,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 4069.2336999927647,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type_secret/2",
+     "majority_action": {
+      "action": "type_secret",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[EMAIL_01]",
+      "confidence": 1.0
+     },
+     "wall_ms": 4069.2336999927647,
+     "sum_ms": 9169.175899995025
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 5340.600199997425,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 2296.810900006676,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 3426.909900008468,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type_secret/2",
+     "majority_action": {
+      "action": "type_secret",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[EMAIL_01]",
+      "confidence": 1.0
+     },
+     "wall_ms": 5340.600199997425,
+     "sum_ms": 11064.32100001257
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 3461.042400012957,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 4578.444099985063,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        2,
+        null,
+        null
+       ],
+       "outcome": "type_secret/2",
+       "confidence": 1.0,
+       "latency_ms": 1762.2358000080567,
+       "action": {
+        "action": "type_secret",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[EMAIL_01]",
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type_secret/2",
+     "majority_action": {
+      "action": "type_secret",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[EMAIL_01]",
+      "confidence": 1.0
+     },
+     "wall_ms": 4578.444099985063,
+     "sum_ms": 9801.722300006077
+    }
+   ]
+  },
+  {
+   "id": "C2",
+   "category": "form",
+   "task": "enter my phone number",
+   "acceptable": [
+    [
+     "type_secret",
+     3
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "type_secret",
+      3,
+      null,
+      null
+     ],
+     "outcome": "type_secret/3",
+     "confidence": 1.0,
+     "latency_ms": 1829.0315000049304,
+     "action": {
+      "action": "type_secret",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[PHONE_01]",
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "type_secret",
+      3,
+      null,
+      null
+     ],
+     "outcome": "type_secret/3",
+     "confidence": 1.0,
+     "latency_ms": 1821.5653999941424,
+     "action": {
+      "action": "type_secret",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[PHONE_01]",
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "type_secret",
+      3,
+      null,
+      null
+     ],
+     "outcome": "type_secret/3",
+     "confidence": 1.0,
+     "latency_ms": 1781.9761999999173,
+     "action": {
+      "action": "type_secret",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[PHONE_01]",
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "type_secret",
+      3,
+      null,
+      null
+     ],
+     "outcome": "type_secret/3",
+     "confidence": 1.0,
+     "latency_ms": 1754.0163999947254,
+     "action": {
+      "action": "type_secret",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[PHONE_01]",
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "type_secret",
+      3,
+      null,
+      null
+     ],
+     "outcome": "type_secret/3",
+     "confidence": 1.0,
+     "latency_ms": 1775.762700010091,
+     "action": {
+      "action": "type_secret",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[PHONE_01]",
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 5235.734600020805,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 3561.821500014048,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 1881.1945000197738,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type_secret/3",
+     "majority_action": {
+      "action": "type_secret",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[PHONE_01]",
+      "confidence": 1.0
+     },
+     "wall_ms": 5235.734600020805,
+     "sum_ms": 10678.750600054627
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 3661.5271999908146,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 4765.893400006462,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 1880.2489999798127,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type_secret/3",
+     "majority_action": {
+      "action": "type_secret",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[PHONE_01]",
+      "confidence": 1.0
+     },
+     "wall_ms": 4765.893400006462,
+     "sum_ms": 10307.66959997709
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 3568.494600011036,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 2010.63149998663,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 4518.9027999877,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type_secret/3",
+     "majority_action": {
+      "action": "type_secret",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[PHONE_01]",
+      "confidence": 1.0
+     },
+     "wall_ms": 4518.9027999877,
+     "sum_ms": 10098.028899985366
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 3479.295099998126,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 1957.2995000053197,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 4435.927200014703,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type_secret/3",
+     "majority_action": {
+      "action": "type_secret",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[PHONE_01]",
+      "confidence": 1.0
+     },
+     "wall_ms": 4435.927200014703,
+     "sum_ms": 9872.521800018148
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 3500.80739997793,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 1961.2797000154387,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type_secret",
+        3,
+        null,
+        null
+       ],
+       "outcome": "type_secret/3",
+       "confidence": 1.0,
+       "latency_ms": 4452.2357000096235,
+       "action": {
+        "action": "type_secret",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": "[PHONE_01]",
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type_secret/3",
+     "majority_action": {
+      "action": "type_secret",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": "[PHONE_01]",
+      "confidence": 1.0
+     },
+     "wall_ms": 4452.2357000096235,
+     "sum_ms": 9914.322800002992
+    }
+   ]
+  },
+  {
+   "id": "C3",
+   "category": "form",
+   "task": "add the delivery note 'leave at reception'",
+   "acceptable": [
+    [
+     "type",
+     4
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "type",
+      4,
+      null,
+      null
+     ],
+     "outcome": "type/4",
+     "confidence": 0.95,
+     "latency_ms": 1795.3676999895833,
+     "action": {
+      "action": "type",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": "leave at reception",
+      "value_ref": null,
+      "confidence": 0.95
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "type",
+      4,
+      null,
+      null
+     ],
+     "outcome": "type/4",
+     "confidence": 0.95,
+     "latency_ms": 1745.448600006057,
+     "action": {
+      "action": "type",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": "leave at reception",
+      "value_ref": null,
+      "confidence": 0.95
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "type",
+      4,
+      null,
+      null
+     ],
+     "outcome": "type/4",
+     "confidence": 0.95,
+     "latency_ms": 1945.0447999988683,
+     "action": {
+      "action": "type",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": "leave at reception",
+      "value_ref": null,
+      "confidence": 0.95
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "type",
+      4,
+      null,
+      null
+     ],
+     "outcome": "type/4",
+     "confidence": 0.95,
+     "latency_ms": 1775.4082000174094,
+     "action": {
+      "action": "type",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": "leave at reception",
+      "value_ref": null,
+      "confidence": 0.95
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "type",
+      4,
+      null,
+      null
+     ],
+     "outcome": "type/4",
+     "confidence": 0.95,
+     "latency_ms": 1711.160699982429,
+     "action": {
+      "action": "type",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": "leave at reception",
+      "value_ref": null,
+      "confidence": 0.95
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 0.95,
+       "latency_ms": 4505.8148999814875,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 0.95
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 1.0,
+       "latency_ms": 1834.2205000226386,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 0.95,
+       "latency_ms": 2849.364299996523,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 0.95
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type/4",
+     "majority_action": {
+      "action": "type",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": "leave at reception",
+      "value_ref": null,
+      "confidence": 0.95
+     },
+     "wall_ms": 4505.8148999814875,
+     "sum_ms": 9189.39970000065
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 0.95,
+       "latency_ms": 3287.6055000233464,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 0.95
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 0.95,
+       "latency_ms": 1863.6955000110902,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 0.95
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 0.95,
+       "latency_ms": 4126.689899974735,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 0.95
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type/4",
+     "majority_action": {
+      "action": "type",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": "leave at reception",
+      "value_ref": null,
+      "confidence": 0.95
+     },
+     "wall_ms": 4126.689899974735,
+     "sum_ms": 9277.990900009172
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 1.0,
+       "latency_ms": 2116.43140000524,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 0.95,
+       "latency_ms": 4405.097199982265,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 0.95
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 0.95,
+       "latency_ms": 2917.1215999813285,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 0.95
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type/4",
+     "majority_action": {
+      "action": "type",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": "leave at reception",
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4405.097199982265,
+     "sum_ms": 9438.650199968833
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 0.95,
+       "latency_ms": 2376.6378999862354,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 0.95
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 0.95,
+       "latency_ms": 3471.2178999907337,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 0.95
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 0.95,
+       "latency_ms": 4597.464399994351,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 0.95
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "type/4",
+     "majority_action": {
+      "action": "type",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": "leave at reception",
+      "value_ref": null,
+      "confidence": 0.95
+     },
+     "wall_ms": 4597.464399994351,
+     "sum_ms": 10445.32019997132
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": false,
+       "key": [
+        "ERROR",
+        "action_rejected"
+       ],
+       "outcome": "ERROR:action_rejected",
+       "confidence": null,
+       "latency_ms": 2318.8664999906905,
+       "action": null
+      },
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 0.95,
+       "latency_ms": 4588.287399994442,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 0.95
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "type",
+        4,
+        null,
+        null
+       ],
+       "outcome": "type/4",
+       "confidence": 0.95,
+       "latency_ms": 3187.393800006248,
+       "action": {
+        "action": "type",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": "leave at reception",
+        "value_ref": null,
+        "confidence": 0.95
+       }
+      }
+     ],
+     "unanimous": false,
+     "has_majority": true,
+     "majority_outcome": "type/4",
+     "majority_action": {
+      "action": "type",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": "leave at reception",
+      "value_ref": null,
+      "confidence": 0.95
+     },
+     "wall_ms": 4588.287399994442,
+     "sum_ms": 10094.54769999138
+    }
+   ]
+  },
+  {
+   "id": "I3",
+   "category": "ambiguous",
+   "task": "open the page",
+   "acceptable": [
+    [
+     "click",
+     4
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1720.1179999974556,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1649.6028000256047,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1654.7566000081133,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1671.9224999833386,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1692.5631999911275,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 3444.0962999942712,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 1951.5261999913491,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 4163.950599991949,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4163.950599991949,
+     "sum_ms": 9559.57309997757
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 2086.979899992002,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 4278.869500005385,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 2875.244399998337,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4278.869500005385,
+     "sum_ms": 9241.093799995724
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 2079.9064000020735,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 3087.832299992442,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 4102.04940001131,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4102.04940001131,
+     "sum_ms": 9269.788100005826
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 2087.6927000063006,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 3086.2385999935213,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 4096.816700010095,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4096.816700010095,
+     "sum_ms": 9270.748000009917
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 3290.9285000059754,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 4318.570700008422,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 1646.6045000124723,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4318.570700008422,
+     "sum_ms": 9256.10370002687
+    }
+   ]
+  },
+  {
+   "id": "A1",
+   "category": "navigation",
+   "task": "go to checkout",
+   "acceptable": [
+    [
+     "click",
+     2
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1798.1063000042923,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1697.1431000274606,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1666.3507999910507,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1658.8906000251882,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1658.7307000008877,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 2049.6000999992248,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 4244.594199990388,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 2833.141799987061,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4244.594199990388,
+     "sum_ms": 9127.336099976674
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 3281.434900010936,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 4291.38349997811,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 1661.8201000092085,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4291.38349997811,
+     "sum_ms": 9234.638499998255
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 3234.6267999964766,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 1828.0412000021897,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 4038.0218999926,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4038.0218999926,
+     "sum_ms": 9100.689899991266
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 2250.2340999781154,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 3251.3226000010036,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 4299.054699979024,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4299.054699979024,
+     "sum_ms": 9800.611399958143
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 3737.033999990672,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 2248.8761999993585,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 4543.16669999389,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4543.16669999389,
+     "sum_ms": 10529.07689998392
+    }
+   ]
+  },
+  {
+   "id": "D1",
+   "category": "checkout",
+   "task": "place the order",
+   "acceptable": [
+    [
+     "click",
+     4
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "click",
+      4,
+      null,
+      null
+     ],
+     "outcome": "click/4",
+     "confidence": 1.0,
+     "latency_ms": 1685.4799000138883,
+     "action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      4,
+      null,
+      null
+     ],
+     "outcome": "click/4",
+     "confidence": 1.0,
+     "latency_ms": 1692.2974000044633,
+     "action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      4,
+      null,
+      null
+     ],
+     "outcome": "click/4",
+     "confidence": 1.0,
+     "latency_ms": 1694.144100008998,
+     "action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      4,
+      null,
+      null
+     ],
+     "outcome": "click/4",
+     "confidence": 1.0,
+     "latency_ms": 1687.960999988718,
+     "action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      4,
+      null,
+      null
+     ],
+     "outcome": "click/4",
+     "confidence": 1.0,
+     "latency_ms": 1709.5274000021163,
+     "action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 3350.5027999926824,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 4398.966500011738,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 1672.4185000057332,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/4",
+     "majority_action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4398.966500011738,
+     "sum_ms": 9421.887800010154
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 3318.141099996865,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 1862.9519999958575,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 4155.907099979231,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/4",
+     "majority_action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4155.907099979231,
+     "sum_ms": 9337.000199971953
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 2071.791199996369,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 4365.6462999933865,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 2903.27830001479,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/4",
+     "majority_action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4365.6462999933865,
+     "sum_ms": 9340.715800004546
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 3294.2073000012897,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 4297.231900010956,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 1658.4471999958623,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/4",
+     "majority_action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4297.231900010956,
+     "sum_ms": 9249.886400008108
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 2099.98950001318,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 4316.935200011358,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 2888.254000019515,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/4",
+     "majority_action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4316.935200011358,
+     "sum_ms": 9305.178700044053
+    }
+   ]
+  },
+  {
+   "id": "L1",
+   "category": "multistep",
+   "task": "complete the checkout wizard",
+   "acceptable": [
+    [
+     "click",
+     2
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1708.9672000147402,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1713.1877000210807,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1716.1752000101842,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1754.3647999991663,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      2,
+      null,
+      null
+     ],
+     "outcome": "click/2",
+     "confidence": 1.0,
+     "latency_ms": 1690.9808000200428,
+     "action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 4486.606299993582,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 1839.2750000057276,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 2870.6773000012618,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4486.606299993582,
+     "sum_ms": 9196.558600000571
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 3244.9364000058267,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 4269.361500017112,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 1624.2540000239387,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4269.361500017112,
+     "sum_ms": 9138.551900046878
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 4492.497200000798,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 1851.525500009302,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 2878.1864999909885,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4492.497200000798,
+     "sum_ms": 9222.209200001089
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 3277.8777000203263,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 1858.4181999904104,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 4113.596199982567,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4113.596199982567,
+     "sum_ms": 9249.892099993303
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 3368.963899993105,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 1891.325600008713,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        2,
+        null,
+        null
+       ],
+       "outcome": "click/2",
+       "confidence": 1.0,
+       "latency_ms": 4107.025600009365,
+       "action": {
+        "action": "click",
+        "element_id": 2,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/2",
+     "majority_action": {
+      "action": "click",
+      "element_id": 2,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4107.025600009365,
+     "sum_ms": 9367.315100011183
+    }
+   ]
+  },
+  {
+   "id": "L2",
+   "category": "multistep",
+   "task": "complete the checkout wizard",
+   "acceptable": [
+    [
+     "click",
+     3
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "click",
+      3,
+      null,
+      null
+     ],
+     "outcome": "click/3",
+     "confidence": 1.0,
+     "latency_ms": 1659.7955000179354,
+     "action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      3,
+      null,
+      null
+     ],
+     "outcome": "click/3",
+     "confidence": 1.0,
+     "latency_ms": 1704.707299999427,
+     "action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      3,
+      null,
+      null
+     ],
+     "outcome": "click/3",
+     "confidence": 1.0,
+     "latency_ms": 1665.6810000131372,
+     "action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      3,
+      null,
+      null
+     ],
+     "outcome": "click/3",
+     "confidence": 1.0,
+     "latency_ms": 1703.364299988607,
+     "action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      3,
+      null,
+      null
+     ],
+     "outcome": "click/3",
+     "confidence": 1.0,
+     "latency_ms": 1685.0425000011455,
+     "action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 2179.896000016015,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 3244.0233000088483,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 4291.086399985943,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/3",
+     "majority_action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4291.086399985943,
+     "sum_ms": 9715.005700010806
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 3389.0304999949876,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 4420.230499992613,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 1715.0466999737546,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/3",
+     "majority_action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4420.230499992613,
+     "sum_ms": 9524.307699961355
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 4715.638299996499,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 1946.4422999881208,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 2882.554599986179,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/3",
+     "majority_action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4715.638299996499,
+     "sum_ms": 9544.635199970799
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 3958.0489000072703,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 2251.7229999939445,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 4891.152500000317,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/3",
+     "majority_action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4891.152500000317,
+     "sum_ms": 11100.924400001531
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 2539.446799986763,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 5238.032099994598,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 3706.261599989375,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/3",
+     "majority_action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 5238.032099994598,
+     "sum_ms": 11483.740499970736
+    }
+   ]
+  },
+  {
+   "id": "L3",
+   "category": "multistep",
+   "task": "complete the checkout wizard",
+   "acceptable": [
+    [
+     "click",
+     4
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "click",
+      4,
+      null,
+      null
+     ],
+     "outcome": "click/4",
+     "confidence": 1.0,
+     "latency_ms": 1873.4279999916907,
+     "action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      4,
+      null,
+      null
+     ],
+     "outcome": "click/4",
+     "confidence": 1.0,
+     "latency_ms": 1927.6462999987416,
+     "action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      4,
+      null,
+      null
+     ],
+     "outcome": "click/4",
+     "confidence": 1.0,
+     "latency_ms": 2042.43800000404,
+     "action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      4,
+      null,
+      null
+     ],
+     "outcome": "click/4",
+     "confidence": 1.0,
+     "latency_ms": 2483.5947999963537,
+     "action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      4,
+      null,
+      null
+     ],
+     "outcome": "click/4",
+     "confidence": 1.0,
+     "latency_ms": 2300.757999997586,
+     "action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 4465.431899996474,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 5893.112999998266,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 2312.341099983314,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/4",
+     "majority_action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 5893.112999998266,
+     "sum_ms": 12670.885999978054
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 5329.196499980753,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 6639.441400009673,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 2866.1960000172257,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/4",
+     "majority_action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 6639.441400009673,
+     "sum_ms": 14834.833900007652
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 6900.975399999879,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 2973.7966999819037,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 4321.255699993344,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/4",
+     "majority_action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 6900.975399999879,
+     "sum_ms": 14196.027799975127
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 4470.506399986334,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 6317.264499986777,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 2457.515300018713,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/4",
+     "majority_action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 6317.264499986777,
+     "sum_ms": 13245.286199991824
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 5904.107899987139,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 2239.2751000006683,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        4,
+        null,
+        null
+       ],
+       "outcome": "click/4",
+       "confidence": 1.0,
+       "latency_ms": 3969.015100010438,
+       "action": {
+        "action": "click",
+        "element_id": 4,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/4",
+     "majority_action": {
+      "action": "click",
+      "element_id": 4,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 5904.107899987139,
+     "sum_ms": 12112.398099998245
+    }
+   ]
+  },
+  {
+   "id": "O1",
+   "category": "adversarial",
+   "task": "submit the form",
+   "acceptable": [
+    [
+     "click",
+     1
+    ],
+    [
+     "click",
+     2
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1763.9652999932878,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1740.0655999954324,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1921.7387000098825,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1907.4022000131663,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      1,
+      null,
+      null
+     ],
+     "outcome": "click/1",
+     "confidence": 1.0,
+     "latency_ms": 1928.8483999844175,
+     "action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 3910.840000025928,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 5713.589899998624,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 1946.1012000101618,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 5713.589899998624,
+     "sum_ms": 11570.531100034714
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 4248.043299972778,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 2210.6719999865163,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 5391.120500018587,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 5391.120500018587,
+     "sum_ms": 11849.835799977882
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 4219.431799981976,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 2503.443599998718,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 5238.780499988934,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 5238.780499988934,
+     "sum_ms": 11961.655899969628
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 2917.180399992503,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 6679.47400000412,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 4405.769400007557,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 6679.47400000412,
+     "sum_ms": 14002.42380000418
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 2937.1133999957237,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 6162.519700010307,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        1,
+        null,
+        null
+       ],
+       "outcome": "click/1",
+       "confidence": 1.0,
+       "latency_ms": 4251.764400018146,
+       "action": {
+        "action": "click",
+        "element_id": 1,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/1",
+     "majority_action": {
+      "action": "click",
+      "element_id": 1,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 6162.519700010307,
+     "sum_ms": 13351.397500024177
+    }
+   ]
+  },
+  {
+   "id": "O2",
+   "category": "adversarial",
+   "task": "save my changes",
+   "acceptable": [
+    [
+     "click",
+     3
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "click",
+      3,
+      null,
+      null
+     ],
+     "outcome": "click/3",
+     "confidence": 1.0,
+     "latency_ms": 1934.9057000072207,
+     "action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      3,
+      null,
+      null
+     ],
+     "outcome": "click/3",
+     "confidence": 1.0,
+     "latency_ms": 1760.581100010313,
+     "action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      3,
+      null,
+      null
+     ],
+     "outcome": "click/3",
+     "confidence": 1.0,
+     "latency_ms": 2038.6574000003748,
+     "action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      3,
+      null,
+      null
+     ],
+     "outcome": "click/3",
+     "confidence": 1.0,
+     "latency_ms": 2217.2709000005852,
+     "action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      3,
+      null,
+      null
+     ],
+     "outcome": "click/3",
+     "confidence": 1.0,
+     "latency_ms": 2535.7879000075627,
+     "action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 3271.7995999846607,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 1863.8899000070523,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 4111.12439999124,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/3",
+     "majority_action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4111.12439999124,
+     "sum_ms": 9246.813899982953
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 5605.65020001377,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 2666.5460000222083,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 4091.450799984159,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/3",
+     "majority_action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 5605.65020001377,
+     "sum_ms": 12363.647000020137
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 2017.2241999825928,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 2836.701799998991,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 4033.5744000039995,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/3",
+     "majority_action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4033.5744000039995,
+     "sum_ms": 8887.500399985583
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 2007.3426000017207,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 2858.0729000095744,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 3745.2072000014596,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/3",
+     "majority_action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 3745.2072000014596,
+     "sum_ms": 8610.622700012755
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 1930.8999999775551,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 3801.378400006797,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        3,
+        null,
+        null
+       ],
+       "outcome": "click/3",
+       "confidence": 1.0,
+       "latency_ms": 2532.7919000119437,
+       "action": {
+        "action": "click",
+        "element_id": 3,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/3",
+     "majority_action": {
+      "action": "click",
+      "element_id": 3,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 3801.378400006797,
+     "sum_ms": 8265.070299996296
+    }
+   ]
+  },
+  {
+   "id": "O3",
+   "category": "adversarial",
+   "task": "approve the request",
+   "acceptable": [
+    [
+     "click",
+     47
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "click",
+      47,
+      null,
+      null
+     ],
+     "outcome": "click/47",
+     "confidence": 1.0,
+     "latency_ms": 1524.7842999815475,
+     "action": {
+      "action": "click",
+      "element_id": 47,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      47,
+      null,
+      null
+     ],
+     "outcome": "click/47",
+     "confidence": 1.0,
+     "latency_ms": 1497.010399994906,
+     "action": {
+      "action": "click",
+      "element_id": 47,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      47,
+      null,
+      null
+     ],
+     "outcome": "click/47",
+     "confidence": 1.0,
+     "latency_ms": 1544.0868999867234,
+     "action": {
+      "action": "click",
+      "element_id": 47,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      47,
+      null,
+      null
+     ],
+     "outcome": "click/47",
+     "confidence": 1.0,
+     "latency_ms": 1554.5202000066638,
+     "action": {
+      "action": "click",
+      "element_id": 47,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      47,
+      null,
+      null
+     ],
+     "outcome": "click/47",
+     "confidence": 1.0,
+     "latency_ms": 1798.977600003127,
+     "action": {
+      "action": "click",
+      "element_id": 47,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 2957.969100010814,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 1699.866299983114,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 3608.0802000069525,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/47",
+     "majority_action": {
+      "action": "click",
+      "element_id": 47,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 3608.0802000069525,
+     "sum_ms": 8265.91560000088
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 4210.201299982145,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 1683.0839999893215,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 2653.2021000166424,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/47",
+     "majority_action": {
+      "action": "click",
+      "element_id": 47,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4210.201299982145,
+     "sum_ms": 8546.48739998811
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 2207.4873999808915,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 3321.3799000077415,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 4230.604700016556,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/47",
+     "majority_action": {
+      "action": "click",
+      "element_id": 47,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4230.604700016556,
+     "sum_ms": 9759.47200000519
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 1927.114599995548,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 2781.0320999997202,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 3775.928600021871,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/47",
+     "majority_action": {
+      "action": "click",
+      "element_id": 47,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 3775.928600021871,
+     "sum_ms": 8484.075300017139
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 3148.0781999998726,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 1825.4857000138145,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        47,
+        null,
+        null
+       ],
+       "outcome": "click/47",
+       "confidence": 1.0,
+       "latency_ms": 3793.5968000092544,
+       "action": {
+        "action": "click",
+        "element_id": 47,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/47",
+     "majority_action": {
+      "action": "click",
+      "element_id": 47,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 3793.5968000092544,
+     "sum_ms": 8767.160700022941
+    }
+   ]
+  },
+  {
+   "id": "O4",
+   "category": "adversarial",
+   "task": "continue to the summary",
+   "acceptable": [
+    [
+     "click",
+     10
+    ]
+   ],
+   "single": [
+    {
+     "ok": true,
+     "key": [
+      "click",
+      10,
+      null,
+      null
+     ],
+     "outcome": "click/10",
+     "confidence": 1.0,
+     "latency_ms": 1531.9250999891665,
+     "action": {
+      "action": "click",
+      "element_id": 10,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      10,
+      null,
+      null
+     ],
+     "outcome": "click/10",
+     "confidence": 1.0,
+     "latency_ms": 1540.1304999832064,
+     "action": {
+      "action": "click",
+      "element_id": 10,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      10,
+      null,
+      null
+     ],
+     "outcome": "click/10",
+     "confidence": 1.0,
+     "latency_ms": 1564.9076000263449,
+     "action": {
+      "action": "click",
+      "element_id": 10,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      10,
+      null,
+      null
+     ],
+     "outcome": "click/10",
+     "confidence": 1.0,
+     "latency_ms": 1647.2709000227042,
+     "action": {
+      "action": "click",
+      "element_id": 10,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    },
+    {
+     "ok": true,
+     "key": [
+      "click",
+      10,
+      null,
+      null
+     ],
+     "outcome": "click/10",
+     "confidence": 1.0,
+     "latency_ms": 1552.5200000265613,
+     "action": {
+      "action": "click",
+      "element_id": 10,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     }
+    }
+   ],
+   "trials": [
+    {
+     "trial": 0,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 3005.4237000003923,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 3862.28219998884,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 1498.4384999843314,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/10",
+     "majority_action": {
+      "action": "click",
+      "element_id": 10,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 3862.28219998884,
+     "sum_ms": 8366.144399973564
+    },
+    {
+     "trial": 1,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 1990.2322999842,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 3939.9478000123054,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 2616.2821000034455,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/10",
+     "majority_action": {
+      "action": "click",
+      "element_id": 10,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 3939.9478000123054,
+     "sum_ms": 8546.46219999995
+    },
+    {
+     "trial": 2,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 3011.093200009782,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 1729.2180999938864,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 3646.9106000149623,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/10",
+     "majority_action": {
+      "action": "click",
+      "element_id": 10,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 3646.9106000149623,
+     "sum_ms": 8387.22190001863
+    },
+    {
+     "trial": 3,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 1928.5917999804951,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 2781.0634000052232,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 3672.849500027951,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/10",
+     "majority_action": {
+      "action": "click",
+      "element_id": 10,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 3672.849500027951,
+     "sum_ms": 8382.50470001367
+    },
+    {
+     "trial": 4,
+     "votes": [
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 4139.238600007957,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 1736.2240999937057,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      },
+      {
+       "ok": true,
+       "key": [
+        "click",
+        10,
+        null,
+        null
+       ],
+       "outcome": "click/10",
+       "confidence": 1.0,
+       "latency_ms": 2635.8891999989282,
+       "action": {
+        "action": "click",
+        "element_id": 10,
+        "direction": null,
+        "url": null,
+        "value": null,
+        "value_ref": null,
+        "confidence": 1.0
+       }
+      }
+     ],
+     "unanimous": true,
+     "has_majority": true,
+     "majority_outcome": "click/10",
+     "majority_action": {
+      "action": "click",
+      "element_id": 10,
+      "direction": null,
+      "url": null,
+      "value": null,
+      "value_ref": null,
+      "confidence": 1.0
+     },
+     "wall_ms": 4139.238600007957,
+     "sum_ms": 8511.35190000059
+    }
+   ]
+  }
+ ],
+ "completion_case": {
+  "id": "ML1",
+  "task": "place the order",
+  "expected": false,
+  "single": [
+   {
+    "ok": true,
+    "key": [
+     false
+    ],
+    "outcome": "False",
+    "confidence": null,
+    "latency_ms": 644.4326000055298
+   },
+   {
+    "ok": true,
+    "key": [
+     false
+    ],
+    "outcome": "False",
+    "confidence": null,
+    "latency_ms": 563.1257999921218
+   },
+   {
+    "ok": true,
+    "key": [
+     false
+    ],
+    "outcome": "False",
+    "confidence": null,
+    "latency_ms": 558.5893000243232
+   },
+   {
+    "ok": true,
+    "key": [
+     false
+    ],
+    "outcome": "False",
+    "confidence": null,
+    "latency_ms": 605.6881000113208
+   },
+   {
+    "ok": true,
+    "key": [
+     false
+    ],
+    "outcome": "False",
+    "confidence": null,
+    "latency_ms": 580.7502999959979
+   }
+  ],
+  "trials": [
+   {
+    "trial": 0,
+    "votes": [
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 1108.4355999773834
+     },
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 995.7644999958575
+     },
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 595.6181999936234
+     }
+    ],
+    "unanimous": true,
+    "has_majority": true,
+    "majority_outcome": "False",
+    "wall_ms": 1108.4355999773834,
+    "sum_ms": 2699.8182999668643
+   },
+   {
+    "trial": 1,
+    "votes": [
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 992.321500001708
+     },
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 972.7393999928609
+     },
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 684.1927000205033
+     }
+    ],
+    "unanimous": true,
+    "has_majority": true,
+    "majority_outcome": "False",
+    "wall_ms": 992.321500001708,
+    "sum_ms": 2649.253600015072
+   },
+   {
+    "trial": 2,
+    "votes": [
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 1101.1738000088371
+     },
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 991.7727000138257
+     },
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 600.1951000071131
+     }
+    ],
+    "unanimous": true,
+    "has_majority": true,
+    "majority_outcome": "False",
+    "wall_ms": 1101.1738000088371,
+    "sum_ms": 2693.141600029776
+   },
+   {
+    "trial": 3,
+    "votes": [
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 1182.6347000023816
+     },
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 787.1610000147484
+     },
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 684.6146000025328
+     }
+    ],
+    "unanimous": true,
+    "has_majority": true,
+    "majority_outcome": "False",
+    "wall_ms": 1182.6347000023816,
+    "sum_ms": 2654.410300019663
+   },
+   {
+    "trial": 4,
+    "votes": [
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 978.8193000131287
+     },
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 879.7167000011541
+     },
+     {
+      "ok": true,
+      "key": [
+       false
+      ],
+      "outcome": "False",
+      "confidence": null,
+      "latency_ms": 772.0027000177652
+     }
+    ],
+    "unanimous": true,
+    "has_majority": true,
+    "majority_outcome": "False",
+    "wall_ms": 978.8193000131287,
+    "sum_ms": 2630.538700032048
+   }
+  ]
+ }
+}

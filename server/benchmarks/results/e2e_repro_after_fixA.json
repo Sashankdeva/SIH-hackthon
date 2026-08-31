@@ -1,0 +1,38 @@
+[
+ {
+  "id": "E2E-SHOP-1",
+  "correct": 0,
+  "of": 10,
+  "distribution": {
+   "click:1": 10
+  },
+  "rejections": []
+ },
+ {
+  "id": "E2E-TRAVEL",
+  "correct": 10,
+  "of": 10,
+  "distribution": {
+   "click:10": 10
+  },
+  "rejections": []
+ },
+ {
+  "id": "E2E-ELECTRONICS",
+  "correct": 10,
+  "of": 10,
+  "distribution": {
+   "click:7": 10
+  },
+  "rejections": []
+ },
+ {
+  "id": "E2E-GROCERY",
+  "correct": 10,
+  "of": 10,
+  "distribution": {
+   "click:4": 10
+  },
+  "rejections": []
+ }
+]

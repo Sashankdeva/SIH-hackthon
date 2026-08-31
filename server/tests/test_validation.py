@@ -84,6 +84,115 @@ def test_valid_wait(checkout_context: SanitizedContext) -> None:
 
 
 # --------------------------------------------------------------------
+# S1 CLEANUP — `value` is only meaningful for `type`; every other
+# action's `value` is inert at execution time and must be rejected
+# rather than silently accepted. Found live: the model emitted
+# {"action":"click","element_id":<search box>,"value":"Samsung S24 FE"}
+# meaning to type a search query — "click" ignored the value entirely
+# and nothing signalled the mismatch. `keypress` is deliberately NOT
+# included here — the extension's executor reads the key to press from
+# `value` itself (`req.value ?? "Enter"`), so a value there is genuine,
+# existing, intended behavior, not a stray field.
+# --------------------------------------------------------------------
+
+
+def test_click_with_value_rejected(checkout_context: SanitizedContext) -> None:
+    with pytest.raises(ActionRejected, match="value is only valid for 'type'"):
+        build_validated_action(
+            {"action": "click", "element_id": 6, "value": "Samsung S24 FE", "confidence": 0.95},
+            checkout_context,
+        )
+
+
+def test_scroll_with_value_rejected(checkout_context: SanitizedContext) -> None:
+    with pytest.raises(ActionRejected, match="value is only valid for 'type'"):
+        build_validated_action(
+            {"action": "scroll", "direction": "down", "value": "down", "confidence": 0.8},
+            checkout_context,
+        )
+
+
+def test_navigate_with_value_rejected(checkout_context: SanitizedContext) -> None:
+    with pytest.raises(ActionRejected, match="value is only valid for 'type'"):
+        build_validated_action(
+            {
+                "action": "navigate",
+                "url": "http://localhost:8000/cart",
+                "value": "cart",
+                "confidence": 0.8,
+            },
+            checkout_context,
+        )
+
+
+def test_wait_with_value_rejected(checkout_context: SanitizedContext) -> None:
+    with pytest.raises(ActionRejected, match="value is only valid for 'type'"):
+        build_validated_action(
+            {"action": "wait", "amount": 500, "value": "500ms", "confidence": 0.0}, checkout_context
+        )
+
+
+def test_keypress_with_value_still_accepted(checkout_context: SanitizedContext) -> None:
+    """Deliberately NOT rejected — see this block's own docstring above.
+    Locks in that this cleanup did not regress keypress's real,
+    already-wired contract (extension/src/action/executor.ts reads the
+    key to press from `value`).
+    """
+    action = build_validated_action(
+        {"action": "keypress", "value": "Enter", "confidence": 0.9}, checkout_context
+    )
+    assert action.action == "keypress"
+    assert action.value == "Enter"
+
+
+def test_valid_type_with_value_still_accepted(checkout_context: SanitizedContext) -> None:
+    """Regression guard: `type` is the one action this cleanup must
+    leave completely untouched.
+    """
+    action = build_validated_action(
+        {"action": "type", "element_id": 5, "value": "leave at door", "confidence": 0.8},
+        checkout_context,
+    )
+    assert action.action == "type"
+    assert action.value == "leave at door"
+
+
+def test_valid_type_secret_semantics_unchanged(checkout_context: SanitizedContext) -> None:
+    """Regression guard: type_secret's own value_ref-only contract
+    (already enforced before this cleanup) must still hold, and this
+    cleanup's new check must not fire for it (type_secret rejects value
+    via its own dedicated, pre-existing check, not the new generic one).
+    """
+    action = build_validated_action(
+        {"action": "type_secret", "element_id": 4, "value_ref": "[PASSWORD_01]", "confidence": 0.9},
+        checkout_context,
+    )
+    assert action.action == "type_secret"
+    assert action.value is None
+    assert action.value_ref == "[PASSWORD_01]"
+
+    with pytest.raises(ActionRejected, match="must not carry a literal value"):
+        build_validated_action(
+            {
+                "action": "type_secret",
+                "element_id": 4,
+                "value": "hunter2",
+                "value_ref": "[PASSWORD_01]",
+                "confidence": 0.9,
+            },
+            checkout_context,
+        )
+
+
+def test_valid_click_without_value_still_accepted(checkout_context: SanitizedContext) -> None:
+    action = build_validated_action(
+        {"action": "click", "element_id": 6, "confidence": 0.95}, checkout_context
+    )
+    assert action.action == "click"
+    assert action.value is None
+
+
+# --------------------------------------------------------------------
 # SECURITY
 # --------------------------------------------------------------------
 
@@ -394,3 +503,240 @@ def test_ordinary_field_accepts_plain_type(checkout_context: SanitizedContext) -
     )
     assert (action.action, action.element_id, action.value) == ("type", 5, "happy birthday")
     assert action.value_ref is None
+
+
+# ======================================================================
+# SERVER PHASE S3.1 — click+value rejection against the REAL role
+# vocabulary.
+#
+# The existing test_click_with_value_rejected (above) only ever used
+# this suite's fictional "input:text"/"input:email"/etc. role strings —
+# never the ARIA-style values the real client actually sends
+# (extension/src/perception/domCapture.ts's roleFor(): "textbox" for
+# every non-button/checkbox/radio input AND textarea, "combobox" for
+# <select>, an explicit page-set role such as "searchbox"/"spinbutton"
+# verbatim, "button", "link"). A role-scoped rejection rule was tried
+# this phase and found to be a no-op — VALUE_IRRELEVANT_ACTIONS (see its
+# comment) already rejects click+value for EVERY role — but that finding
+# was only trustworthy once tested against roles that actually occur in
+# production. These cases close that real coverage gap.
+# ======================================================================
+
+
+def _role_ctx(elements: list[dict]) -> SanitizedContext:
+    return SanitizedContext(
+        task_id="t-s3.1", task="search for wireless earbuds", page="Search results",
+        url_origin="http://localhost:8000", elements=elements, fields={},
+    )
+
+
+@pytest.mark.parametrize("role", ["textbox", "searchbox", "combobox", "spinbutton", "button", "link"])
+def test_click_with_value_rejected_for_every_real_role(role: str) -> None:
+    ctx = _role_ctx([{"element_id": 1, "role": role, "label": "Search"}])
+    with pytest.raises(ActionRejected, match="value is only valid for 'type'"):
+        build_validated_action(
+            {"action": "click", "element_id": 1, "value": "wireless earbuds", "confidence": 1.0}, ctx
+        )
+
+
+def test_click_without_value_on_textbox_unaffected() -> None:
+    """Ordinary click, no value — must remain completely unaffected."""
+    ctx = _role_ctx([{"element_id": 1, "role": "textbox", "label": "Search"}])
+    action = build_validated_action({"action": "click", "element_id": 1, "confidence": 1.0}, ctx)
+    assert action.action == "click"
+    assert action.element_id == 1
+
+
+def test_type_on_textbox_still_accepted() -> None:
+    """The legitimate, correct action a search-box click+value is
+    confused with — must be completely unaffected."""
+    ctx = _role_ctx([{"element_id": 1, "role": "textbox", "label": "Search"}])
+    action = build_validated_action(
+        {"action": "type", "element_id": 1, "value": "wireless earbuds", "confidence": 1.0}, ctx
+    )
+    assert (action.action, action.value) == ("type", "wireless earbuds")
+
+
+def test_type_secret_on_textbox_still_accepted() -> None:
+    ctx = _role_ctx([{"element_id": 1, "role": "textbox", "label": "[PASSWORD_01]"}])
+    action = build_validated_action(
+        {"action": "type_secret", "element_id": 1, "value_ref": "[PASSWORD_01]", "confidence": 1.0}, ctx
+    )
+    assert action.action == "type_secret"
+
+
+def test_scroll_unaffected_on_textbox_role() -> None:
+    ctx = _role_ctx([{"element_id": 1, "role": "textbox", "label": "Search"}])
+    action = build_validated_action(
+        {"action": "scroll", "direction": "down", "confidence": 1.0}, ctx
+    )
+    assert action.action == "scroll"
+
+
+def test_navigate_unaffected_on_textbox_role() -> None:
+    ctx = _role_ctx([{"element_id": 1, "role": "textbox", "label": "Search"}])
+    action = build_validated_action(
+        {"action": "navigate", "url": "http://localhost:8000/next", "confidence": 1.0}, ctx
+    )
+    assert action.action == "navigate"
+
+
+def test_keypress_with_value_unaffected_on_textbox_role() -> None:
+    """keypress + value remains valid regardless of target role."""
+    ctx = _role_ctx([{"element_id": 1, "role": "textbox", "label": "Search"}])
+    action = build_validated_action(
+        {"action": "keypress", "element_id": 1, "value": "Enter", "confidence": 1.0}, ctx
+    )
+    assert (action.action, action.value) == ("keypress", "Enter")
+
+
+# ======================================================================
+# SERVER PHASE S4 — "type"/"type_secret" on a never-fillable role.
+#
+# Confirmed live in extension/src/action/executor.ts's
+# injectTextIntoElement: a <button>/<a> is a true no-op, but role
+# "button" ALSO covers <input type="submit"|"button"|"reset"> (see
+# domCapture.ts's roleFor()) — which IS an HTMLInputElement, so `type`
+# would silently overwrite that element's `.value`, which for a
+# submit/button input IS its visible label text. Not a security hole,
+# but a genuine unintended, observable side effect, and exactly the
+# "semantically unsafe model response" this validator exists to catch.
+# ======================================================================
+
+
+@pytest.mark.parametrize("role", ["button", "link", "checkbox", "radio"])
+def test_type_on_never_fillable_role_rejected(role: str) -> None:
+    ctx = _role_ctx([{"element_id": 1, "role": role, "label": "Go"}])
+    with pytest.raises(ActionRejected, match="can never be a text-entry target"):
+        build_validated_action(
+            {"action": "type", "element_id": 1, "value": "hello", "confidence": 1.0}, ctx
+        )
+
+
+@pytest.mark.parametrize("role", ["button", "link", "checkbox", "radio"])
+def test_type_secret_on_never_fillable_role_rejected(role: str) -> None:
+    ctx = _role_ctx([{"element_id": 1, "role": role, "label": "[EMAIL_01]"}])
+    with pytest.raises(ActionRejected, match="can never be a text-entry target"):
+        build_validated_action(
+            {"action": "type_secret", "element_id": 1, "value_ref": "[EMAIL_01]", "confidence": 1.0}, ctx
+        )
+
+
+def test_type_still_accepted_on_combobox_role() -> None:
+    """Deliberately NOT rejected — "combobox"/"searchbox"/"spinbutton"
+    are excluded from the denylist on purpose (see NEVER_FILLABLE_ROLES'
+    own comment): they can be page-author-set ARIA values whose real
+    DOM fillability role alone can't rule out, and a false rejection is
+    worse than the narrow gap this check closes."""
+    ctx = _role_ctx([{"element_id": 1, "role": "combobox", "label": "Country"}])
+    action = build_validated_action(
+        {"action": "type", "element_id": 1, "value": "Canada", "confidence": 1.0}, ctx
+    )
+    assert action.action == "type"
+
+
+# ======================================================================
+# SERVER PHASE S4 — `amount` bounds (scroll pixels / wait milliseconds).
+#
+# ActionResponse.amount has no Pydantic Field bound, so without this
+# check a negative, NaN, or infinite amount reached the client
+# unrejected, relying entirely on the extension's OWN clamp
+# (`Math.min(amount ?? 1000, 5000)` for wait; nothing at all for
+# scroll, which relies on the browser's internal scroll-bounds
+# clamping). This project's standing rule is that every field is
+# independently re-verified server-side, not left to whatever the
+# client currently happens to do with it.
+# ======================================================================
+
+
+def test_wait_with_negative_amount_rejected() -> None:
+    ctx = _role_ctx([])
+    with pytest.raises(ActionRejected, match="must not be negative"):
+        build_validated_action({"action": "wait", "amount": -500, "confidence": 1.0}, ctx)
+
+
+def test_scroll_with_negative_amount_rejected() -> None:
+    ctx = _role_ctx([])
+    with pytest.raises(ActionRejected, match="must not be negative"):
+        build_validated_action(
+            {"action": "scroll", "direction": "down", "amount": -200, "confidence": 1.0}, ctx
+        )
+
+
+def test_wait_with_infinite_amount_rejected() -> None:
+    ctx = _role_ctx([])
+    with pytest.raises(ActionRejected, match="must be a finite number"):
+        build_validated_action({"action": "wait", "amount": float("inf"), "confidence": 1.0}, ctx)
+
+
+def test_wait_with_nan_amount_rejected() -> None:
+    ctx = _role_ctx([])
+    with pytest.raises(ActionRejected, match="must be a finite number"):
+        build_validated_action({"action": "wait", "amount": float("nan"), "confidence": 1.0}, ctx)
+
+
+def test_wait_with_non_numeric_amount_rejected() -> None:
+    ctx = _role_ctx([])
+    with pytest.raises(ActionRejected, match="amount must be a number"):
+        build_validated_action({"action": "wait", "amount": "500", "confidence": 1.0}, ctx)
+
+
+def test_wait_with_zero_amount_still_accepted() -> None:
+    """Boundary: zero is a valid, meaningful amount (wait no time /
+    scroll no distance) — must not be swept up by the negative check."""
+    ctx = _role_ctx([])
+    action = build_validated_action({"action": "wait", "amount": 0, "confidence": 1.0}, ctx)
+    assert action.amount == 0
+
+
+def test_scroll_with_large_but_finite_amount_still_accepted() -> None:
+    """A large amount is not inherently invalid — only non-finite or
+    negative values are; an unusually large but real pixel count must
+    still pass through to the client's own scroll-bounds clamping."""
+    ctx = _role_ctx([])
+    action = build_validated_action(
+        {"action": "scroll", "direction": "down", "amount": 999_999, "confidence": 1.0}, ctx
+    )
+    assert action.amount == 999_999
+
+
+# ======================================================================
+# SERVER PHASE S4 — task/step integrity: the model cannot control
+# task_id or step_id. Both are entirely absent from
+# ALLOWED_RESPONSE_KEYS, so either one being present at all is already
+# caught by validate_response_keys — these tests lock that behavior in
+# explicitly rather than leaving it as an implicit side effect.
+# ======================================================================
+
+
+def test_model_supplied_task_id_rejected() -> None:
+    ctx = _role_ctx([{"element_id": 1, "role": "button", "label": "Go"}])
+    with pytest.raises(ActionRejected, match="unexpected field"):
+        build_validated_action(
+            {"action": "click", "element_id": 1, "task_id": "attacker-supplied", "confidence": 1.0}, ctx
+        )
+
+
+def test_model_supplied_step_id_rejected() -> None:
+    ctx = _role_ctx([{"element_id": 1, "role": "button", "label": "Go"}])
+    with pytest.raises(ActionRejected, match="unexpected field"):
+        build_validated_action(
+            {"action": "click", "element_id": 1, "step_id": 999, "confidence": 1.0}, ctx
+        )
+
+
+def test_task_id_and_step_id_always_derived_from_request_not_model() -> None:
+    """Positive half: task_id comes from the context the CLIENT sent;
+    step_id is always history length + 1, regardless of anything the
+    model could ever claim (it has no field to claim it through)."""
+    ctx = SanitizedContext(
+        task_id="client-assigned-id", task="do the thing", page="p",
+        url_origin="http://localhost:8000",
+        elements=[{"element_id": 1, "role": "button", "label": "Go"}], fields={},
+        history=[
+            {"step": 1, "action": "click", "element_id": 1, "element_label": "Go", "outcome": "success"}
+        ],
+    )
+    action = build_validated_action({"action": "click", "element_id": 1, "confidence": 1.0}, ctx)
+    assert action.task_id == "client-assigned-id"
+    assert action.step_id == 2

@@ -11,6 +11,7 @@ Order matters: cheap structural checks first, so a malformed action is
 rejected before any semantic reasoning runs on it.
 """
 
+import math
 import re
 from typing import Any, get_args
 
@@ -24,6 +25,34 @@ ALLOWED_ACTIONS: frozenset[str] = frozenset(get_args(ActionType))
 
 #: Actions meaningless without a target element on the page.
 ELEMENT_TARGETED_ACTIONS = frozenset({"click", "type", "type_secret"})
+
+#: Actions for which a literal `value` has no meaning at execution time
+#: and is therefore rejected outright rather than silently ignored — see
+#: validate_value's own comment for why "keypress" is deliberately NOT
+#: in this set (it genuinely uses `value` for the key to press) and
+#: "type_secret"/"done" are handled by their own dedicated checks
+#: instead of this generic set.
+#:
+#: SERVER PHASE S3.1 note: a role-scoped version of this rejection was
+#: tried — "click" + value only on text-entry-capable roles
+#: (textbox/searchbox/combobox/spinbutton), motivated by the S3 finding
+#: that Qwen sometimes emits click+value on a search box instead of
+#: "type". Measured to be provably unreachable: this line already
+#: rejects "click" + any non-null value for EVERY role, so a role-scoped
+#: version can only ever be a strict subset of what's already refused
+#: here. Confirmed empirically too — a full-suite S3 benchmark re-run
+#: with the role-scoped check wired in ahead of this one produced
+#: byte-identical results (141/141 records; the only 2 diffs traced to
+#: unrelated, already-documented model nondeterminism on an unrelated
+#: case). Not added. If element role is ever used for a NEW purpose,
+#: remember it's client-reported structural metadata (same trust tier
+#: as CapturedElement.disabled) — real, ARIA-style values only
+#: ("textbox", "combobox", "button", "link", "checkbox", "radio", or an
+#: explicit page-set role); this benchmark suite's older fixtures use a
+#: non-existent "input:text"/"input:email"/etc. convention that the real
+#: client (extension/src/perception/domCapture.ts's roleFor()) never
+#: actually produces — don't validate against that vocabulary.
+VALUE_IRRELEVANT_ACTIONS = frozenset({"click", "scroll", "navigate", "wait"})
 
 #: Keys the model is allowed to emit. Anything else is a signal the
 #: output isn't the shape we asked for, so we stop rather than silently
@@ -41,6 +70,37 @@ DONE_FORBIDDEN_FIELDS: frozenset[str] = frozenset({"element_id", "value", "value
 
 #: Only these schemes may ever reach `location.href` in the extension.
 SAFE_URL_SCHEMES = ("http://", "https://")
+
+#: SERVER PHASE S4 — roles that can NEVER be a legitimate "type"/
+#: "type_secret" target, regardless of what the model claims. Derived
+#: from extension/src/perception/domCapture.ts's roleFor() (the ONLY
+#: source of the `role` field: "button" for <button> and
+#: input[type=button/submit/reset], "link" for <a>, "checkbox"/"radio"
+#: for those input types) cross-checked against
+#: extension/src/action/executor.ts's injectTextIntoElement, which is
+#: the ONLY function "type"/"type_secret" ever call.
+#:
+#: This is deliberately a narrow denylist, not an allowlist of
+#: "textbox"/"searchbox"/"combobox"/"spinbutton": those roles can
+#: legitimately be page-author-set ARIA values on elements whose real
+#: DOM fillability the label alone can't rule out, and a false
+#: rejection there is a worse failure mode than the gap this closes. The
+#: four roles below can never be genuinely fillable by ANY reasonable
+#: interpretation, so rejecting them carries no such risk:
+#:   - "button" (<button>): injectTextIntoElement no-ops (not an
+#:     HTMLInputElement/HTMLTextAreaElement, not contenteditable) — a
+#:     silently wasted step, not unsafe.
+#:   - "button" (<input type="submit/button/reset">): injectTextIntoElement
+#:     DOES match (it IS an HTMLInputElement) and sets `.value` — for a
+#:     submit/button input, `.value` IS its visible label text, so this
+#:     silently REWRITES the button's displayed text. Not a security
+#:     hole, but a genuine unintended, observable side effect — the
+#:     concrete finding that justifies this check.
+#:   - "link" (<a>): no-ops, same as <button>.
+#:   - "checkbox"/"radio": IS an HTMLInputElement, so `.value` is set,
+#:     but checkbox/radio controls render from `.checked`, not `.value`
+#:     — an invisible, inert mutation in virtually every real page.
+NEVER_FILLABLE_ROLES = frozenset({"button", "link", "checkbox", "radio"})
 
 _TOKEN_RE = re.compile(r"\[[A-Z_]+_\d+\]")
 _EMAIL_RE = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
@@ -129,6 +189,11 @@ def validate_value(action: str, element_id: int | None, value: Any, context: San
         # with a null value, erase the field. type_secret is the only
         # mechanism that fills these.
         target = _element_by_id(context, element_id)
+        if target is not None and target.role in NEVER_FILLABLE_ROLES:
+            _reject(
+                f"'type' targets element {element_id} whose role is {target.role!r} — "
+                "that control can never be a text-entry target"
+            )
         if target is not None and _is_redacted(target.label):
             _reject(
                 f"'type' targets element {element_id} whose label {target.label!r} is a redaction token — "
@@ -139,6 +204,35 @@ def validate_value(action: str, element_id: int | None, value: Any, context: San
         # what the user asked for.
         if value is None or (isinstance(value, str) and not value.strip()):
             _reject("'type' requires a non-empty value — refusing to clear the field")
+
+    if action == "type_secret" and value is not None:
+        # type_secret's real value comes from value_ref, resolved
+        # locally in the browser — the executor never reads `value` for
+        # this action. A model that sets both is either confused about
+        # which field carries the secret, or attempting to smuggle a
+        # literal alongside a legitimate-looking value_ref. Reject
+        # rather than silently ignore.
+        _reject("'type_secret' must not carry a literal value — only value_ref")
+
+    if action in VALUE_IRRELEVANT_ACTIONS and value is not None:
+        # `value` is inert at execution time for every one of these — the
+        # executor never reads it (click/scroll/navigate/wait each use
+        # their own fields, or none). Accepting a stray value here let a
+        # confused model response look more "valid" than it actually
+        # was: observed live, the model emitted
+        # {"action":"click","element_id":<search box>,"value":"Samsung S24 FE"}
+        # meaning to type a search query, but "click" ignored the value
+        # entirely and the search never happened — validation.py raised
+        # nothing, so nothing signalled the mismatch. `type` is the only
+        # action `value` has real meaning for; `type_secret`/`done` are
+        # already rejected above/in validate_done. `keypress` is
+        # deliberately EXCLUDED from this set: the extension's executor
+        # reads the key to press from `value` itself
+        # (`req.value ?? "Enter"` in action/executor.ts) — rejecting it
+        # here would make it impossible to ever request a key other than
+        # the hardcoded "Enter" default, an existing capability, not a
+        # gap.
+        _reject(f"value is only valid for 'type', not {action!r}")
 
     if value is None:
         return None
@@ -181,6 +275,11 @@ def validate_secret_reference(
     target = _element_by_id(context, element_id)
     if target is None:
         _reject(f"type_secret targets unknown element_id {element_id!r}")
+    if target.role in NEVER_FILLABLE_ROLES:
+        _reject(
+            f"type_secret targets element {element_id} whose role is {target.role!r} — "
+            "that control can never be a text-entry target"
+        )
     if not value_ref or not isinstance(value_ref, str):
         _reject("type_secret requires a value_ref naming the field to fill")
     if value_ref != target.label:
@@ -201,8 +300,8 @@ def validate_navigation(action: str, url: Any, context: SanitizedContext) -> str
     vector (`javascript:`). Constrain scheme and origin.
     """
     if action != "navigate":
-        if url is not None and not isinstance(url, str):
-            _reject("url must be a string or null")
+        if url is not None:
+            _reject(f"url is only valid for 'navigate', not {action!r}")
         return url
 
     if not isinstance(url, str) or not url:
@@ -212,6 +311,38 @@ def validate_navigation(action: str, url: Any, context: SanitizedContext) -> str
     if not url.startswith(context.url_origin):
         _reject(f"navigate url leaves origin {context.url_origin!r}")
     return url
+
+
+def validate_scroll_and_wait_fields(action: str, direction: Any, amount: Any) -> tuple[Any, Any]:
+    """`direction` only means anything for 'scroll'; `amount` only means
+    anything for 'scroll' (pixels) or 'wait' (milliseconds). Neither is
+    unsafe if the model sets it elsewhere — the executor ignores fields
+    outside its own action's case — but a stray value here signals the
+    model is confused about which action it's actually proposing, and
+    "required fields match the action type" cuts both ways: presence
+    where required, absence where irrelevant.
+
+    SERVER PHASE S4: `amount` has no Pydantic bound on ActionResponse (no
+    Field(ge=...)), so without this check a negative, NaN, or infinite
+    amount reaches the client unrejected. The extension happens to clamp
+    `wait` (`Math.min(amount ?? 1000, 5000)`) and the browser happens to
+    clamp `scroll` internally, but that is the CLIENT'S safety net, not
+    ours — this project's standing rule is that every prompt-controlled
+    field is independently re-verified server-side, not left to whatever
+    the client currently happens to do with it.
+    """
+    if direction is not None and action != "scroll":
+        _reject(f"direction is only valid for 'scroll', not {action!r}")
+    if amount is not None and action not in ("scroll", "wait"):
+        _reject(f"amount is only valid for 'scroll' or 'wait', not {action!r}")
+    if amount is not None:
+        if not isinstance(amount, (int, float)) or isinstance(amount, bool):
+            _reject(f"amount must be a number, got {type(amount).__name__}")
+        if not math.isfinite(amount):
+            _reject(f"amount must be a finite number, got {amount!r}")
+        if amount < 0:
+            _reject(f"amount must not be negative, got {amount!r}")
+    return direction, amount
 
 
 def validate_done(action: str, data: dict[str, Any]) -> None:
@@ -243,6 +374,7 @@ def build_validated_action(data: dict[str, Any], context: SanitizedContext) -> A
     value = validate_value(action, element_id, data.get("value"), context)
     value_ref = validate_secret_reference(action, element_id, data.get("value_ref"), context)
     url = validate_navigation(action, data.get("url"), context)
+    direction, amount = validate_scroll_and_wait_fields(action, data.get("direction"), data.get("amount"))
 
     raw_confidence = data.get("confidence", 0.5)
     try:
@@ -256,8 +388,8 @@ def build_validated_action(data: dict[str, Any], context: SanitizedContext) -> A
             element_id=element_id,
             value=value,
             value_ref=value_ref,
-            direction=data.get("direction"),
-            amount=data.get("amount"),
+            direction=direction,
+            amount=amount,
             url=url,
             confidence=confidence,
             task_id=context.task_id,

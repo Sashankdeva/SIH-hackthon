@@ -34,19 +34,22 @@ async def reason(context: SanitizedContext) -> ActionResponse | JSONResponse:
     """The extension's only server call.
 
     Context Validator runs first — reasoning never sees a payload that
-    hasn't passed the privacy check, regardless of backend.
+    hasn't passed the privacy check, regardless of backend. It's inside
+    the same try block as the model call because it raises
+    ContextRejected, a ReasoningError, so a rejected context gets the
+    exact same {error, detail, task_id} envelope and reason_refused log
+    line as every other refusal below — one failure path, not two.
 
     On any failure this returns a real error status, never HTTP 200 with
     a fabricated action. The extension must be able to tell "do nothing"
     (a deliberate `wait`) apart from "the server could not answer".
     """
-    assert_context_is_sanitized(context)
-
     started = time.perf_counter()
     backend = getattr(_client, "name", "unknown")
     model = getattr(_client, "model", "-")
 
     try:
+        assert_context_is_sanitized(context)
         action = await _client.propose_action(context)
     except ReasoningError as exc:
         # Operational log only: task identity, backend, timing, and the
