@@ -1,4 +1,5 @@
 import { resolveElement } from "../perception/domCapture";
+import { isEditableInteractive, isNativeSelect } from "../perception/interactive";
 import type { ActionRequest, ActionValidationResult } from "./types";
 
 const ALLOWED_ACTIONS = new Set<ActionRequest["action"]>([
@@ -45,18 +46,21 @@ export function isSafeNavigationUrl(rawUrl: string): boolean {
 
 /**
  * Checks if a target DOM element is an editable text control.
+ *
+ * Delegates to the shared interactive classifier (perception/interactive.ts)
+ * so the validator, capture layer and PVM cannot disagree about which elements
+ * accept text.
  */
 function isEditableTarget(el: Element): boolean {
-  const tag = el.tagName.toLowerCase();
-  if (tag === "textarea") return true;
-  if (tag === "input") {
-    const nonTextTypes = new Set(["button", "submit", "reset", "image", "hidden", "checkbox", "radio", "file"]);
-    const inputType = ((el as HTMLInputElement).type || "text").toLowerCase();
-    return !nonTextTypes.has(inputType);
-  }
-  if ((el as HTMLElement).isContentEditable === true) return true;
-  const contentEditableAttr = el.getAttribute?.("contenteditable");
-  return contentEditableAttr === "true" || contentEditableAttr === "";
+  return isEditableInteractive(el);
+}
+
+/**
+ * Checks if a target is a native <select> the executor's select primitive
+ * (executeAction 'type' branch) can operate deterministically.
+ */
+function isNativeSelectTarget(el: Element): boolean {
+  return isNativeSelect(el);
 }
 
 /**
@@ -133,11 +137,24 @@ export function validateAction(req: ActionRequest, expectedTaskId: string): Acti
         return { ok: false, reason: `Target element ${req.elementId} is readonly.` };
       }
 
-      if (!isEditableTarget(el)) {
+      // A native <select> is a legitimate `type` target: the executor's select
+      // primitive picks the option matching the value. Secrets are never routed
+      // into a <select>, so type_secret still requires a real text control.
+      const selectOk = req.action === "type" && isNativeSelectTarget(el);
+      if (!isEditableTarget(el) && !selectOk) {
         return {
           ok: false,
           reason: `Element ${req.elementId} (<${el.tagName.toLowerCase()}>) is not an editable text input.`,
         };
+      }
+    }
+
+    // Fix #23: type action requires a non-empty, non-whitespace-only value.
+    // An empty string typed into a search box would be a silent no-op that
+    // PVM could mistakenly report as success (el.value === "" === expected).
+    if (req.action === "type") {
+      if (req.value == null || typeof req.value !== "string" || req.value.trim() === "") {
+        return { ok: false, reason: "type action requires a non-empty, non-whitespace-only value." };
       }
     }
 

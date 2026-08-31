@@ -1,6 +1,7 @@
 import type { PrivacyReport } from "../privacy/types";
 import type { VerificationResult } from "../pvm/types";
 import { loadProfile, saveProfile, type Profile, type ProfileField } from "../privacy/profileStore";
+import type { ActiveTaskState } from "../action/types";
 
 /**
  * Privacy inspector UI — Day 3, PS26171_Role3_Privacy.pdf /
@@ -106,142 +107,234 @@ function render(state: StoredState, container: HTMLElement): void {
 
 const DEFAULT_SERVER_URL = "http://127.0.0.1:8787/reason";
 
-const container = document.getElementById("report");
-if (container) {
-  chrome.storage.local.get(
-    ["latestStatus", "latestPrivacyReport", "latestBlockedPayload", "latestVerification", "latestPayloadSha256", "updatedAt"],
-    (state) => render(state as StoredState, container)
-  );
+/**
+ * Renders the failed-task line. `lastDetail` already carries a safe, bounded
+ * summary; when structured diagnostics are present we append a compact
+ * `[stage · reason · HTTP nnn · code]` tag so the failing layer is visible
+ * at a glance and copy-pasteable. Every part shown here is a slug or a
+ * bounded string — never a raw payload.
+ */
+export function taskFailureText(active: ActiveTaskState): string {
+  const base = active.lastDetail ?? "Task halted.";
+  const f = active.failure;
+  if (!f) return base;
+  const tags: string[] = [f.stage.replace(/_/g, " ")];
+  if (f.reason && f.reason !== f.stage) tags.push(f.reason.replace(/_/g, " "));
+  if (f.httpStatus != null) tags.push(`HTTP ${f.httpStatus}`);
+  if (f.serverErrorCode) tags.push(f.serverErrorCode);
+  return `${base}  [${tags.join(" · ")}]`;
+}
 
-  // Keep the popup live if it's open while a new page finishes its pipeline.
-  chrome.storage.onChanged.addListener((_changes, areaName) => {
-    if (areaName !== "local") return;
+/**
+ * Classifies tab communication errors into clean, actionable user feedback.
+ */
+export function formatTabErrorMessage(err: unknown): string {
+  const message = String(err);
+  if (
+    message.includes("Receiving end does not exist") ||
+    message.includes("Could not establish connection") ||
+    message.includes("back/forward cache") ||
+    message.includes("message channel is closed") ||
+    message.includes("message port closed") ||
+    message.includes("Extension context invalidated") ||
+    message.includes("BFCACHE_CHANNEL_CLOSED") ||
+    message.includes("CONTENT_SCRIPT_UNAVAILABLE")
+  ) {
+    return "Page navigation in progress or connection reset — reload the page and try again.";
+  }
+  return `Could not reach the page: ${message}`;
+}
+
+if (typeof document !== "undefined") {
+  const container = document.getElementById("report");
+  if (container) {
     chrome.storage.local.get(
       ["latestStatus", "latestPrivacyReport", "latestBlockedPayload", "latestVerification", "latestPayloadSha256", "updatedAt"],
       (state) => render(state as StoredState, container)
     );
-  });
-}
 
-/**
- * Task input — the agent does nothing until the user asks for
- * something here. Page-load redaction happens regardless (privacy
- * shouldn't wait to be asked), but reasoning and any action on the page
- * are gated behind this. See content/index.ts's analysePage vs runTask
- * split.
- */
-const taskInput = document.getElementById("task-input") as HTMLInputElement | null;
-const runButton = document.getElementById("run-task") as HTMLButtonElement | null;
-const taskStatus = document.getElementById("task-status");
+    // Keep the popup live if it's open while a new page finishes its pipeline.
+    chrome.storage.onChanged.addListener((_changes, areaName) => {
+      if (areaName !== "local") return;
+      chrome.storage.local.get(
+        ["latestStatus", "latestPrivacyReport", "latestBlockedPayload", "latestVerification", "latestPayloadSha256", "updatedAt"],
+        (state) => render(state as StoredState, container)
+      );
+    });
+  }
 
-if (taskInput && runButton && taskStatus) {
-  chrome.storage.local.get(["lastTask"], (result) => {
-    taskInput.value = (result.lastTask as string | undefined) ?? "";
-  });
+  const taskInput = document.getElementById("task-input") as HTMLInputElement | null;
+  const runButton = document.getElementById("run-task") as HTMLButtonElement | null;
+  const taskStatus = document.getElementById("task-status");
 
-  const submitTask = async () => {
-    const task = taskInput.value.trim();
-    if (!task) {
-      taskStatus.textContent = "Type what you want done first.";
-      return;
-    }
+  if (taskInput && runButton && taskStatus) {
+    chrome.storage.local.get(["lastTask", "activeTask"], (result) => {
+      taskInput.value = (result.lastTask as string | undefined) ?? "";
+      const active = result.activeTask as ActiveTaskState | undefined;
+      if (active) {
+        if (active.status === "active" || active.status === "navigating") {
+          runButton.disabled = true;
+          taskStatus.textContent = active.status === "navigating"
+            ? `Navigating to next page (step ${active.stepNumber})…`
+            : `Running step ${active.stepNumber}…`;
+        } else if (active.status === "completed") {
+          taskStatus.textContent = active.lastDetail ?? "Task complete.";
+        } else if (active.status === "failed") {
+          taskStatus.textContent = taskFailureText(active);
+        }
+      }
+    });
 
-    runButton.disabled = true;
-    taskStatus.textContent = "Running…";
-    chrome.storage.local.set({ lastTask: task });
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName !== "local" || !changes.activeTask) return;
+      const active = changes.activeTask.newValue as ActiveTaskState | undefined;
+      if (active) {
+        if (active.status === "active" || active.status === "navigating") {
+          runButton.disabled = true;
+          taskStatus.textContent = active.status === "navigating"
+            ? `Navigating across pages (step ${active.stepNumber})…`
+            : `Running step ${active.stepNumber}…`;
+        } else if (active.status === "completed") {
+          runButton.disabled = false;
+          taskStatus.textContent = active.lastDetail ?? "Task complete.";
+          chrome.storage.local.remove("lastTask");
+        } else if (active.status === "failed") {
+          runButton.disabled = false;
+          taskStatus.textContent = taskFailureText(active);
+          chrome.storage.local.remove("lastTask");
+        }
+      }
+    });
 
-    try {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (!tab?.id) throw new Error("no active tab");
-      const response = (await chrome.tabs.sendMessage(tab.id, {
-        type: "RUN_TASK",
-        payload: { task },
-      })) as { ok: boolean; detail: string } | undefined;
-      taskStatus.textContent = response?.detail ?? "No response from the page — try reloading it.";
-    } catch (err) {
-      // "Receiving end does not exist" means no content script is
-      // listening in that tab. By far the most common cause is a stale
-      // tab: reloading the extension orphans content scripts in
-      // already-open pages, and the new one only injects on a fresh
-      // page load. Say that outright rather than showing the raw error
-      // — this is exactly the failure that would derail a live demo.
-      const message = String(err);
-      taskStatus.textContent = message.includes("Receiving end does not exist")
-        ? "Not connected to this page — reload the page (F5), then Run again."
-        : `Could not reach the page: ${message}`;
-    } finally {
-      runButton.disabled = false;
-      // ISSUE-16: Clear lastTask after task completion (success or failure).
-      // Task text may contain user intent — only pre-fill while a task is
-      // actively pending. After completion the user can re-enter or modify.
-      chrome.storage.local.remove("lastTask");
-    }
-  };
+    const submitTask = async () => {
+      const task = taskInput.value.trim();
+      if (!task) {
+        taskStatus.textContent = "Type what you want done first.";
+        return;
+      }
 
-  runButton.addEventListener("click", submitTask);
-  taskInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") submitTask();
-  });
-}
+      runButton.disabled = true;
+      taskStatus.textContent = "Running…";
+      chrome.storage.local.set({ lastTask: task });
 
-/**
- * The user's own details, used to auto-fill redacted fields. Chrome
- * exposes no API for reading its saved autofill profiles, so this is
- * our own store — see privacy/profileStore.ts for why that's the
- * correct design here rather than a workaround.
- */
-const PROFILE_FIELDS: ProfileField[] = ["person_name", "email", "phone", "address"];
-const profileInputs = PROFILE_FIELDS.map(
-  (field) => [field, document.getElementById(`p-${field}`) as HTMLInputElement | null] as const
-);
-const saveProfileButton = document.getElementById("save-profile");
-const profileStatus = document.getElementById("profile-status");
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab?.id) throw new Error("no active tab");
+        const response = (await chrome.tabs.sendMessage(tab.id, {
+          type: "RUN_TASK",
+          payload: { task, tabId: tab.id },
+        })) as { ok: boolean; detail: string } | undefined;
+        if (response?.detail) {
+          taskStatus.textContent = response.detail;
+        }
+      } catch (err) {
+        chrome.storage.local.get(["activeTask"], (res) => {
+          const active = res?.activeTask as ActiveTaskState | undefined;
+          if (active && (active.status === "active" || active.status === "navigating")) {
+            taskStatus.textContent = `Navigating across pages (step ${active.stepNumber})…`;
+          } else {
+            taskStatus.textContent = formatTabErrorMessage(err);
+            runButton.disabled = false;
+          }
+        });
+      } finally {
+        chrome.storage.local.get(["activeTask"], (res) => {
+          const active = res?.activeTask as ActiveTaskState | undefined;
+          if (!active || (active.status !== "active" && active.status !== "navigating")) {
+            runButton.disabled = false;
+            chrome.storage.local.remove("lastTask");
+          }
+        });
+      }
+    };
 
-if (saveProfileButton && profileStatus) {
-  loadProfile().then((profile) => {
-    for (const [field, input] of profileInputs) {
-      if (input) input.value = profile[field] ?? "";
-    }
-  });
+    runButton.addEventListener("click", submitTask);
+    taskInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") submitTask();
+    });
+  }
 
-  saveProfileButton.addEventListener("click", async () => {
-    const profile: Profile = {};
-    for (const [field, input] of profileInputs) {
-      const value = input?.value.trim();
-      if (value) profile[field] = value;
-    }
-    await saveProfile(profile);
-    const count = Object.keys(profile).length;
-    profileStatus.textContent = `Saved ${count} field${count === 1 ? "" : "s"} — stored locally only.`;
-    setTimeout(() => {
-      profileStatus.textContent = "";
-    }, 3000);
-  });
-}
+  const PROFILE_FIELDS: ProfileField[] = ["person_name", "email", "phone", "address"];
+  const profileInputs = PROFILE_FIELDS.map(
+    (field) => [field, document.getElementById(`p-${field}`) as HTMLInputElement | null] as const
+  );
+  const saveProfileButton = document.getElementById("save-profile");
+  const profileStatus = document.getElementById("profile-status");
 
-/**
- * Demoing on a laptop with no local GPU: point serverUrl at the GPU
- * laptop's LAN address instead of running Ollama locally. The target
- * origin must also be added to manifest.json's host_permissions before
- * rebuilding — this setting alone doesn't bypass that. See
- * server/README.md, "Demoing without a local GPU."
- */
-const urlInput = document.getElementById("server-url") as HTMLInputElement | null;
-const saveButton = document.getElementById("save-server-url");
-const saveStatus = document.getElementById("save-status");
+  if (saveProfileButton && profileStatus) {
+    loadProfile().then((profile) => {
+      for (const [field, input] of profileInputs) {
+        if (input) input.value = profile[field] ?? "";
+      }
+    });
 
-if (urlInput && saveButton && saveStatus) {
-  chrome.storage.local.get(["serverUrl"], (result) => {
-    urlInput.value = (result.serverUrl as string | undefined) || DEFAULT_SERVER_URL;
-  });
-
-  saveButton.addEventListener("click", () => {
-    const value = urlInput.value.trim() || DEFAULT_SERVER_URL;
-    chrome.storage.local.set({ serverUrl: value }, () => {
-      saveStatus.textContent = "Saved — reload the target page to use it.";
+    saveProfileButton.addEventListener("click", async () => {
+      const profile: Profile = {};
+      for (const [field, input] of profileInputs) {
+        const value = input?.value.trim();
+        if (value) profile[field] = value;
+      }
+      await saveProfile(profile);
+      const count = Object.keys(profile).length;
+      profileStatus.textContent = `Saved ${count} field${count === 1 ? "" : "s"} — stored locally only.`;
       setTimeout(() => {
-        saveStatus.textContent = "";
+        profileStatus.textContent = "";
       }, 3000);
     });
-  });
+  }
+
+  const urlInput = document.getElementById("server-url") as HTMLInputElement | null;
+  const saveButton = document.getElementById("save-server-url");
+  const saveStatus = document.getElementById("save-status");
+
+  if (urlInput && saveButton && saveStatus) {
+    chrome.storage.local.get(["serverUrl"], (result) => {
+      urlInput.value = (result.serverUrl as string | undefined) || DEFAULT_SERVER_URL;
+    });
+
+    saveButton.addEventListener("click", () => {
+      const value = urlInput.value.trim() || DEFAULT_SERVER_URL;
+      chrome.storage.local.set({ serverUrl: value }, () => {
+        saveStatus.textContent = "Saved — reload the target page to use it.";
+        setTimeout(() => {
+          saveStatus.textContent = "";
+        }, 3000);
+      });
+    });
+  }
+
+  // API key — the frozen server enforces X-API-Key on /reason. Stored under the
+  // existing "apiKey" key that background/getStoredApiKey() already reads; the
+  // raw value never leaves chrome.storage.local except as the outbound header
+  // (background/executeRemoteJsonPost). Password-style input; never logged.
+  const apiKeyInput = document.getElementById("api-key") as HTMLInputElement | null;
+  const saveApiKeyButton = document.getElementById("save-api-key");
+  const apiKeyStatus = document.getElementById("api-key-status");
+
+  if (apiKeyInput && saveApiKeyButton && apiKeyStatus) {
+    chrome.storage.local.get(["apiKey"], (result) => {
+      apiKeyInput.value = (result.apiKey as string | undefined) ?? "";
+    });
+
+    saveApiKeyButton.addEventListener("click", () => {
+      const value = apiKeyInput.value.trim();
+      if (!value) {
+        // Empty save clears the key rather than storing "" — background treats
+        // a blank key as "not configured" and fails fast before any request.
+        chrome.storage.local.remove("apiKey", () => {
+          apiKeyStatus.textContent = "Cleared — no API key configured.";
+          setTimeout(() => {
+            apiKeyStatus.textContent = "";
+          }, 3000);
+        });
+        return;
+      }
+      chrome.storage.local.set({ apiKey: value }, () => {
+        apiKeyStatus.textContent = "Saved — reload the target page to use it.";
+        setTimeout(() => {
+          apiKeyStatus.textContent = "";
+        }, 3000);
+      });
+    });
+  }
 }

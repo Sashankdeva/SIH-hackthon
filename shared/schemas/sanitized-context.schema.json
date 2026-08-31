@@ -54,6 +54,10 @@
       "type": "string",
       "description": "Origin only (scheme + host). Full URLs with query params may leak PII and must never be sent."
     },
+    "route_hint": {
+      "type": "string",
+      "description": "Optional. Current in-page route, PATH ONLY (location.pathname) — never the query string or fragment, which are the parts that carry identifiers. Single-page apps often leave the document title stale after a client-side navigation, so `page` alone can describe the previous view; this is the authoritative signal for which view is actually on screen. Absent when unavailable."
+    },
     "elements": {
       "type": "array",
       "items": {
@@ -63,7 +67,12 @@
         "properties": {
           "element_id": { "type": "integer" },
           "role": { "type": "string" },
-          "label": { "type": ["string", "null"] }
+          "label": { "type": ["string", "null"] },
+          "value_state": {
+            "type": "string",
+            "enum": ["empty", "nonempty", "redacted"],
+            "description": "Optional. Safe current occupancy of an EDITABLE control, so the model can tell an already-filled field from a blank one. Absent for non-editable elements. The raw value of a field must NEVER be sent in any form — a field the privacy firewall classified as sensitive always reports 'redacted', regardless of whether it is actually empty or filled."
+          }
         }
       }
     },

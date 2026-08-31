@@ -4,19 +4,19 @@
   "version": "0.1.0",
   "description": "SIH26171 prototype: local perception and redaction run before any network request leaves the browser.",
   "permissions": ["activeTab", "storage", "scripting"],
-  "host_permissions": ["http://localhost/*", "http://127.0.0.1/*"],
+  "host_permissions": ["http://localhost/*", "http://127.0.0.1/*", "http://26.39.161.6:8787/*"],
   "background": {
     "service_worker": "dist/background.js"
   },
   "content_scripts": [
     {
-      "matches": ["http://localhost/*", "http://127.0.0.1/*"],
+      "matches": ["<all_urls>"],
       "js": ["dist/vision-main.js"],
       "world": "MAIN",
       "run_at": "document_start"
     },
     {
-      "matches": ["http://localhost/*", "http://127.0.0.1/*"],
+      "matches": ["<all_urls>"],
       "js": ["dist/content.js"],
       "run_at": "document_idle"
     }
@@ -34,7 +34,7 @@
         "dist/ort-wasm-simd-threaded.wasm",
         "dist/models/face-detector.onnx"
       ],
-      "matches": ["http://localhost/*", "http://127.0.0.1/*"]
+      "matches": ["<all_urls>"]
     }
   ],
   "content_security_policy": {

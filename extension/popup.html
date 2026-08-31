@@ -167,7 +167,8 @@
         margin-top: 4px;
         min-height: 12px;
       }
-      #server-url {
+      #server-url,
+      #api-key {
         flex: 1;
         font-size: 11px;
         font-family: "Consolas", monospace;
@@ -175,7 +176,8 @@
         border: 1px solid #dbe0e8;
         border-radius: 4px;
       }
-      #save-server-url {
+      #save-server-url,
+      #save-api-key {
         font-size: 11px;
         padding: 5px 10px;
         border: 1px solid #2451b8;
@@ -184,10 +186,12 @@
         border-radius: 4px;
         cursor: pointer;
       }
-      #save-server-url:hover {
+      #save-server-url:hover,
+      #save-api-key:hover {
         background: #1c3f96;
       }
-      #save-status {
+      #save-status,
+      #api-key-status {
         font-size: 10px;
         color: #1b7a4d;
         margin-top: 4px;
@@ -233,6 +237,11 @@
         <button id="save-server-url">Save</button>
       </div>
       <div id="save-status"></div>
+      <div class="settings-row" style="margin-top: 8px">
+        <input id="api-key" type="password" autocomplete="off" placeholder="API key (X-API-Key)" />
+        <button id="save-api-key">Save</button>
+      </div>
+      <div id="api-key-status"></div>
     </div>
     <script src="dist/popup.js"></script>
   </body>

@@ -65,6 +65,61 @@ describe("Role 5 Phase 5 — Higher-Level Verification Interfaces & Escalation R
       expect(result.status).toBe("failure");
       expect(result.failureCategory).toBe("ELEMENT_STATE_MISMATCH");
     });
+
+    it("1. click on textbox + unused value -> L2 must NOT report semantic success from textContent", () => {
+      document.body.innerHTML = `
+        <div id="search-box" role="textbox" aria-label="Search items"></div>
+      `;
+
+      const expectation: L2SemanticExpectation = {
+        expectedTextPattern: "Samsung S24 FE",
+      };
+
+      const result = verifyLevel2Semantic("act-l2-textbox", "#search-box", expectation);
+      expect(result.status).toBe("failure");
+      expect(result.evidence?.some((e) => e.observed === "input_like_target_skipped_for_textContent")).toBe(true);
+    });
+
+    it("2. click on <input> -> no false-positive success", () => {
+      document.body.innerHTML = `
+        <input id="search-input" type="text" placeholder="Search..." />
+      `;
+
+      const expectation: L2SemanticExpectation = {
+        expectedTextPattern: "Samsung S24 FE",
+      };
+
+      const result = verifyLevel2Semantic("act-l2-input", "#search-input", expectation);
+      expect(result.status).toBe("failure");
+      expect(result.evidence?.some((e) => e.observed === "input_like_target_skipped_for_textContent")).toBe(true);
+    });
+
+    it("3. click on <textarea> -> no false-positive success", () => {
+      document.body.innerHTML = `
+        <textarea id="comment-area"></textarea>
+      `;
+
+      const expectation: L2SemanticExpectation = {
+        expectedTextPattern: "Some comments",
+      };
+
+      const result = verifyLevel2Semantic("act-l2-textarea", "#comment-area", expectation);
+      expect(result.status).toBe("failure");
+      expect(result.evidence?.some((e) => e.observed === "input_like_target_skipped_for_textContent")).toBe(true);
+    });
+
+    it("4. click on ordinary button -> existing L2 behavior unchanged", () => {
+      document.body.innerHTML = `
+        <button id="submit-btn">Search Results</button>
+      `;
+
+      const expectation: L2SemanticExpectation = {
+        expectedTextPattern: "Search Results",
+      };
+
+      const result = verifyLevel2Semantic("act-l2-btn", "#submit-btn", expectation);
+      expect(result.status).toBe("success");
+    });
   });
 
   // =========================================================================

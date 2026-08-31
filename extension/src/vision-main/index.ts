@@ -1,5 +1,10 @@
 import { detectFaces, type VisionAssetUrls } from "../perception/faceDetector";
-import { overlayFaceBoxes } from "../privacy/visualRedact";
+import { installClickableProbe } from "../perception/clickableProbe";
+
+// MAIN world at document_start — the only place page-JS click handlers are
+// observable. Marks handler-owning elements with a DOM attribute the isolated
+// world can read. See perception/clickableProbe.ts.
+installClickableProbe();
 
 /**
  * MAIN-world content script — see the architecture note at the top of
@@ -9,9 +14,9 @@ import { overlayFaceBoxes } from "../privacy/visualRedact";
  * Has NO access to chrome.* APIs (that's the main/isolated-world
  * trade-off) — it waits for the isolated-world script to hand over the
  * extension resource URLs it needs via a CustomEvent, does its work
- * (find <img>s, detect faces, redact on the page), then reports back
- * primitive metadata only — never a DOM reference — through another
- * CustomEvent. See content/index.ts for the isolated-world side.
+ * (find <img>s, detect faces), then reports back primitive metadata
+ * only — never a DOM reference — through another CustomEvent.
+ * The live webpage remains visually unchanged. See content/index.ts.
  */
 
 interface VisionResultDetail {
@@ -40,10 +45,6 @@ document.addEventListener(
       }
       const latencyMs = Math.round(performance.now() - start);
       console.log(`[vision-main] ${faces.length} face(s) in ${latencyMs}ms`, img.src);
-
-      if (faces.length > 0) {
-        overlayFaceBoxes(img, faces);
-      }
 
       document.dispatchEvent(
         new CustomEvent<VisionResultDetail>("privyvision:vision-result", {

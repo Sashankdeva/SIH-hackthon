@@ -67,6 +67,7 @@ export type AgentLoopTerminationReason =
   | "validation_failed"  // Existing validator rejected the action
   | "execution_failed"   // Executor threw (browser interaction error)
   | "verification_failed"// PVM verifier returned failure
+  | "no_progress"        // Identical action re-requested against an unchanged page
   | "dom_capture_failed" // captureCurrentPage returned null
   | "firewall_blocked"   // Privacy Firewall blocked the payload
   | "timeout"            // Per-step or overall timeout exceeded

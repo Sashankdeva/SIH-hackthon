@@ -1,4 +1,7 @@
 import { resolveElement } from "../perception/domCapture";
+import { isInputLike, isNativeSelect } from "../perception/interactive";
+import { computeAccessibleName } from "../perception/accessibleName";
+import { deepQueryFirst, idRefLookup, ownerFrameUrl } from "../perception/deepDom";
 import type { ActionRequest } from "../action/types";
 import type {
   VerificationResult,
@@ -26,6 +29,34 @@ export interface ActionSnapshot {
   /** The action that was dispatched — the verifier needs the type, elementId, and value. */
   action: ActionRequest;
   startedAt: number;
+  /**
+   * Phase 5 — minimal bounded pre-action evidence about the target, used by the
+   * async-settle verifier to detect in-page state changes (aria flips, on-target
+   * label change, a controlled region opening). Never a DOM dump; never a value.
+   * Optional so existing one-shot callers/tests need not provide it.
+   */
+  targetBefore?: TargetBaseline | null;
+}
+
+/** Bounded pre-action evidence about a single target element. No raw values. */
+export interface TargetBaseline {
+  present: boolean;
+  ariaExpanded: string | null;
+  ariaPressed: string | null;
+  ariaChecked: string | null;
+  disabled: boolean;
+  /** Bounded accessible name (<= 120 chars) for on-target label/state flips. */
+  name: string | null;
+  /** First id from aria-controls / aria-owns, if any. */
+  controlsId: string | null;
+  /** Whether that controlled element was visibly shown at baseline. */
+  controlsShown: boolean;
+  /**
+   * Phase 6B — the URL of the frame that OWNS the target (its own document's
+   * location, which equals the top URL for a top-frame target). Lets PVM see a
+   * same-origin child-frame navigation without mistaking it for a top-level one.
+   */
+  frameUrlBefore: string | null;
 }
 
 /**
@@ -79,9 +110,18 @@ function verifyClick(actionId: string, snapshot: ActionSnapshot, latencyMs: numb
   }
 
   if (snapshot.action.elementId != null) {
-    const stillPresent = resolveElement(snapshot.action.elementId) != null;
-    if (!stillPresent) {
+    const el = resolveElement(snapshot.action.elementId);
+    if (!el) {
       return { actionId, expected: "click_effect", observed: "element_removed", status: "success", latencyMs };
+    }
+    // Same-origin child-frame navigation: the target still exists but the frame
+    // that owns it has navigated. This is NOT a top-level navigation.
+    const frameBefore = snapshot.targetBefore?.frameUrlBefore ?? null;
+    if (frameBefore) {
+      const frameNow = ownerFrameUrl(el);
+      if (frameNow && frameNow !== frameBefore) {
+        return { actionId, expected: "click_effect", observed: "frame_url_changed", status: "success", latencyMs };
+      }
     }
   }
 
@@ -98,6 +138,30 @@ function verifyType(actionId: string, snapshot: ActionSnapshot, latencyMs: numbe
   }
 
   const expected = snapshot.action.value ?? "";
+
+  // Native <select>: a `type` on a select is a "choose the matching option"
+  // request. Verify locally against the selected option — never assume the
+  // native picker did anything.
+  if (isNativeSelect(el)) {
+    const sel = el as unknown as HTMLSelectElement;
+    const chosen = sel.selectedOptions && sel.selectedOptions.length > 0 ? sel.selectedOptions[0] : null;
+    const chosenText = (chosen?.textContent ?? "").replace(/\s+/g, " ").trim();
+    const chosenValue = chosen?.getAttribute("value") ?? sel.value ?? "";
+    const want = expected.replace(/\s+/g, " ").trim();
+    const matched =
+      chosenValue === expected ||
+      chosenText === want ||
+      chosenText.toLowerCase() === want.toLowerCase() ||
+      chosenValue.toLowerCase() === want.toLowerCase();
+    return {
+      actionId,
+      expected: "option_selected",
+      observed: matched ? "option_selected" : "option_not_selected",
+      status: matched ? "success" : "failure",
+      latencyMs,
+    };
+  }
+
   if (el.value === expected) {
     return { actionId, expected: "value_matches", observed: "value_matches", status: "success", latencyMs };
   }
@@ -146,6 +210,358 @@ function verifyNavigate(actionId: string, snapshot: ActionSnapshot, latencyMs: n
     status: changed ? "success" : "failure",
     latencyMs,
   };
+}
+
+// =========================================================================
+// Phase 5 — bounded async / dynamic-UI settle verification
+// =========================================================================
+//
+// verifyAction() above stays synchronous and unchanged: it is the immediate
+// one-shot check. verifyActionSettled() wraps it with a SMALL bounded
+// observation window for effects that land asynchronously (menu opens, smooth
+// scroll, framework value reconciliation, deferred SPA routing).
+//
+// Rules, all preserved from the synchronous verifier:
+//   - returns the instant strong evidence appears (no fixed sleeps);
+//   - "no meaningful observable change" stays `ambiguous`, never success;
+//   - exact value / selected-option verification is NOT weakened;
+//   - a lost target stays `failure`;
+//   - only evidence CAUSALLY tied to the target/action counts — the window
+//     inspects the target's own attributes and the one region it declares it
+//     controls, never the page at large.
+
+export interface SettleConfig {
+  clickMs: number;
+  typeMs: number;
+  scrollMs: number;
+  navigateMs: number;
+}
+
+/**
+ * Deadlines are deliberately small. Async STATE signals (aria-expanded flip,
+ * value reconciliation) almost always land within 1–2 frames even when the
+ * visual animation is longer, and we return the moment they do. A purely
+ * visual change with no observable state stays `ambiguous` — waiting longer
+ * would not help. Tune here.
+ */
+export const DEFAULT_SETTLE: SettleConfig = {
+  clickMs: 150,
+  typeMs: 120,
+  scrollMs: 220,
+  navigateMs: 100,
+};
+
+const nowMs = (): number =>
+  typeof performance !== "undefined" && typeof performance.now === "function"
+    ? performance.now()
+    : Date.now();
+
+/**
+ * One settle tick.
+ *
+ * requestAnimationFrame is the accurate signal while the document is being
+ * rendered, but it is NOT guaranteed to fire: the callback is simply never
+ * invoked in a tab that is backgrounded/occluded, or while the document is
+ * unloading after a navigating click. The settle loops re-check their deadline
+ * only after this resolves, so an rAF-only tick makes their bound unenforceable
+ * and verification hangs indefinitely (observed in real Chrome: a click on a
+ * link produced `verify START` and then no further progress until the task
+ * loop's 20s step budget killed the step).
+ *
+ * A timer is therefore ALWAYS armed alongside rAF and whichever fires first
+ * wins. When rendering is live this behaves exactly as before (~16ms, rAF);
+ * when it is suspended the timer keeps the bounded loop advancing so the
+ * deadline is honoured. Verification semantics are unchanged — this only
+ * guarantees the loop makes progress.
+ */
+function nextFrame(): Promise<void> {
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (): void => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    };
+    setTimeout(finish, 16);
+    if (typeof requestAnimationFrame === "function") {
+      try {
+        requestAnimationFrame(finish);
+      } catch {
+        /* the timer above already covers this tick */
+      }
+    }
+  });
+}
+
+const lat = (s: ActionSnapshot): number => Math.max(0, Math.round(Date.now() - s.startedAt));
+
+function isShown(el: Element | null): boolean {
+  if (!el) return false;
+  if (el.hasAttribute?.("hidden")) return false;
+  if (el.getAttribute?.("aria-hidden") === "true") return false;
+  try {
+    if (typeof window !== "undefined" && typeof window.getComputedStyle === "function") {
+      const s = window.getComputedStyle(el);
+      if (s.display === "none" || s.visibility === "hidden") return false;
+    }
+  } catch {
+    /* ignore */
+  }
+  return true;
+}
+
+function readControls(el: Element): { id: string | null; shown: boolean } {
+  const raw = (el.getAttribute?.("aria-controls") || el.getAttribute?.("aria-owns") || "").trim();
+  const id = raw ? raw.split(/\s+/)[0] : null;
+  if (!id) return { id: null, shown: false };
+  let target: Element | null = null;
+  try {
+    // Tree-scoped IDREF: resolve within the control's own document / shadow root.
+    target = idRefLookup(el, id);
+  } catch {
+    target = null;
+  }
+  return { id, shown: isShown(target) };
+}
+
+function boundedName(el: Element): string | null {
+  let n: string | null = null;
+  try {
+    n = computeAccessibleName(el);
+  } catch {
+    n = null;
+  }
+  return n ? n.replace(/\s+/g, " ").trim().slice(0, 120) : null;
+}
+
+function isDisabledNow(el: Element): boolean {
+  return (
+    (el as HTMLInputElement).disabled === true ||
+    el.getAttribute?.("aria-disabled") === "true" ||
+    el.hasAttribute?.("disabled")
+  );
+}
+
+/**
+ * Captures the minimal pre-action baseline for a target. Called by the pipeline
+ * BEFORE dispatch. Bounded — a handful of attributes plus a length; never a
+ * value, never a DOM tree.
+ */
+export function makeTargetBaseline(elementId: number | null | undefined): TargetBaseline | null {
+  if (elementId == null) return null;
+  const el = resolveElement(elementId);
+  if (!el) {
+    return {
+      present: false,
+      ariaExpanded: null,
+      ariaPressed: null,
+      ariaChecked: null,
+      disabled: false,
+      name: null,
+      controlsId: null,
+      controlsShown: false,
+      frameUrlBefore: null,
+    };
+  }
+  const c = readControls(el);
+  return {
+    present: true,
+    ariaExpanded: el.getAttribute("aria-expanded"),
+    ariaPressed: el.getAttribute("aria-pressed"),
+    ariaChecked: el.getAttribute("aria-checked"),
+    disabled: isDisabledNow(el),
+    name: boundedName(el),
+    controlsId: c.id,
+    controlsShown: c.shown,
+    frameUrlBefore: ownerFrameUrl(el),
+  };
+}
+
+/**
+ * Causally-scoped async click evidence: only the TARGET's own state and the
+ * one region it declares it controls. Returns a success result or null.
+ */
+function clickAsyncSignal(actionId: string, snapshot: ActionSnapshot): VerificationResult | null {
+  const id = snapshot.action.elementId;
+  const base = snapshot.targetBefore;
+  if (id == null || !base || !base.present) return null;
+  const el = resolveElement(id);
+  if (!el) return null; // handled by verifyClick's element-removed branch
+  const l = lat(snapshot);
+  const mk = (observed: string): VerificationResult => ({
+    actionId,
+    expected: "click_effect",
+    observed,
+    status: "success",
+    latencyMs: l,
+  });
+
+  if (el.getAttribute("aria-expanded") !== base.ariaExpanded) return mk("aria_expanded_changed");
+  if (el.getAttribute("aria-pressed") !== base.ariaPressed) return mk("aria_pressed_changed");
+  if (el.getAttribute("aria-checked") !== base.ariaChecked) return mk("aria_checked_changed");
+  if (isDisabledNow(el) !== base.disabled) return mk("target_disabled_changed");
+
+  const name = boundedName(el);
+  if (base.name != null && name != null && name.length > 0 && name !== base.name) {
+    return mk("target_label_changed");
+  }
+
+  const c = readControls(el);
+  if (base.controlsId && c.id === base.controlsId && c.shown && !base.controlsShown) {
+    return mk("controlled_region_shown");
+  }
+  return null;
+}
+
+async function verifyClickSettled(
+  actionId: string,
+  snapshot: ActionSnapshot,
+  settle: SettleConfig
+): Promise<VerificationResult> {
+  let sync = verifyClick(actionId, snapshot, lat(snapshot));
+  if (sync.status === "success") return sync;
+
+  const deadline = nowMs() + settle.clickMs;
+  while (nowMs() < deadline) {
+    await nextFrame();
+    sync = verifyClick(actionId, snapshot, lat(snapshot));
+    if (sync.status === "success") return sync; // late URL change / element removal
+    const sig = clickAsyncSignal(actionId, snapshot);
+    if (sig) return sig;
+  }
+  // Deadline: no causally-relevant observable change → stays ambiguous.
+  return verifyClick(actionId, snapshot, lat(snapshot));
+}
+
+/**
+ * Final-state value/selection observation.
+ *
+ * `type` / `type_secret` / `type`-on-`<select>` are the actions an application
+ * can legitimately RECONCILE after the fact — accept a value a frame late, or
+ * revert one it rejects. Neither can be judged from an early sample, so the
+ * window is observed to its (small) deadline and the LAST observation wins:
+ *   - value settles correct within the window            → success
+ *   - value never becomes / stops being correct          → failure (unchanged)
+ *   - target disappears mid-window                        → failure (immediate)
+ * Exact-match / selected-option verification is not weakened; a brief correct
+ * flash that is then reverted still ends as `failure`.
+ */
+async function observeFinalValue(
+  actionId: string,
+  snapshot: ActionSnapshot,
+  deadlineMs: number,
+  check: (a: string, s: ActionSnapshot, l: number) => VerificationResult
+): Promise<VerificationResult> {
+  const id = snapshot.action.elementId;
+  if (id != null && resolveElement(id) == null) return check(actionId, snapshot, lat(snapshot));
+
+  const deadline = nowMs() + deadlineMs;
+  let last = check(actionId, snapshot, lat(snapshot));
+  while (nowMs() < deadline) {
+    await nextFrame();
+    if (id != null && resolveElement(id) == null) return check(actionId, snapshot, lat(snapshot));
+    last = check(actionId, snapshot, lat(snapshot));
+  }
+  return last;
+}
+
+function verifyTypeSettled(
+  actionId: string,
+  snapshot: ActionSnapshot,
+  settle: SettleConfig
+): Promise<VerificationResult> {
+  return observeFinalValue(actionId, snapshot, settle.typeMs, verifyType);
+}
+
+function verifyTypeSecretSettled(
+  actionId: string,
+  snapshot: ActionSnapshot,
+  settle: SettleConfig
+): Promise<VerificationResult> {
+  return observeFinalValue(actionId, snapshot, settle.typeMs, verifyTypeSecret);
+}
+
+function scrollBoundaryObserved(snapshot: ActionSnapshot): string {
+  const w = (globalThis as unknown as { window?: { scrollY?: number; innerHeight?: number } }).window;
+  const doc = typeof document !== "undefined" ? document : null;
+  const y = w?.scrollY ?? 0;
+  const vh = w?.innerHeight ?? 0;
+  const sh = doc?.documentElement?.scrollHeight ?? doc?.body?.scrollHeight ?? 0;
+  const dir = snapshot.action.direction;
+  if (sh > 0 && vh > 0 && sh <= vh) return "page_not_scrollable";
+  if ((dir === "up" || dir == null) && y <= 0) return "already_at_top";
+  if (dir === "down" && vh > 0 && sh > 0 && y + vh >= sh - 1) return "already_at_bottom";
+  return "scroll_unchanged";
+}
+
+async function verifyScrollSettled(
+  actionId: string,
+  snapshot: ActionSnapshot,
+  settle: SettleConfig
+): Promise<VerificationResult> {
+  const getY = (): number =>
+    (globalThis as unknown as { window?: { scrollY?: number } }).window?.scrollY ?? 0;
+
+  if (getY() !== snapshot.scrollYBefore) return verifyScroll(actionId, snapshot, lat(snapshot));
+
+  const deadline = nowMs() + settle.scrollMs;
+  while (nowMs() < deadline) {
+    await nextFrame();
+    if (getY() !== snapshot.scrollYBefore) return verifyScroll(actionId, snapshot, lat(snapshot));
+  }
+  // Did not move within the window. Still ambiguous (never success without
+  // movement, never failure) — classify why for diagnostics.
+  return {
+    actionId,
+    expected: "scroll_changed",
+    observed: scrollBoundaryObserved(snapshot),
+    status: "ambiguous",
+    latencyMs: lat(snapshot),
+  };
+}
+
+async function verifyNavigateSettled(
+  actionId: string,
+  snapshot: ActionSnapshot,
+  settle: SettleConfig
+): Promise<VerificationResult> {
+  const getUrl = (): string => (typeof location !== "undefined" ? location.href : "");
+  if (getUrl() !== snapshot.urlBefore) return verifyNavigate(actionId, snapshot, lat(snapshot));
+
+  // SHORT window — a deferred SPA route change lands within a frame or two.
+  // Never block here: a full document navigation is tearing this context down.
+  const deadline = nowMs() + settle.navigateMs;
+  while (nowMs() < deadline) {
+    await nextFrame();
+    if (getUrl() !== snapshot.urlBefore) return verifyNavigate(actionId, snapshot, lat(snapshot));
+  }
+  return verifyNavigate(actionId, snapshot, lat(snapshot)); // url_unchanged → failure (unchanged)
+}
+
+/**
+ * Async-settle-aware per-action verification. Drop-in async replacement for
+ * verifyAction() at the pipeline call site. wait / keypress / unknown fall
+ * straight through to the synchronous verifier unchanged.
+ */
+export async function verifyActionSettled(
+  actionId: string,
+  snapshot: ActionSnapshot,
+  settle: SettleConfig = DEFAULT_SETTLE
+): Promise<VerificationResult> {
+  switch (snapshot.action.action) {
+    case "click":
+      return verifyClickSettled(actionId, snapshot, settle);
+    case "type":
+      return verifyTypeSettled(actionId, snapshot, settle);
+    case "type_secret":
+      return verifyTypeSecretSettled(actionId, snapshot, settle);
+    case "scroll":
+      return verifyScrollSettled(actionId, snapshot, settle);
+    case "navigate":
+      return verifyNavigateSettled(actionId, snapshot, settle);
+    default:
+      return verifyAction(actionId, snapshot);
+  }
 }
 
 /**
@@ -299,7 +715,7 @@ export function verifyElementPresent(
 
   let found = false;
   try {
-    found = typeof document !== "undefined" && document.querySelector(selector) != null;
+    found = deepQueryFirst(selector) != null;
   } catch {
     found = false;
   }
@@ -356,7 +772,7 @@ export function verifyElementAbsent(
 
   let absent = true;
   try {
-    absent = typeof document !== "undefined" && document.querySelector(selector) == null;
+    absent = deepQueryFirst(selector) == null;
   } catch {
     absent = false;
   }
@@ -389,6 +805,19 @@ export function verifyElementAbsent(
 }
 
 /**
+ * Determines whether an element is an input-like interactive control
+ * (e.g. input, textarea, select, role=textbox/searchbox/combobox/spinbutton).
+ * For these elements, textContent is not a reliable representation of the control's value/content.
+ */
+export function isInputLikeElement(el: Element | null): boolean {
+  // Delegates to the shared interactive classifier (perception/interactive.ts)
+  // so PVM, the validator and the capture layer share one definition. Covers
+  // input / textarea / select, ARIA textbox / searchbox / combobox / spinbutton
+  // / slider, and contenteditable hosts.
+  return isInputLike(el);
+}
+
+/**
  * Level 1 Element State Mutation: verifies deterministic properties (disabled, readonly, aria attributes, textContent, class).
  */
 export function verifyElementState(
@@ -416,7 +845,7 @@ export function verifyElementState(
 
   let el: Element | null = null;
   try {
-    el = typeof document !== "undefined" ? document.querySelector(selector) : null;
+    el = deepQueryFirst(selector);
   } catch {
     el = null;
   }
@@ -521,16 +950,28 @@ export function verifyElementState(
   }
 
   if (expectedState.textContent != null) {
-    const actualText = el.textContent?.trim() || "";
-    const match = actualText.includes(expectedState.textContent.trim());
-    if (!match) allMatched = false;
-    evidence.push({
-      signal: "element_state",
-      expected: `textContent_contains='${expectedState.textContent}'`,
-      observed: `textContent='${actualText}'`,
-      target: selector,
-      matched: match,
-    });
+    if (isInputLikeElement(el)) {
+      allMatched = false;
+      evidence.push({
+        signal: "element_state",
+        expected: `textContent_contains='${expectedState.textContent}'`,
+        observed: "input_like_target_skipped_for_textContent",
+        target: selector,
+        matched: false,
+        details: "Target is an input-like control; textContent is invalid evidence of content change",
+      });
+    } else {
+      const actualText = el.textContent?.trim() || "";
+      const match = actualText.includes(expectedState.textContent.trim());
+      if (!match) allMatched = false;
+      evidence.push({
+        signal: "element_state",
+        expected: `textContent_contains='${expectedState.textContent}'`,
+        observed: `textContent='${actualText}'`,
+        target: selector,
+        matched: match,
+      });
+    }
   }
 
   return {
@@ -577,7 +1018,7 @@ export function verifyValueMutation(
 
   let el: Element | null = null;
   try {
-    el = typeof document !== "undefined" ? document.querySelector(selector) : null;
+    el = deepQueryFirst(selector);
   } catch {
     el = null;
   }
@@ -607,8 +1048,9 @@ export function verifyValueMutation(
   }
 
   let actualValue = "";
-  if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
-    actualValue = el.value;
+  const vtag = (el.tagName || "").toLowerCase();
+  if (vtag === "input" || vtag === "textarea") {
+    actualValue = (el as HTMLInputElement).value;
   } else if ((el as HTMLElement).isContentEditable || el.getAttribute("contenteditable") === "true") {
     actualValue = el.textContent || "";
   }
@@ -673,7 +1115,7 @@ export function verifyScrollPosition(
 
   let el: Element | null = null;
   try {
-    el = typeof document !== "undefined" ? document.querySelector(expectedRegionSelector) : null;
+    el = deepQueryFirst(expectedRegionSelector);
   } catch {
     el = null;
   }
@@ -889,7 +1331,7 @@ export function verifyLevel2Semantic(
   let element: Element | null = null;
   if (selector && typeof document !== "undefined") {
     try {
-      element = document.querySelector(selector);
+      element = deepQueryFirst(selector);
     } catch {
       element = null;
     }
@@ -925,21 +1367,35 @@ export function verifyLevel2Semantic(
 
   // 3. Expected Text Pattern Check (Substring or Regex)
   if (expectation.expectedTextPattern) {
-    const actualText = element?.textContent || "";
-    let matched = false;
-    try {
-      const regex = new RegExp(expectation.expectedTextPattern, "i");
-      matched = regex.test(actualText);
-    } catch {
-      matched = actualText.toLowerCase().includes(expectation.expectedTextPattern.toLowerCase());
+    // For input-like controls (input, textarea, select, textbox role, etc.), textContent
+    // is NOT a reliable representation of the control's value/content.
+    // TextContent-based semantic verification must NOT report success on input-like targets.
+    if (isInputLikeElement(element)) {
+      allMatched = false;
+      evidence.push({
+        signal: "value_mutation",
+        expected: `text_pattern:${expectation.expectedTextPattern}`,
+        observed: "input_like_target_skipped_for_textContent",
+        matched: false,
+        details: "Target is an input-like control; textContent is invalid evidence of text entry for click actions",
+      });
+    } else {
+      const actualText = element?.textContent || "";
+      let matched = false;
+      try {
+        const regex = new RegExp(expectation.expectedTextPattern, "i");
+        matched = regex.test(actualText);
+      } catch {
+        matched = actualText.toLowerCase().includes(expectation.expectedTextPattern.toLowerCase());
+      }
+      if (!matched) allMatched = false;
+      evidence.push({
+        signal: "value_mutation",
+        expected: `text_pattern:${expectation.expectedTextPattern}`,
+        observed: `text:${actualText.substring(0, 100)}`,
+        matched,
+      });
     }
-    if (!matched) allMatched = false;
-    evidence.push({
-      signal: "value_mutation",
-      expected: `text_pattern:${expectation.expectedTextPattern}`,
-      observed: `text:${actualText.substring(0, 100)}`,
-      matched,
-    });
   }
 
   // 4. Semantic Status Flag Check
@@ -1002,7 +1458,7 @@ export function verifyLevel3Visual(
   let element: Element | null = null;
   if (selector && typeof document !== "undefined") {
     try {
-      element = document.querySelector(selector);
+      element = deepQueryFirst(selector);
     } catch {
       element = null;
     }

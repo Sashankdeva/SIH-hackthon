@@ -119,6 +119,13 @@ export interface FakeEnv {
    * and json() is made to throw (simulating a non-JSON or empty body).
    */
   respondWithRaw(...responses: Array<{ status: number; body: string }>): void;
+  /**
+   * Simulate a chrome.storage.local.set failure on the next write.
+   * The callback will fire with chrome.runtime.lastError set to the given message.
+   */
+  simulateStorageError(errorMessage: string): void;
+  /** Current tab ID returned by GET_TAB_ID messages (default: null). */
+  setFakeTabId(tabId: number | null): void;
 
   restore(): void;
 }
@@ -165,11 +172,51 @@ export function installFakeDom(elements: FakeElement[]): FakeEnv {
     },
   };
 
+  const docListeners: Record<string, Array<(e: unknown) => void>> = {};
   const fakeDocument = {
     title: "Fake Page",
     activeElement: null as FakeElement | null,
     querySelectorAll: () => elements,
     getElementById: (id: string) => elements.find((el) => el.getAttribute("id") === id) ?? null,
+    /**
+     * Minimal querySelector: supports [data-privy-id="N"] for resolveElement()
+     * fallback lookup, and #id selectors. This is the only selector form the
+     * extension production code uses against document directly.
+     */
+    querySelector: (selector: string): FakeElement | null => {
+      // [data-privy-id="N"] attribute selector
+      const privyIdMatch = /^\[data-privy-id="(\d+)"\]$/.exec(selector);
+      if (privyIdMatch) {
+        const id = privyIdMatch[1];
+        return elements.find((el) => el.getAttribute("data-privy-id") === id) ?? null;
+      }
+      // #id selector
+      if (selector.startsWith("#")) {
+        const id = selector.slice(1);
+        return elements.find((el) => el.getAttribute("id") === id) ?? null;
+      }
+      // fieldset[disabled] selector (used in isElementDisabled)
+      if (selector === "fieldset[disabled]") return null;
+      return null;
+    },
+    addEventListener: (type: string, listener: (e: unknown) => void) => {
+      if (!docListeners[type]) docListeners[type] = [];
+      docListeners[type].push(listener);
+    },
+    removeEventListener: (type: string, listener: (e: unknown) => void) => {
+      if (docListeners[type]) {
+        docListeners[type] = docListeners[type].filter((l) => l !== listener);
+      }
+    },
+    dispatchEvent: (event: { type: string; detail?: unknown }) => {
+      const handlers = docListeners[event.type] || [];
+      for (const h of handlers) h(event);
+      if (event.type === "privyvision:init-vision") {
+        const doneHandlers = docListeners["privyvision:vision-done"] || [];
+        for (const h of doneHandlers) h({ type: "privyvision:vision-done" });
+      }
+      return true;
+    },
   };
 
   const realSetTimeout = saved.get("setTimeout") as typeof setTimeout;
@@ -203,18 +250,139 @@ export function installFakeDom(elements: FakeElement[]): FakeEnv {
   };
   g.HTMLInputElement = FakeInputElement;
   g.KeyboardEvent = FakeKeyboardEvent;
+  const storageData: Record<string, unknown> = {};
+  let nextStorageError: string | null = null;
+  let fakeTabId: number | null = null;
   g.chrome = {
     storage: {
       local: {
-        // No stored serverUrl -> pipeline falls back to its default.
-        get: (_keys: string[], cb: (result: Record<string, unknown>) => void) => cb({}),
-        set: async () => undefined,
+        get: (keys: string[] | string | null, cb: (result: Record<string, unknown>) => void) => {
+          if (!keys) return cb({ ...storageData });
+          const keyList = Array.isArray(keys) ? keys : [keys];
+          const out: Record<string, unknown> = {};
+          for (const k of keyList) {
+            if (k in storageData) out[k] = storageData[k];
+          }
+          cb(out);
+        },
+        set: (items: Record<string, unknown>, cb?: () => void) => {
+          if (nextStorageError !== null) {
+            const errMsg = nextStorageError;
+            nextStorageError = null;
+            // Simulate chrome.runtime.lastError being set during callback
+            const savedLastError = (g.chrome as { runtime?: { lastError?: unknown } })?.runtime?.lastError;
+            (g.chrome as { runtime: { lastError: { message: string } } }).runtime.lastError = { message: errMsg };
+            if (cb) cb();
+            (g.chrome as { runtime: { lastError: unknown } }).runtime.lastError = savedLastError;
+            return Promise.resolve();
+          }
+          Object.assign(storageData, items);
+          if (cb) cb();
+          return Promise.resolve();
+        },
+        remove: (keys: string[] | string, cb?: () => void) => {
+          const keyList = Array.isArray(keys) ? keys : [keys];
+          for (const k of keyList) delete storageData[k];
+          if (cb) cb();
+          return Promise.resolve();
+        },
       },
     },
     runtime: {
-      // sendMessage is called by sendMessage() in bus.ts from runTask().
-      // In tests we just need it to not throw.
-      sendMessage: async (msg: object) => { sentMessages.push(msg); },
+      getURL: (path: string) => `chrome-extension://fake-id/${path}`,
+      lastError: undefined as { message?: string } | undefined,
+      // sendMessage is called by sendMessage() in bus.ts from runTask() and pipeline.ts.
+      sendMessage: async (msg: object) => {
+        sentMessages.push(msg);
+        const m = msg as { type?: string; payload?: { payload?: unknown; serverUrl?: string; timeoutMs?: number } };
+        if (m.type === "REASON_REQUEST") {
+          const bodyStr = JSON.stringify(m.payload?.payload ?? {});
+          const targetUrl = m.payload?.serverUrl ?? "http://127.0.0.1:8787/reason";
+          const timeoutMs = m.payload?.timeoutMs ?? 10000;
+          const controller = new AbortController();
+          const timerId = setTimeout(() => controller.abort("Fetch timeout"), timeoutMs);
+
+          try {
+            const resp = await (g.fetch as (url: unknown, init?: { method?: string; body?: unknown; signal?: AbortSignal }) => Promise<{ ok: boolean; status: number; text: () => Promise<string>; json: () => Promise<unknown> }>)(targetUrl, { method: "POST", body: bodyStr, signal: controller.signal });
+            clearTimeout(timerId);
+
+            if (!resp.ok) {
+              // Mirrors background/index.ts executeRemoteJsonPost: preserve the
+              // status, a normalized slug, and a SAFE server error code/detail
+              // recovered from the JSON body (never the raw body).
+              const known = new Set([400, 401, 403, 404, 408, 409, 410, 413, 415, 422, 429, 500, 502, 503, 504]);
+              const out: Record<string, unknown> = {
+                ok: false,
+                status: resp.status,
+                errorClass: resp.status === 401 || resp.status === 403 ? "auth_error" : "http_error",
+                error: known.has(resp.status) ? `http_${resp.status}` : "http_error",
+              };
+              try {
+                const bodyText = await resp.text();
+                if (bodyText && bodyText.length <= 4096) {
+                  const parsed = JSON.parse(bodyText) as Record<string, unknown>;
+                  const code = parsed?.error;
+                  if (typeof code === "string" && /^[a-z0-9_]{1,40}$/.test(code)) {
+                    out.serverErrorCode = code;
+                    if (
+                      (code === "invalid_request" || code === "action_rejected") &&
+                      typeof parsed.detail === "string"
+                    ) {
+                      const d = parsed.detail.replace(/\s+/g, " ").trim().slice(0, 300);
+                      if (d) out.serverDetail = d;
+                    }
+                  }
+                }
+              } catch {
+                // best-effort only
+              }
+              return out;
+            }
+            const text = await resp.text();
+            if (!text || !text.trim()) {
+              return {
+                ok: false,
+                status: resp.status,
+                errorClass: "empty_response",
+                error: "empty_response",
+              };
+            }
+            try {
+              const data = JSON.parse(text);
+              return {
+                ok: true,
+                status: 200,
+                data,
+              };
+            } catch {
+              return {
+                ok: false,
+                status: 200,
+                errorClass: "invalid_json",
+                error: "invalid_json",
+              };
+            }
+          } catch (fetchErr) {
+            clearTimeout(timerId);
+            const isTimeout =
+              (fetchErr instanceof Error && fetchErr.name === "AbortError") ||
+              (typeof fetchErr === "string" && fetchErr.includes("timeout"));
+            return {
+              ok: false,
+              status: 0,
+              errorClass: isTimeout ? "request_timeout" : "network_error",
+              error: isTimeout ? "request_timeout" : "network_error",
+            };
+          }
+        }
+        if (m.type === "GET_TAB_ID") {
+          return Promise.resolve({ tabId: fakeTabId });
+        }
+        if (m.type === "HEALTH_CHECK") {
+          return { ok: true, status: 200, data: { ok: true, status: "ok", latencyMs: 1 } };
+        }
+        return { ack: true };
+      },
     },
   };
   type ResponseProvider = object | ((body: string, callIndex: number) => object);
@@ -305,6 +473,12 @@ export function installFakeDom(elements: FakeElement[]): FakeEnv {
     respondWithRaw(...next: Array<{ status: number; body: string }>) {
       responseProviders = [];
       rawResponseProviders = next;
+    },
+    simulateStorageError(errorMessage: string) {
+      nextStorageError = errorMessage;
+    },
+    setFakeTabId(tabId: number | null) {
+      fakeTabId = tabId;
     },
 
     restore() {

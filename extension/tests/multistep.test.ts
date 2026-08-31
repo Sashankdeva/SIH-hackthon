@@ -6,7 +6,7 @@
  * 2. Context is re-captured between steps.
  * 3. History contains the previous sanitized steps.
  * 4. `done` terminates without execution.
- * 5. 8-step budget halts.
+ * 5. step budget halts.
  * 6. validator rejection halts.
  * 7. verification failure halts.
  * 8. server error halts.
@@ -18,7 +18,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { installFakeDom, serverAction, FakeElement, FakeInputElement } from "./helpers/fakeDom";
-import { runTask } from "../src/content/index";
+import { runTask, getActiveTask, MAX_STEPS } from "../src/content/index";
 import { runOneStep } from "../src/content/pipeline";
 import { storeSecret } from "../src/privacy/secretStore";
 import { captureDomState } from "../src/perception/domCapture";
@@ -122,25 +122,31 @@ test("4. done terminates immediately without browser execution", async () => {
   }
 });
 
-test("5. 8-step budget halts execution if done is not emitted", async () => {
+test("5. step budget halts execution if done is not emitted", async () => {
   const btn = new FakeElement("button", {}, "Persistent Button");
   const env = installFakeDom([btn]);
 
   try {
-    // Return scroll action continuously (never returns done)
-    env.respondWith(serverAction({ action: "scroll", direction: "down" }));
+    // Genuine per-step progress — the page changes every step (new control) and
+    // the scroll amount advances — but the model never emits `done`. The loop
+    // must still stop safely at MAX_STEPS. (A model that instead repeated the
+    // SAME action on an UNCHANGED page is covered by noProgressLoop.test.ts.)
+    env.respondWith((_body, callIndex) => {
+      env.elements.push(new FakeElement("button", {}, `Extra Button ${callIndex}`));
+      return serverAction({ action: "scroll", direction: "down", amount: 100 + callIndex });
+    });
 
     const res = await runTask("budget test");
 
     assert.equal(res.ok, false);
-    assert.match(res.detail, /Task halted after 8 steps/);
-    assert.equal(env.fetchCalls.length, 8, "Must halt at MAX_STEPS (8)");
+    assert.match(res.detail, new RegExp(`Task halted after ${MAX_STEPS} steps`));
+    assert.equal(env.fetchCalls.length, MAX_STEPS, "Must halt at MAX_STEPS");
   } finally {
     env.restore();
   }
 });
 
-test("6. Validator rejection halts loop immediately", async () => {
+test("6. Validator rejection halts loop immediately with a typed reason", async () => {
   const btn = new FakeElement("button", {}, "Target Button");
   const env = installFakeDom([btn]);
 
@@ -151,9 +157,16 @@ test("6. Validator rejection halts loop immediately", async () => {
     const res = await runTask("validator rejection test");
 
     assert.equal(res.ok, false);
-    assert.match(res.detail, /failed — server error or validator rejection/);
+    // Behaviour unchanged: halts immediately on step 1, nothing executed.
     assert.equal(env.fetchCalls.length, 1, "Must halt immediately on step 1");
     assert.equal(btn.clickCount, 0);
+    // Observability: the real cause is preserved, no longer collapsed.
+    assert.match(res.detail, /Step 1 failed — action failed local validation/);
+    const active = await getActiveTask();
+    assert.equal(active?.status, "failed");
+    assert.equal(active?.failure?.stage, "action_validation");
+    assert.equal(active?.failure?.reason, "validation_failed");
+    assert.equal(active?.failure?.step, 1);
   } finally {
     env.restore();
   }
@@ -182,7 +195,7 @@ test("7. Verification failure halts loop immediately", async () => {
   }
 });
 
-test("8. Server error (non-200 or network failure) halts loop immediately", async () => {
+test("8. Server error (non-200) halts loop immediately with HTTP status preserved", async () => {
   const btn = new FakeElement("button", {}, "Target Button");
   const env = installFakeDom([btn]);
 
@@ -192,8 +205,15 @@ test("8. Server error (non-200 or network failure) halts loop immediately", asyn
     const res = await runTask("server error test");
 
     assert.equal(res.ok, false);
-    assert.match(res.detail, /failed — server error or validator rejection/);
+    // Behaviour unchanged: halts immediately on the server error.
     assert.equal(env.fetchCalls.length, 1, "Must halt immediately on server error");
+    // Observability: the HTTP status and layer survive to the caller + activeTask.
+    assert.match(res.detail, /reasoning server returned HTTP 500/);
+    const active = await getActiveTask();
+    assert.equal(active?.status, "failed");
+    assert.equal(active?.failure?.stage, "reasoning_server");
+    assert.equal(active?.failure?.reason, "server_http_error");
+    assert.equal(active?.failure?.httpStatus, 500);
   } finally {
     env.restore();
   }

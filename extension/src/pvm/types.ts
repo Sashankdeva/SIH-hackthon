@@ -60,6 +60,28 @@ export interface VerificationResult {
   l2LatencyMs?: number;
   l3LatencyMs?: number;
   escalatedFromLevel?: VerificationLevel;
+
+  /**
+   * C10 — task-loop no-progress bookkeeping. Populated by the pipeline for
+   * verified / ambiguous steps only. NOT part of verification: PVM never reads
+   * or acts on these. The task loop compares consecutive steps' (state, action)
+   * pair so it can stop a model that is stuck repeating the same action on an
+   * unchanged page instead of grinding to MAX_STEPS. Both are structural
+   * hashes (see pvm/memory.ts) — no raw values.
+   */
+  progressStateSignature?: string;
+  progressActionSignature?: string;
+
+  /**
+   * C16 — safe target metadata for the sanitized history, so the model can see
+   * WHICH control a previous step acted on. Both come from the sanitized
+   * context, so `targetLabel` is already a redaction token for any sensitive
+   * field. The raw typed value is NEVER carried here. PVM does not read these.
+   */
+  targetElementId?: number | null;
+  targetLabel?: string | null;
+  /** The action type actually requested, for an accurate history record. */
+  actionType?: string;
 }
 
 export interface ElementStateExpectation {

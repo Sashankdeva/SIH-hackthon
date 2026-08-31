@@ -1,8 +1,9 @@
-import type { PageState } from "../perception/types";
+import type { PageState, ValueState } from "../perception/types";
 import type { RedactionRecord } from "./types";
 import { validateRedactionCoverage } from "./redactionValidator";
 import type { PrivacyDetection } from "./types";
-import { resolveElement } from "../perception/domCapture";
+import { resolveElement, captureBudgetSignals } from "../perception/domCapture";
+import { budgetElements, DEFAULT_BUDGET } from "../perception/elementBudget";
 import { storeSecret } from "./secretStore";
 
 /**
@@ -36,7 +37,25 @@ export interface SanitizedContext {
   task: string;
   page: string;
   urlOrigin: string;
-  elements: Array<{ elementId: number; role: string; label: string | null }>;
+  /**
+   * Current in-page route (path only — never query string or fragment, which
+   * are the parts that carry identifiers and tracking data). SPAs frequently
+   * leave `document.title` stale after a client-side navigation, so `page`
+   * alone can describe the PREVIOUS view; the path is the authoritative signal
+   * for which view is actually on screen. Omitted when unavailable.
+   */
+  routeHint?: string;
+  elements: Array<{
+    elementId: number;
+    role: string;
+    label: string | null;
+    /**
+     * Safe occupancy of an editable control ("empty" | "nonempty" | "redacted").
+     * Present only for editable controls. NEVER the value itself — the raw text
+     * of any field is not part of this contract in any form.
+     */
+    valueState?: ValueState;
+  }>;
   fields: Record<string, string>;
   /**
    * Sanitized history of steps already completed in this task.
@@ -60,6 +79,24 @@ function captureSecrets(redactions: RedactionRecord[]): void {
   }
 }
 
+
+/** Max characters of path sent as the route hint. */
+const MAX_ROUTE_HINT = 200;
+
+/**
+ * The current path, or undefined when unavailable. Never includes the query
+ * string or fragment.
+ */
+function readRouteHint(): string | undefined {
+  try {
+    if (typeof location === "undefined") return undefined;
+    const path = location.pathname;
+    if (typeof path !== "string" || path.length === 0) return undefined;
+    return path.slice(0, MAX_ROUTE_HINT);
+  } catch {
+    return undefined;
+  }
+}
 
 export type FirewallResult =
   | { ok: true; context: SanitizedContext }
@@ -95,20 +132,46 @@ export function buildSanitizedContext(
     }
   }
 
+  // Phase 4B — element budgeting. Long pages (large e-commerce / search) can
+  // carry hundreds of interactive controls; serialising all of them bloats the
+  // payload and prompt, slows /reason, and weakens target selection. Keep a
+  // deterministic, viewport-aware subset. Redacted (sensitive) fields are
+  // always retained. Capture still recorded EVERY control, so element_id and
+  // the stale-target resolver stay valid for anything the model targets, and
+  // an omitted control simply reappears on the next fresh capture.
+  const { kept } = budgetElements(
+    pageState.elements,
+    captureBudgetSignals(),
+    redactedIds,
+    DEFAULT_BUDGET
+  );
+
+  // Path only, bounded. `location.search` / `location.hash` are deliberately
+  // excluded — the existing contract keeps query parameters off the wire.
+  const routeHint = readRouteHint();
+
   const context: SanitizedContext = {
     taskId: pageState.taskId,
     task,
     page: document.title || "unknown",
     urlOrigin: location.origin,
+    ...(routeHint ? { routeHint } : {}),
     // Redacted elements STAY in this list — with the label replaced by
     // its token — so the model can see "there's a password field here"
     // (and target it for type_secret) without ever seeing its value.
     // Dropping redacted elements entirely was the earlier bug: the
     // model could never target something it couldn't see existed.
-    elements: pageState.elements.map((el) => ({
+    elements: kept.map((el) => ({
       elementId: el.elementId,
       role: el.role,
       label: redactedIds.has(el.elementId) ? tokenByElement.get(el.elementId)! : el.label,
+      // Privacy classification outranks ordinary occupancy: anything the
+      // firewall redacted reports "redacted" regardless of whether it is
+      // actually empty or filled, so occupancy of a sensitive field is never
+      // disclosed. Non-editable elements carry no valueState at all.
+      ...(el.valueState
+        ? { valueState: (redactedIds.has(el.elementId) ? "redacted" : el.valueState) as ValueState }
+        : {}),
     })),
     fields,
   };
@@ -123,7 +186,8 @@ export interface WireSanitizedContext {
   task: string;
   page: string;
   url_origin: string;
-  elements: Array<{ element_id: number; role: string; label: string | null }>;
+  route_hint?: string;
+  elements: Array<{ element_id: number; role: string; label: string | null; value_state?: ValueState }>;
   fields: Record<string, string>;
   history?: StepRecord[];
 }
@@ -138,10 +202,13 @@ export function toWireSanitizedContext(context: SanitizedContext): WireSanitized
     task: context.task,
     page: context.page,
     url_origin: context.urlOrigin,
+    ...(context.routeHint ? { route_hint: context.routeHint } : {}),
+    // `value_state` is emitted only when present; `value` is never sent.
     elements: context.elements.map((el) => ({
       element_id: el.elementId,
       role: el.role,
       label: el.label,
+      ...(el.valueState ? { value_state: el.valueState } : {}),
     })),
     fields: context.fields,
   };
